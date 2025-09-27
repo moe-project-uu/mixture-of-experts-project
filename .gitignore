@@ -1,0 +1,18 @@
+
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+.venv/
+.env
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data & training outputs
+data/*
+!data/.gitkeep
+outputs/
+checkpoints/
+wandb/
