@@ -1,0 +1,13 @@
+torch
+torchvision
+torchaudio
+numpy
+scipy
+scikit-learn
+matplotlib
+seaborn
+tqdm
+pandas
+tensorboard
+lightning
+einops
