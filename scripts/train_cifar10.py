@@ -1,239 +1,181 @@
 """
-Train a CNN classifier for the CIFAR-10 dataset
-This is a dense baseline comparison to the MoE model
-Components of the script are:
-1. Data loading
-2. Model definition
-3. Training loop
-4. Evaluation
-5. Saving the model
-6. Loading the model
-7. Testing the model
+Train a CNN classifier for the CIFAR-10 dataset (dense baseline vs MoE)
+- Supports ResNet-18 or ResNet-50 with a CIFAR stem
+- Proper train/val split (45k/5k) and standard CIFAR transforms
+- SGD + momentum + weight decay
 """
 
-#imports
-import torch
-import torch.nn as nn
-import torch.optim
-import torchvision.datasets
-import torchvision.transforms
-from torch.utils.data import DataLoader
+# --- imports ---
+import os, random, numpy as np
+import torch, torch.nn as nn
+import torch.optim as optim
+import torchvision
+import torchvision.transforms as T
+from torch.utils.data import DataLoader, random_split
+from torchvision.models import resnet18, resnet50
 from tqdm import tqdm
-import os
-import random
-import numpy as np
 
+# --- hyperparameters ---
+BATCH_SIZE   = 128
+NUM_WORKERS  = 2
+EPOCHS       = 50
+LR           = 0.1
+MOMENTUM     = 0.9
+WEIGHT_DECAY = 5e-4
+DEVICE       = "cuda" if torch.cuda.is_available() else "cpu"
+SEED         = 42
+ARCH_DEPTH   = 18  # set to 50 for ResNet-50
 
-#hyperparameters
-BATCH_SIZE = 128
-NUM_WORKERS = 2
-EPOCHS = 50
-LEARNING_RATE = 0.001
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-SEED = 42
+# --- reproducibility / perf ---
+random.seed(SEED); np.random.seed(SEED)
+torch.manual_seed(SEED); torch.cuda.manual_seed_all(SEED)
+torch.backends.cudnn.benchmark = True  # speed; set False for strict determinism
 
-###########----------------------------------###########
-#dataset and data loader
-###########----------------------------------###########
-#transforms with augmentations, using CIFAR-10’s standard normalization
-transforms = torchvision.transforms.Compose([
-    torchvision.transforms.ToTensor(),
-    torchvision.transforms.Normalize(
-        mean=(0.4914, 0.4822, 0.4465),
-        std=(0.2470, 0.2435, 0.2616)
-    ),
-    # Optional augs:
-    # torchvision.transforms.RandomHorizontalFlip(),
-    # torchvision.transforms.RandomCrop(32, padding=4),
+# --- CIFAR transforms (AUGS BEFORE ToTensor/Normalize) ---
+mean = (0.4914, 0.4822, 0.4465)
+std  = (0.2470, 0.2435, 0.2616)
+
+train_tf = T.Compose([
+    T.RandomCrop(32, padding=4),
+    T.RandomHorizontalFlip(),
+    T.ToTensor(),
+    T.Normalize(mean, std),
 ])
-train_dataset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transforms)
-test_dataset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transforms)
 
-#train and test data loaders are used to iterate over the dataset in batches
-train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True,
-                          num_workers=NUM_WORKERS, pin_memory=True)
-test_loader  = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False,
-                          num_workers=NUM_WORKERS, pin_memory=True)
+val_test_tf = T.Compose([
+    T.ToTensor(),
+    T.Normalize(mean, std),
+])
 
+# --- datasets ---
+root = "./data"
+train_full = torchvision.datasets.CIFAR10(root=root, train=True,  download=True, transform=train_tf)
+test_set   = torchvision.datasets.CIFAR10(root=root, train=False, download=True, transform=val_test_tf)
 
-###########----------------------------------###########
-#Model definition: small CNN for CIFAR-10
-###########----------------------------------###########
+# split train into train/val (45k/5k)
+val_size = 5000
+train_size = len(train_full) - val_size
+train_set, val_set = random_split(train_full, [train_size, val_size], generator=torch.Generator().manual_seed(SEED))
 
-#size of CIFAR-10 images is 32x32x3
-class conv_block(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size, stride, padding):
-        super().__init__()
-        # common order: conv -> bn -> relu
-        self.conv = nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding)
-        self.bn = nn.BatchNorm2d(out_channels)
-        self.relu = nn.ReLU()
-        self.dropout = nn.Dropout(0.1)
+# --- dataloaders ---
+train_loader = DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=True,  num_workers=NUM_WORKERS, pin_memory=True)
+val_loader   = DataLoader(val_set,   batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS, pin_memory=True)
+test_loader  = DataLoader(test_set,  batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS, pin_memory=True)
 
-    def forward(self, x):
-        x = self.conv(x)
-        x = self.bn(x)
-        x = self.relu(x)
-        x = self.dropout(x)
-        return x
+# --- model helpers ---
+def resnet18_cifar(num_classes=10):
+    m = resnet18(weights=None)
+    m.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False)  # CIFAR stem
+    m.maxpool = nn.Identity()
+    m.fc = nn.Linear(512, num_classes)
+    return m
 
-class dense_block(nn.Module):
-    def __init__(self, in_features, out_features):
-        super().__init__()
-        self.fc = nn.Linear(in_features, out_features)
-        self.relu = nn.ReLU()
-        self.dropout = nn.Dropout(0.1)
+def resnet50_cifar(num_classes=10):
+    m = resnet50(weights=None)
+    m.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False)
+    m.maxpool = nn.Identity()
+    m.fc = nn.Linear(2048, num_classes)
+    return m
 
-    def forward(self, x):
-        x = self.fc(x)
-        x = self.relu(x)
-        x = self.dropout(x)
-        return x
+# pick model
+if ARCH_DEPTH == 18:
+    model = resnet18_cifar(num_classes=10).to(DEVICE)
+    arch_name = "resnet18"
+else:
+    model = resnet50_cifar(num_classes=10).to(DEVICE)
+    arch_name = "resnet50"
 
-class cnn_classifier(nn.Module):
-    def __init__(self, in_channels, out_channels):
-        super().__init__()
-        self.conv1 = conv_block(in_channels=in_channels, out_channels=32,  kernel_size=3, stride=1, padding=1) 
-        self.conv2 = conv_block(in_channels=32,          out_channels=64,  kernel_size=3, stride=1, padding=1)
-        self.pool1 = nn.MaxPool2d(2)  # 32 -> 16
+# --- loss & optimizer & (optional) scheduler ---
+criterion = nn.CrossEntropyLoss()  # you can try label_smoothing=0.1
+optimizer = optim.SGD(model.parameters(), lr=LR, momentum=MOMENTUM, weight_decay=WEIGHT_DECAY)
+scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[30, 40], gamma=0.1)  # good for 50 epochs
 
-        self.conv3 = conv_block(in_channels=64,          out_channels=128, kernel_size=3, stride=1, padding=1)
-        self.conv4 = conv_block(in_channels=128,         out_channels=256, kernel_size=3, stride=1, padding=1)
-        self.pool2 = nn.MaxPool2d(2)  # 16 -> 8 (now we have 256x8x8)
-
-        self.flatten = nn.Flatten()
-        self.fc1 = dense_block(in_features=256*8*8, out_features=128)
-        self.fc2 = nn.Linear(128, out_channels)  # final logits; no ReLU/Dropout
-
-    def forward(self, x):
-        x = self.conv1(x)
-        x = self.conv2(x)
-        x = self.pool1(x)
-
-        x = self.conv3(x)
-        x = self.conv4(x)
-        x = self.pool2(x)
-
-        x = self.flatten(x)
-        x = self.fc1(x)
-        x = self.fc2(x)
-        return x
-
-
-
-##########----------------------------------##########
-#Training + Evaluation Loops
-##########----------------------------------##########
-#set seed
-random.seed(SEED)
-np.random.seed(SEED)
-torch.manual_seed(SEED)
-torch.cuda.manual_seed_all(SEED)
-
-#loss and accuracy lists for plotting
-train_losses, train_accs = [], []
-val_losses, val_accs = [], []
-
-#model
-model = cnn_classifier(in_channels=3, out_channels=10)
-model.to(DEVICE)
-
-#loss function
-loss_fn = nn.CrossEntropyLoss()
-
-#optimizer
-optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-
-#helper: calculate accuracy from logits
+# --- metrics helpers ---
 def accuracy_from_logits(logits, targets):
     preds = logits.argmax(dim=1)
     correct = (preds == targets).sum().item()
-    return correct, targets.size(0) #targets.size(0) is the number of samples in the batch
+    return correct, targets.size(0)
 
-
-# per-epoch training + evaluation with metrics printing
+# --- training loop ---
 best_val_acc = 0.0
+train_losses, train_accs, val_losses, val_accs = [], [], [], []
 
-for epoch in range(EPOCHS):
-    # ---- TRAIN ----
+os.makedirs("checkpoints", exist_ok=True)
+ckpt_model_path = f"checkpoints/{arch_name}_cifar10.pt"
+ckpt_metrics_path = f"checkpoints/{arch_name}_metrics.pt"
+
+for epoch in range(1, EPOCHS + 1):
+    # train
     model.train()
-    train_loss_sum = 0.0
-    train_correct = 0
-    train_total = 0
-
-    pbar = tqdm(train_loader, total=len(train_loader), desc=f"Epoch {epoch+1}/{EPOCHS}") 
+    tr_loss_sum, tr_correct, tr_total = 0.0, 0, 0
+    pbar = tqdm(train_loader, desc=f"Epoch {epoch}/{EPOCHS}")
     for data, targets in pbar:
-        data = data.to(DEVICE, non_blocking=True)
-        targets = targets.to(DEVICE, non_blocking=True)
-
-        scores = model(data)
-        loss = loss_fn(scores, targets)
-
+        data, targets = data.to(DEVICE, non_blocking=True), targets.to(DEVICE, non_blocking=True)
         optimizer.zero_grad()
+        logits = model(data)
+        loss = criterion(logits, targets)
         loss.backward()
         optimizer.step()
 
-        # accumulate train metrics
-        train_loss_sum += loss.item()
-        correct, total = accuracy_from_logits(scores, targets)
-        train_correct += correct
-        train_total += total
+        tr_loss_sum += loss.item()
+        c, n = accuracy_from_logits(logits, targets)
+        tr_correct += c; tr_total += n
 
-    train_loss_avg = train_loss_sum / len(train_loader) #
-    train_acc = train_correct / train_total
+    train_loss = tr_loss_sum / len(train_loader)
+    train_acc = tr_correct / tr_total
 
-    # ---- EVAL ----
+    # validate
     model.eval()
-    val_loss_sum = 0.0
-    val_correct = 0
-    val_total = 0
+    va_loss_sum, va_correct, va_total = 0.0, 0, 0
     with torch.no_grad():
-        for data, targets in test_loader:
-            data = data.to(DEVICE)
-            targets = targets.to(DEVICE)
+        for data, targets in val_loader:
+            data, targets = data.to(DEVICE), targets.to(DEVICE)
+            logits = model(data)
+            loss = criterion(logits, targets)
+            va_loss_sum += loss.item()
+            c, n = accuracy_from_logits(logits, targets)
+            va_correct += c; va_total += n
 
-            scores = model(data)
-            loss = loss_fn(scores, targets)
+    val_loss = va_loss_sum / len(val_loader)
+    val_acc = va_correct / va_total
 
-            val_loss_sum += loss.item()
-            correct, total = accuracy_from_logits(scores, targets)
-            val_correct += correct
-            val_total += total
+    # record + print
+    train_losses.append(train_loss); train_accs.append(train_acc)
+    val_losses.append(val_loss);     val_accs.append(val_acc)
 
-    val_loss_avg = val_loss_sum / len(test_loader)
-    val_acc = val_correct / val_total
+    print(f"Epoch {epoch:03d}/{EPOCHS} | "
+          f"train_loss={train_loss:.4f} train_acc={train_acc*100:.2f}% | "
+          f"val_loss={val_loss:.4f} val_acc={val_acc*100:.2f}%")
 
-    # store epoch metrics for plotting later
-    train_losses.append(train_loss_avg)
-    train_accs.append(train_acc)
-    val_losses.append(val_loss_avg)
-    val_accs.append(val_acc)
+    # step scheduler
+    scheduler.step()
 
-    # ---- PRINT per-epoch summary ----
-    print(
-        f"Epoch {epoch+1:03d}/{EPOCHS} | "
-        f"train_loss={train_loss_avg:.4f} train_acc={train_acc*100:.2f}% | "
-        f"val_loss={val_loss_avg:.4f} val_acc={val_acc*100:.2f}%"
-    )
-
-    # save metrics snapshot
-    os.makedirs("checkpoints", exist_ok=True)
+    # save metrics every epoch
     torch.save(
-        {
-            "train_losses": train_losses,
-            "train_accs": train_accs,
-            "val_losses": val_losses,
-            "val_accs": val_accs,
-        },
-        "checkpoints/cifar10_metrics.pt",
+        {"train_losses": train_losses, "train_accs": train_accs,
+         "val_losses": val_losses, "val_accs": val_accs},
+        ckpt_metrics_path,
     )
 
-    # save best checkpoint
+    # save best model on val
     if val_acc > best_val_acc:
         best_val_acc = val_acc
-        os.makedirs('checkpoints', exist_ok=True)
-        torch.save(
-            {'model': model.state_dict(), 'val_acc': best_val_acc},
-            'checkpoints/cifar10_cnn.pt'
-        )
-        print(f"Saved checkpoint: val_acc={best_val_acc*100:.2f}%")
+        torch.save({"model": model.state_dict(), "val_acc": best_val_acc}, ckpt_model_path)
+        print(f"Saved checkpoint: {arch_name} val_acc={best_val_acc*100:.2f}%")
+
+# --- final test evaluation (once) ---
+model.load_state_dict(torch.load(ckpt_model_path, map_location=DEVICE)["model"])
+model.eval()
+te_correct, te_total, te_loss_sum = 0, 0, 0.0
+with torch.no_grad():
+    for data, targets in test_loader:
+        data, targets = data.to(DEVICE), targets.to(DEVICE)
+        logits = model(data)
+        loss = criterion(logits, targets)
+        te_loss_sum += loss.item()
+        c, n = accuracy_from_logits(logits, targets)
+        te_correct += c; te_total += n
+
+test_loss = te_loss_sum / len(test_loader)
+test_acc  = te_correct / te_total
+print(f"[TEST] loss={test_loss:.4f} acc={test_acc*100:.2f}%")
