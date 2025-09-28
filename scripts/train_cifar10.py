@@ -93,17 +93,17 @@ class dense_block(nn.Module):
 class cnn_classifier(nn.Module):
     def __init__(self, in_channels, out_channels):
         super().__init__()
-        self.conv1 = conv_block(in_channels=in_channels, out_channels=32,  kernel_size=3, stride=1, padding=1)
+        self.conv1 = conv_block(in_channels=in_channels, out_channels=32,  kernel_size=3, stride=1, padding=1) 
         self.conv2 = conv_block(in_channels=32,          out_channels=64,  kernel_size=3, stride=1, padding=1)
         self.pool1 = nn.MaxPool2d(2)  # 32 -> 16
 
         self.conv3 = conv_block(in_channels=64,          out_channels=128, kernel_size=3, stride=1, padding=1)
         self.conv4 = conv_block(in_channels=128,         out_channels=256, kernel_size=3, stride=1, padding=1)
-        self.pool2 = nn.MaxPool2d(2)  # 16 -> 8
+        self.pool2 = nn.MaxPool2d(2)  # 16 -> 8 (now we have 256x8x8)
 
         self.flatten = nn.Flatten()
         self.fc1 = dense_block(in_features=256*8*8, out_features=128)
-        self.fc2 = dense_block(in_features=128,     out_features=out_channels)
+        self.fc2 = nn.Linear(128, out_channels)  # final logits; no ReLU/Dropout
 
     def forward(self, x):
         x = self.conv1(x)
@@ -130,6 +130,10 @@ np.random.seed(SEED)
 torch.manual_seed(SEED)
 torch.cuda.manual_seed_all(SEED)
 
+#loss and accuracy lists for plotting
+train_losses, train_accs = [], []
+val_losses, val_accs = [], []
+
 #model
 model = cnn_classifier(in_channels=3, out_channels=10)
 model.to(DEVICE)
@@ -144,7 +148,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 def accuracy_from_logits(logits, targets):
     preds = logits.argmax(dim=1)
     correct = (preds == targets).sum().item()
-    return correct, targets.size(0)
+    return correct, targets.size(0) #targets.size(0) is the number of samples in the batch
 
 
 # per-epoch training + evaluation with metrics printing
@@ -157,7 +161,7 @@ for epoch in range(EPOCHS):
     train_correct = 0
     train_total = 0
 
-    pbar = tqdm(train_loader, total=len(train_loader), desc=f"Epoch {epoch+1}/{EPOCHS}")
+    pbar = tqdm(train_loader, total=len(train_loader), desc=f"Epoch {epoch+1}/{EPOCHS}") 
     for data, targets in pbar:
         data = data.to(DEVICE, non_blocking=True)
         targets = targets.to(DEVICE, non_blocking=True)
@@ -175,7 +179,7 @@ for epoch in range(EPOCHS):
         train_correct += correct
         train_total += total
 
-    train_loss_avg = train_loss_sum / len(train_loader)
+    train_loss_avg = train_loss_sum / len(train_loader) #
     train_acc = train_correct / train_total
 
     # ---- EVAL ----
@@ -199,12 +203,31 @@ for epoch in range(EPOCHS):
     val_loss_avg = val_loss_sum / len(test_loader)
     val_acc = val_correct / val_total
 
+    # store epoch metrics for plotting later
+    train_losses.append(train_loss_avg)
+    train_accs.append(train_acc)
+    val_losses.append(val_loss_avg)
+    val_accs.append(val_acc)
+
     # ---- PRINT per-epoch summary ----
     print(
         f"Epoch {epoch+1:03d}/{EPOCHS} | "
         f"train_loss={train_loss_avg:.4f} train_acc={train_acc*100:.2f}% | "
         f"val_loss={val_loss_avg:.4f} val_acc={val_acc*100:.2f}%"
     )
+
+    # save metrics snapshot
+    os.makedirs("checkpoints", exist_ok=True)
+    torch.save(
+        {
+            "train_losses": train_losses,
+            "train_accs": train_accs,
+            "val_losses": val_losses,
+            "val_accs": val_accs,
+        },
+        "checkpoints/cifar10_metrics.pt",
+    )
+
     # save best checkpoint
     if val_acc > best_val_acc:
         best_val_acc = val_acc
