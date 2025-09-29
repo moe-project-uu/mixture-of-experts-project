@@ -2,7 +2,7 @@ import numpy as np
 import imageio
 import glob
 #taken from the Deeplearning course at Uppsala University
-def load_mnist():
+def load_mnist(testOnly = False):
     # Loads the MNIST dataset from png images
     #
     # Return
@@ -29,7 +29,8 @@ def load_mnist():
     # create list of image objects
     train_images = []
     train_labels = []    
-    
+    if testOnly:
+        return None, None, np.array(test_images).reshape(-1,784)/255.0, np.array(test_labels)
     for label in range(NUM_LABELS):
         for image_path in glob.glob("../../data/MNIST/Train/" + str(label) + "/*.png"):
             image = imageio.imread(image_path)

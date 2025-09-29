@@ -16,7 +16,12 @@ Components of the script are:
 import numpy as np 
 import random
 import os
-import load_mnist
+import sys
+#adding current directory to path so we can import load_mnist
+# dir = os.path.abspath(".")  
+# if dir not in sys.path:
+#     sys.path.append(dir)
+from . import load_mnist
 import time
 import torch
 
@@ -30,20 +35,22 @@ LEARNING_RATE = 0.001
 #Data loading
 ##########----------------------------------###########
 
-#get the train and test data from the dataset
-xtrain,ytrain,xtest,ytest = load_mnist.load_mnist()
-#converting to Tensors for easy PyTorch implementation and reshape for a CNN
-xtrain = torch.Tensor(xtrain).reshape(60000, 1,28,28).to(DEVICE)
-ytrain = torch.Tensor(ytrain).to(DEVICE)
-xtest = torch.Tensor(xtest).reshape(10000, 1,28,28).to(DEVICE)
-ytest = torch.Tensor(ytest).to(DEVICE)
-#first we want to put our data in a pytorch dataset so we can mini batch and enumerate through it later more easily
-train_dataset = torch.utils.data.TensorDataset(xtrain, ytrain)
-test_dataset = torch.utils.data.TensorDataset(xtest, ytest)
-#Making a dataloader for this specific CNN which is a wrapper around the Dataset for easy use
-train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True)
-#make the batch size for the test DataLoader the size of the dataset for evaluation.
-test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size = ytest.shape[0], shuffle=True)
+def get_data():
+    #get the train and test data from the dataset
+    xtrain,ytrain,xtest,ytest = load_mnist.load_mnist()
+    #converting to Tensors for easy PyTorch implementation and reshape for a CNN
+    xtrain = torch.Tensor(xtrain).reshape(60000, 1,28,28).to(DEVICE)
+    ytrain = torch.Tensor(ytrain).to(DEVICE)
+    xtest = torch.Tensor(xtest).reshape(10000, 1,28,28).to(DEVICE)
+    ytest = torch.Tensor(ytest).to(DEVICE)
+    #first we want to put our data in a pytorch dataset so we can mini batch and enumerate through it later more easily
+    train_dataset = torch.utils.data.TensorDataset(xtrain, ytrain)
+    test_dataset = torch.utils.data.TensorDataset(xtest, ytest)
+    #Making a dataloader for this specific CNN which is a wrapper around the Dataset for easy use
+    train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True)
+    #make the batch size for the test DataLoader the size of the dataset for evaluation.
+    test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size = ytest.shape[0], shuffle=True)
+    return train_loader, test_loader
 
 #calculating the accuracy given outputs not softmaxed and labels one hot encoding used for evaluation during training and testing
 def calculate_accuracy(outputs, labels):
@@ -157,35 +164,44 @@ def training_loop(train_loader, test_loader, num_epochs, model, loss_function, o
 ##########----------------------------------###########
 #Training the model
 ##########----------------------------------###########
-random.seed(SEED)
-np.random.seed(SEED)
-torch.manual_seed(SEED)
-torch.cuda.manual_seed_all(SEED)
+def train_mnist():
+    #get the data
+    train_loader, test_loader = get_data()
+    #set the random seeds for reproducibility
+    random.seed(SEED)
+    np.random.seed(SEED)
+    torch.manual_seed(SEED)
+    torch.cuda.manual_seed_all(SEED)
 
-#Make the CNN neural netowrk model
-model = MNIST_CNN().to(DEVICE)
-#Our loss function will be cross entropy since we are getting a probability distribution
-loss = torch.nn.CrossEntropyLoss()
-#Here we are going to use classic stochastic gradient descent without any special optimizations since we will change this later
-optimizer = torch.optim.Adam(model.parameters(), lr= LEARNING_RATE)
+    #Make the CNN neural netowrk model
+    model = MNIST_CNN().to(DEVICE)
+    #Our loss function will be cross entropy since we are getting a probability distribution
+    loss = torch.nn.CrossEntropyLoss()
+    #Here we are going to use classic stochastic gradient descent without any special optimizations since we will change this later
+    optimizer = torch.optim.Adam(model.parameters(), lr= LEARNING_RATE)
 
-#find the start time
-start = time.time()
+    #find the start time
+    start = time.time()
 
-#run the training loop
-training_loss, training_accuracy, test_loss, test_accuracy = training_loop(train_loader, test_loader, 
-EPOCHS, model, loss, optimizer)
+    #run the training loop
+    training_loss, training_accuracy, test_loss, test_accuracy = training_loop(train_loader, test_loader, 
+    EPOCHS, model, loss, optimizer)
 
-#end time and get the total time
-end= time.time()
-total_time = end - start
+    #end time and get the total time
+    end= time.time()
+    total_time = end - start
 
-# save final model
-os.makedirs('checkpoints', exist_ok=True)
-torch.save(
-    {'model': model.state_dict(), 'test_accuracy': test_accuracy, 'test_loss': test_loss, 
-     'training_accuracy': training_accuracy, 'training_loss': training_loss, 'total_time': total_time,
-     'optimizer': optimizer.state_dict()},
-    'checkpoints/MNIST.pt'
-)
-print(f"Saved checkpoint to checkpoints/MNIST.pt")
+    # save final model
+    os.makedirs('checkpoints', exist_ok=True)
+    torch.save(
+        {'model': model.state_dict(), 'test_accuracy': test_accuracy, 'test_loss': test_loss, 
+        'training_accuracy': training_accuracy, 'training_loss': training_loss, 'total_time': total_time,
+        'optimizer': optimizer.state_dict()},
+        'checkpoints/MNIST.pt'
+    )
+    print(f"Saved checkpoint to checkpoints/MNIST.pt")
+
+if __name__=="__main__":
+    print(os.getcwd())
+    print(sys.path)
+    train_mnist()
