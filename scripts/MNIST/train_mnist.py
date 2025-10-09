@@ -17,10 +17,6 @@ import numpy as np
 import random
 import os
 import sys
-#adding current directory to path so we can import load_mnist
-# dir = os.path.abspath(".")  
-# if dir not in sys.path:
-#     sys.path.append(dir)
 from . import load_mnist
 import time
 import torch
