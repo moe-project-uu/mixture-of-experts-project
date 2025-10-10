@@ -18,8 +18,10 @@ def load_mnist(testOnly = False):
     test_images = []
     test_labels = []    
     
+    print("Retrieving test images")
     for label in range(NUM_LABELS):
         for image_path in glob.glob("../../data/MNIST/Test/" + str(label) + "/*.png"):
+            print("adding image")
             image = imageio.imread(image_path)
             test_images.append(image)
             letter = [0 for _ in range(0,NUM_LABELS)]    
@@ -31,6 +33,7 @@ def load_mnist(testOnly = False):
     train_labels = []    
     if testOnly:
         return None, None, np.array(test_images).reshape(-1,784)/255.0, np.array(test_labels)
+    print("Retrieving train images")
     for label in range(NUM_LABELS):
         for image_path in glob.glob("../../data/MNIST/Train/" + str(label) + "/*.png"):
             image = imageio.imread(image_path)

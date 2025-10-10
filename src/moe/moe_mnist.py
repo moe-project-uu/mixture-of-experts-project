@@ -15,7 +15,7 @@ from functools import wraps
 from tqdm import tqdm
 
 # Add scripts folder path so I can get load_mnist
-repo_root = os.path.abspath("..","..")  # two levels up from /src/moe/
+repo_root = os.path.abspath(os.path.join("..", ".."))
 if repo_root not in sys.path:
     sys.path.insert(0, repo_root)
 from scripts.MNIST.load_mnist import load_mnist
@@ -27,7 +27,7 @@ BATCH_SIZE = 128
 EPOCHS = 50
 LEARNING_RATE = 0.001
 
-#taken from APML project year 2025 so we only need to load in the dataset once
+#taken from APML project HT 2025 so we only need to load in the dataset once
 #will make it faster for testing I hope
 def disk_memoize(cache_dir="cache_mnist"):
     """
