@@ -34,6 +34,7 @@ parser.add_argument("--weight_decay", type=float, default=5e-4)
 parser.add_argument("--ff_width", type=int, default=512)
 parser.add_argument("--FF_layer", type=str, default="Dense", choices=["Dense", "SoftMoE", "SparseMoE", "HardMoE"])
 
+
 def main(args):
     # --- hyperparameters ---
     BATCH_SIZE   = args.batch_size
@@ -47,10 +48,6 @@ def main(args):
     FF_WIDTH     = args.ff_width # hidden width of the dense head
     FF_LAYER     = args.FF_layer
 
-    # --- reproducibility / perf ---
-    random.seed(SEED); np.random.seed(SEED)
-    torch.manual_seed(SEED); torch.cuda.manual_seed_all(SEED)
-    torch.backends.cudnn.benchmark = True  # speed; set False for strict determinism
     # --- reproducibility / perf ---
     random.seed(SEED); np.random.seed(SEED)
     torch.manual_seed(SEED); torch.cuda.manual_seed_all(SEED)
@@ -89,6 +86,7 @@ def main(args):
     ##--- Dense Head with width WIDTH (default: 512)---##
     class DenseHead(nn.Module):
         """Dense head with width WIDTH (default: 512)."""
+        head_name = "Dense"
         def __init__(self, in_dim=512, width=FF_WIDTH, num_classes=10):
             super().__init__()
             self.fc = nn.Sequential(
@@ -116,21 +114,35 @@ def main(args):
             return self.head(h, return_gate=return_gate)
     model = Classifier(backbone, head).to(DEVICE)
 
+    # --- generic head suffix for checkpoint names ---
+    def head_id_suffix(head):
+        """
+        Return a short ID string for the head. Works for any head type.
+        - Dense head: ''
+        - MoE head (if it has these attrs): '-E<num_experts>_K<k>_CF<capacity>'
+        """
+        parts = []
+        for attr, short in [("num_experts", "E"), ("k", "K"), ("capacity_factor", "CF")]:
+            if hasattr(head, attr):
+                parts.append(f"{short}{getattr(head, attr)}")
+        return f"-{'_'.join(parts)}" if parts else ""
+
+    # DEFINE CHECKPOINT PATHS (head-agnostic)4
+    # Examples:
+    #   Dense:   checkpoints/Dense/W512-S42/
+    #   SparseMoE (E=8,K=2,CF=1.25): checkpoints/SparseMoE/W512-S42-E8_K2_CF1.25/
+    run_tag  = f"W{FF_WIDTH}-S{SEED}{head_id_suffix(head)}" #this is the checkpoint name
+    save_dir = os.path.join("checkpoints", FF_LAYER, run_tag) #checkpoint path
+    os.makedirs(save_dir, exist_ok=True) #create the checkpoint path if it doesn't exist
+
+    ckpt_model_path   = os.path.join(save_dir, "model.pt") # output:checkpoints/Dense/W512-S42-E8_K2_CF1.25/model.pt
+    ckpt_metrics_path = os.path.join(save_dir, "metrics.pt") # output:checkpoints/Dense/W512-S42-E8_K2_CF1.25/metrics.pt
 
     # --- loss & optimizer & (optional) scheduler ---
     criterion = nn.CrossEntropyLoss()  # you can try label_smoothing=0.1
     optimizer = optim.SGD(model.parameters(), lr=LR, momentum=MOMENTUM, weight_decay=WEIGHT_DECAY)
     scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[30, 40], gamma=0.1)  # good for 50 epochs
-    # --- loss & optimizer & (optional) scheduler ---
-    criterion = nn.CrossEntropyLoss()  # you can try label_smoothing=0.1
-    optimizer = optim.SGD(model.parameters(), lr=LR, momentum=MOMENTUM, weight_decay=WEIGHT_DECAY)
-    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[30, 40], gamma=0.1)  # good for 50 epochs
 
-    # --- metrics helpers ---
-    def accuracy_from_logits(logits, targets):
-        preds = logits.argmax(dim=1)
-        correct = (preds == targets).sum().item()
-        return correct, targets.size(0)
     # --- metrics helpers ---
     def accuracy_from_logits(logits, targets):
         preds = logits.argmax(dim=1)
@@ -143,23 +155,14 @@ def main(args):
     train_losses, train_accs, test_losses, test_accs = [], [], [], []
     ff_layer = FF_LAYER
     ff_width = FF_WIDTH
+ 
+
     # --- checkpoint paths ---
-    os.makedirs("checkpoints", exist_ok=True)
-    ckpt_model_path = f"checkpoints/{ff_layer}/{ff_width}_cifar10.pt"
-    ckpt_metrics_path = f"checkpoints/{ff_layer}/{ff_width}_metrics.pt"
+    save_dir = os.path.join("checkpoints", FF_LAYER)   # e.g., checkpoints/Dense
+    os.makedirs(save_dir, exist_ok=True)
+    ckpt_model_path   = os.path.join(save_dir, f"{FF_WIDTH}_cifar10.pt")
+    ckpt_metrics_path = os.path.join(save_dir, f"{FF_WIDTH}_metrics.pt")
 
-    for epoch in range(1, EPOCHS + 1):
-        # train
-        model.train()
-        tr_loss_sum, tr_correct, tr_total = 0.0, 0, 0
-        pbar = tqdm(train_loader, desc=f"Epoch {epoch}/{EPOCHS}")
-        for data, targets in pbar:
-            data, targets = data.to(DEVICE, non_blocking=pin_memory), targets.to(DEVICE, non_blocking=pin_memory)
-            optimizer.zero_grad(set_to_none=True)
-            logits = model(data)
-            loss = criterion(logits, targets)
-            loss.backward()
-            optimizer.step()
     for epoch in range(1, EPOCHS + 1):
         # train
         model.train()
@@ -176,12 +179,8 @@ def main(args):
             tr_loss_sum += loss.item()
             c, n = accuracy_from_logits(logits, targets)
             tr_correct += c; tr_total += n
-            tr_loss_sum += loss.item()
-            c, n = accuracy_from_logits(logits, targets)
-            tr_correct += c; tr_total += n
 
-        train_loss = tr_loss_sum / len(train_loader)
-        train_acc = tr_correct / tr_total
+
         train_loss = tr_loss_sum / len(train_loader)
         train_acc = tr_correct / tr_total
 
@@ -223,8 +222,6 @@ def main(args):
 
         # step scheduler
         scheduler.step()
-        # step scheduler
-        scheduler.step()
 
         # save metrics every epoch
         torch.save(
@@ -235,7 +232,12 @@ def main(args):
 
 
     # --- final test evaluation (once more) ---
-    model.load_state_dict(torch.load(ckpt_model_path, map_location=DEVICE)["model"])
+    if os.path.exists(ckpt_model_path):
+        state = torch.load(ckpt_model_path, map_location=DEVICE)
+        model.load_state_dict(state["model"])
+    else:
+        print("No checkpoint found; using current model for final test.")
+
     model.eval()
     te_correct, te_total, te_loss_sum = 0, 0, 0.0
     with torch.no_grad():
