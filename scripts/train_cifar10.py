@@ -34,6 +34,10 @@ parser.add_argument("--learning_rate", type=float, default=0.1)
 parser.add_argument("--momentum", type=float, default=0.9)
 parser.add_argument("--weight_decay", type=float, default=5e-4)
 parser.add_argument("--ff_width", type=int, default=512)
+parser.add_argument("--num_experts", type=int, default=4)
+parser.add_argument("--temperature", type=float, default=1)
+parser.add_argument("--dropout_p", type=float, default=0.1)
+parser.add_argument("--hidden_mult", type=float, default=2)
 parser.add_argument("--FF_layer", type=str, default="Dense", choices=["Dense", "SoftMoE", "SparseMoE", "HardMoE"])
 
 
@@ -49,8 +53,12 @@ def main(args):
     SEED         = 42
     FF_WIDTH     = args.ff_width # hidden width of the dense head
     FF_LAYER     = args.FF_layer
+    NUM_EXPERTS  = args.num_experts
+    TEMPERATURE  = args.temperature
+    DROPOUT_P    = args.dropout_p
+    HIDDEN_MULT  = args.hidden_mult
 
-    # --- reproducibility / perf ---
+    # --- reproducibility / performance ---
     random.seed(SEED); np.random.seed(SEED)
     torch.manual_seed(SEED); torch.cuda.manual_seed_all(SEED)
     torch.backends.cudnn.benchmark = True  # speed; set False for strict determinism
@@ -72,12 +80,23 @@ def main(args):
 
     # --- build model (near where you had backbone/head/classifier) ---
     backbone = FeatureBackbone().to(DEVICE)
-    head = build_head(
-        args.FF_layer,                    # "Dense" for now; Soft/Sparse/Hard later
-        in_dim=backbone.output_dim,       #512 
-        width=FF_WIDTH,                   # only used by Dense
-        num_classes=10,
-    ).to(DEVICE)
+    if FF_LAYER == "Dense":
+        head = build_head(
+            FF_LAYER,                    # "Dense" for now; Soft/Sparse/Hard later
+            in_dim=backbone.output_dim,       #512 
+            width=FF_WIDTH,                   # only used by Dense
+            num_classes=10,
+        ).to(DEVICE)
+    elif FF_LAYER == "SoftMoE":
+        head = build_head(
+            FF_LAYER,                    # "SoftMoE" for now; Sparse/Hard later
+            in_dim=backbone.output_dim,       #512 
+            num_classes=10,
+            num_experts=NUM_EXPERTS,
+            hidden_mult=HIDDEN_MULT,
+            temperature=TEMPERATURE,
+            dropout_p=DROPOUT_P,
+        ).to(DEVICE)
 
     class Classifier(nn.Module):
         def __init__(self, backbone, head): 
@@ -141,8 +160,11 @@ def main(args):
             ##################
             if FF_LAYER == "Dense":
                 logits = model(data, return_gate=False)
+            elif FF_LAYER == "SoftMoE":
+                logits, probs, _, _ = model(data, return_gate=True) #sel_idx, aux_loss both set to none for now
             else:
-                logits, probs, topk_idx, aux_loss = model(data, return_gate=True)
+                raise NotImplementedError
+                #logits, probs, sel_idx, aux_loss = model(data, return_gate=True) 
             ##################
             loss = criterion(logits, targets)
             loss.backward()
@@ -161,10 +183,16 @@ def main(args):
         with torch.no_grad():
             for data, targets in val_loader:
                 data, targets = data.to(DEVICE), targets.to(DEVICE)
+                ##################
                 if FF_LAYER == "Dense":
                     logits = model(data, return_gate=False)
+                elif FF_LAYER == "SoftMoE":
+                    logits, probs, _, _ = model(data, return_gate=True) #sel_idx, aux_loss both set to none for now
                 else:
-                    logits, probs, topk_idx, aux_loss = model(data, return_gate=True)
+                    raise NotImplementedError
+                    #logits, probs, sel_idx, aux_loss = model(data, return_gate=True) 
+                ##################
+                
                 loss = criterion(logits, targets)
                 val_loss_sum += loss.item()
                 c, n = accuracy_from_logits(logits, targets)
