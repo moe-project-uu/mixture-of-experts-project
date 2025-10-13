@@ -9,19 +9,12 @@ Train a CNN classifier for the CIFAR-10 dataset (dense baseline vs MoE variants)
 
 # --- imports ---
 import os, random, numpy as np
-import sys
-import json, csv
-
-# Add project root to Python path
-#project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) 
-#sys.path.insert(0, project_root) #add the project root to the python path
-
 import torch, torch.nn as nn
 import torch.optim as optim
 from tqdm import tqdm
 import argparse
 from moe.data.cifar10_data import build_cifar10_train_val_test, CIFAR10_STATS
-
+#project imports
 from moe.models.backbones import FeatureBackbone
 from moe.heads.factory import build_head
 
@@ -57,6 +50,16 @@ def main(args):
     TEMPERATURE  = args.temperature
     DROPOUT_P    = args.dropout_p
     HIDDEN_MULT  = args.hidden_mult
+
+    # --- checkpoint path (general) ---
+    if FF_LAYER == "Dense":
+        run_tag = f"E{EPOCHS}"
+    else:
+        run_tag = f"E{EPOCHS}-X{NUM_EXPERTS}"  # X = num_experts
+
+    ckpt_dir = os.path.join("checkpoints", FF_LAYER, run_tag)
+    os.makedirs(ckpt_dir, exist_ok=True)
+    ckpt_model_path = os.path.join(ckpt_dir, "model.pt")
 
     # --- reproducibility / performance ---
     random.seed(SEED); np.random.seed(SEED)
@@ -97,6 +100,8 @@ def main(args):
             temperature=TEMPERATURE,
             dropout_p=DROPOUT_P,
         ).to(DEVICE)
+    else:
+        raise NotImplementedError(f"{FF_LAYER} not implemented yet")
 
     class Classifier(nn.Module):
         def __init__(self, backbone, head): 
@@ -109,29 +114,6 @@ def main(args):
 
     model = Classifier(backbone, head).to(DEVICE)
 
-    # --- generic head suffix for checkpoint names ---
-    def head_id_suffix(head):
-        """
-        Return a short ID string for the head. Works for any head type.
-        - Dense head: ''
-        - MoE head (if it has these attrs): '-E<num_experts>_K<k>_CF<capacity>'
-        """
-        parts = []
-        for attr, short in [("num_experts", "E"), ("k", "K"), ("capacity_factor", "CF")]:
-            if hasattr(head, attr):
-                parts.append(f"{short}{getattr(head, attr)}")
-        return f"-{'_'.join(parts)}" if parts else ""
-
-    # DEFINE CHECKPOINT PATHS (head-agnostic)
-    # Examples:
-    #   Dense:   checkpoints/Dense/W512-S42/
-    #   SparseMoE (E=8,K=2,CF=1.25): checkpoints/SparseMoE/W512-S42-E8_K2_CF1.25/
-    run_tag  = f"W{FF_WIDTH}-S{SEED}{head_id_suffix(head)}" #this is the checkpoint name
-    save_dir = os.path.join("checkpoints", FF_LAYER, run_tag) #checkpoint path
-    os.makedirs(save_dir, exist_ok=True) #create the checkpoint path if it doesn't exist
-
-    ckpt_model_path   = os.path.join(save_dir, "model.pt") # output:checkpoints/Dense/W512-S42-E8_K2_CF1.25/model.pt
-    ckpt_metrics_path = os.path.join(save_dir, "metrics.pt") # output:checkpoints/Dense/W512-S42-E8_K2_CF1.25/metrics.pt
 
     # --- loss & optimizer & scheduler ---
     criterion = nn.CrossEntropyLoss()  # you can try label_smoothing=0.1
@@ -149,7 +131,21 @@ def main(args):
     best_train_epoch, best_val_epoch = None, None   # ETT(Ma), ETT(Ga)
     train_losses, train_accs, val_losses, val_accs = [], [], [], []   # for plotting
 
+    # --- gating metrics history (SoftMoE only) ---
+    history = {
+        "train_loss": [], "train_acc": [],
+        "val_loss":   [], "val_acc":   [],
+        # SoftMoE-specific:
+        "util_per_epoch": [],   # utilization per epoch.. list of np arrays shape (E,)
+        "entropy_per_epoch": [] # entropy per epoch.. list of floats
+    }
+
     for epoch in range(1, EPOCHS + 1):
+        # reset per-epoch accumulators for gating stats
+        if FF_LAYER == "SoftMoE":
+            util_sum = torch.zeros(NUM_EXPERTS, device=DEVICE) #utilization sum
+            ent_sum = 0.0 #entropy sum
+            count_samples = 0 
         # train
         model.train()
         tr_loss_sum, tr_correct, tr_total = 0.0, 0, 0
@@ -162,6 +158,14 @@ def main(args):
                 logits = model(data, return_gate=False)
             elif FF_LAYER == "SoftMoE":
                 logits, probs, _, _ = model(data, return_gate=True) #sel_idx, aux_loss both set to none for now
+                # probs: (B, E)
+                B = probs.size(0)
+                util_sum += probs.sum(dim=0)  # sum over batch for each expert
+                # per-sample entropy: -(p * log p).sum(-1), then sum over batch
+                ent_batch = -(probs * (probs.clamp_min(1e-8).log())).sum(dim=1)  # (B,)
+                ent_sum += ent_batch.sum().item()
+                count_samples += B
+
             else:
                 raise NotImplementedError
                 #logits, probs, sel_idx, aux_loss = model(data, return_gate=True) 
@@ -176,6 +180,17 @@ def main(args):
 
         train_loss = tr_loss_sum / len(train_loader)
         train_acc = tr_correct / tr_total
+        # record generic learning curves
+        history["train_loss"].append(train_loss)
+        history["train_acc"].append(train_acc)
+
+        # record SoftMoE gating stats per epoch
+        if FF_LAYER == "SoftMoE" and count_samples > 0:
+            util_epoch = (util_sum / count_samples).detach().cpu().numpy()  # shape (E,)
+            H_epoch = ent_sum / count_samples 
+            history["util_per_epoch"].append(util_epoch)
+            history["entropy_per_epoch"].append(H_epoch)
+
 
         # --- validation ---
         model.eval()
@@ -200,6 +215,8 @@ def main(args):
 
         val_loss = val_loss_sum / len(val_loader)
         val_acc = val_correct / val_total
+        history["val_loss"].append(val_loss)
+        history["val_acc"].append(val_acc)
 
         # record per epoch stats
         train_losses.append(train_loss); train_accs.append(train_acc)
@@ -218,17 +235,14 @@ def main(args):
             best_val_acc = val_acc
             best_val_epoch = epoch
             torch.save({"model": model.state_dict(), "val_acc": best_val_acc}, ckpt_model_path)
-            print(f"Saved checkpoint: {FF_LAYER} {FF_WIDTH} val_acc={best_val_acc*100:.2f}%")
+            print(f"Saved checkpoint: {FF_LAYER} val_acc={best_val_acc*100:.2f}%")
+
 
         # step scheduler
         scheduler.step()
 
-        # save metrics every epoch
-        torch.save(
-            {"train_losses": train_losses, "train_accs": train_accs,
-             "val_losses": val_losses, "val_accs": val_accs},
-            ckpt_metrics_path,
-        )
+    # save metrics for plotting later (optional)
+    torch.save(history, os.path.join(ckpt_dir, "metrics.pt"))
 
     # --- final test evaluation (once more, on best-val model) ---
     if os.path.exists(ckpt_model_path):
@@ -253,37 +267,25 @@ def main(args):
     print(f"[FINAL TEST] loss={test_loss:.4f} acc={test_acc*100:.2f}%")
 
     print("\n=== Summary ===")
-    print(f"M_A  (max train acc): {best_train_acc*100:.2f}%  at epoch {best_train_epoch}")
-    print(f"G_A  (max val  acc): {best_val_acc*100:.2f}%  at epoch {best_val_epoch}")
-    print(f"ETT(M_A) = {best_train_epoch},  ETT(G_A) = {best_val_epoch}")
-
-    # --- save a compact summary for sweep aggregation ---
-    summary = {
-        "ff_layer": FF_LAYER,
-        "width": FF_WIDTH,
-        "Ma": float(best_train_acc),
-        "ETT_Ma": int(best_train_epoch),
-        "Ga": float(best_val_acc),          # best val accuracy
-        "ETT_Ga": int(best_val_epoch),      # epoch of best val accuracy
-        "final_test_acc": float(test_acc),  # test acc of best-val model
-        "final_test_loss": float(test_loss),
-    }
-
-    with open(os.path.join(save_dir, "summary.json"), "w") as f:
-        json.dump(summary, f, indent=2)
-
-    sweep_csv = os.path.join("checkpoints", FF_LAYER, "sweep.csv")
-    write_header = not os.path.exists(sweep_csv)
-    with open(sweep_csv, "a", newline="") as f:
-        writer = csv.DictWriter(
-            f,
-            fieldnames=["ff_layer", "width", "Ma", "ETT_Ma", "Ga", "ETT_Ga", "final_test_acc", "final_test_loss"]
-        )
-        if write_header:
-            writer.writeheader()
-        writer.writerow(summary)
-
-    ######----------------------------------------#####
+    if FF_LAYER == "Dense":
+        print(f"Width {FF_WIDTH}: ")
+        print(f"M_A  (max train acc): {best_train_acc*100:.2f}%  at epoch {best_train_epoch}")
+        print(f"G_A  (max val  acc): {best_val_acc*100:.2f}%  at epoch {best_val_epoch}")
+        print(f"ETT(M_A) = {best_train_epoch},  ETT(G_A) = {best_val_epoch}")
+    elif FF_LAYER == "SoftMoE":
+        expert_hidden = int(HIDDEN_MULT * backbone.output_dim)
+        total_width   = NUM_EXPERTS * expert_hidden
+        print(f"num_experts {NUM_EXPERTS}")
+        print(f"expert_width {expert_hidden}")
+        print(f"total_width  {total_width}")
+        print(f"M_A  (max train acc): {best_train_acc*100:.2f}%  at epoch {best_train_epoch}")
+        print(f"G_A  (max val  acc): {best_val_acc*100:.2f}%  at epoch {best_val_epoch}")
+        print(f"ETT(M_A) = {best_train_epoch},  ETT(G_A) = {best_val_epoch}")
+    else:
+        raise NotImplementedError
+    
+    return history
+#### -----  End of main function ----- ####
 
 
 if __name__ == "__main__":

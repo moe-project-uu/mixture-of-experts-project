@@ -46,7 +46,7 @@ class SoftMoEHead(BaseHead):
     def __init__(
         self,
         in_dim: int,
-        num_classes: int,
+        num_classes: int = 10,
         num_experts: int = 4,
         hidden_mult: float = 2.0,
         temperature: float = 1.0,
@@ -58,14 +58,19 @@ class SoftMoEHead(BaseHead):
         self.hidden_mult = float(hidden_mult)
         self.temperature = float(temperature)
         self.dropout_p = float(dropout_p)
-
         # Simple linear gate: (B, D) -> (B, E)
         self.gate = nn.Linear(in_dim, self.num_experts, bias=True) # shape (512, num_experts)
-
-        # Bank of expert MLPs: each maps (B, D) -> (B, C)
+        # expert MLPs: each maps (B, D) -> (B, C)
+        hidden = int(self.hidden_mult * in_dim)
         self.experts = nn.ModuleList(
-            [_make_expert(in_dim, hidden_mult, num_classes, dropout_p) for _ in range(self.num_experts)]
+            [_make_expert(in_dim, hidden, num_classes, dropout_p) for _ in range(self.num_experts)]
         )
+        self.expert_width = hidden                     # H (per-expert hidden width)
+        self.total_width = self.num_experts * hidden   # all experts fire in SoftMoE
+        
+        # (for consistency)
+        self.k = None
+        self.capacity_factor = None
 
     def forward(self, h: torch.Tensor, return_gate: bool = False):
         """
@@ -74,8 +79,11 @@ class SoftMoEHead(BaseHead):
         # --- Gating ---
         # Raw logits for experts
         gate_logits = self.gate(h)  # (B, E)
-        # Temperature-scaled softmax for smoother/peaky routing control
+
+        # Temperature-scaled softmax
         # smaller temperature means more peaky routing (i.e. more confident in the routing decision)
+        #Low T: experts specialize strongly (each input picks one expert).
+        #High T: load is balanced, but specialization is weaker.
         probs = F.softmax(gate_logits / self.temperature, dim=-1)  # (B, E)
 
         # --- Experts ---
