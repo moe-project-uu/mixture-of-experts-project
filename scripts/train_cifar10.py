@@ -129,7 +129,6 @@ def main(args):
     # --- training loop ---
     best_train_acc, best_val_acc = 0.0, 0.0   # Ma, Ga (Ga = best val acc)
     best_train_epoch, best_val_epoch = None, None   # ETT(Ma), ETT(Ga)
-    train_losses, train_accs, val_losses, val_accs = [], [], [], []   # for plotting
 
     # --- gating metrics history (SoftMoE only) ---
     history = {
@@ -218,10 +217,6 @@ def main(args):
         history["val_loss"].append(val_loss)
         history["val_acc"].append(val_acc)
 
-        # record per epoch stats
-        train_losses.append(train_loss); train_accs.append(train_acc)
-        val_losses.append(val_loss);     val_accs.append(val_acc)
-
         print(f"Epoch {epoch:03d}/{EPOCHS} | "
               f"train_loss={train_loss:.4f} train_acc={train_acc*100:.2f}% | "
               f"val_loss={val_loss:.4f} val_acc={val_acc*100:.2f}%")
@@ -283,7 +278,6 @@ def main(args):
         print(f"ETT(M_A) = {best_train_epoch},  ETT(G_A) = {best_val_epoch}")
     else:
         raise NotImplementedError
-    
     return history
 #### -----  End of main function ----- ####
 
