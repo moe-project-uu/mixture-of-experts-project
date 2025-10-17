@@ -17,11 +17,10 @@ import numpy as np
 import random
 import os
 import sys
-#adding current directory to path so we can import load_mnist
-# dir = os.path.abspath(".")  
-# if dir not in sys.path:
-#     sys.path.append(dir)
-from . import load_mnist
+repo_root = os.path.abspath(os.path.join("..", "..")) # two levels up from /scripts/MNIST
+if repo_root not in sys.path:
+    sys.path.insert(0, repo_root)
+from scripts.MNIST.load_mnist import load_mnist
 import time
 import torch
 
@@ -37,7 +36,7 @@ LEARNING_RATE = 0.001
 
 def get_data():
     #get the train and test data from the dataset
-    xtrain,ytrain,xtest,ytest = load_mnist.load_mnist()
+    xtrain,ytrain,xtest,ytest = load_mnist()
     #converting to Tensors for easy PyTorch implementation and reshape for a CNN
     xtrain = torch.Tensor(xtrain).reshape(60000, 1,28,28).to(DEVICE)
     ytrain = torch.Tensor(ytrain).to(DEVICE)
