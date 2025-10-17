@@ -1,0 +1,9 @@
+Metadata-Version: 2.4
+Name: mixture-of-experts-project
+Version: 0.0.1
+License-File: LICENSE
+Requires-Dist: torch
+Requires-Dist: torchvision
+Requires-Dist: tqdm
+Requires-Dist: numpy
+Dynamic: license-file
