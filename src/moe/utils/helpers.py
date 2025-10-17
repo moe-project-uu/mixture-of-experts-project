@@ -82,4 +82,55 @@ def plot_gating_entropy(
     plt.grid(alpha=0.3)
     plt.show()
 
+
+def plot_expert_probs_by_class(class_expert_mean, class_names=None, ff_layer="SoftMoE"):
+    """
+    Grouped bars: x-axis are classes; for each class, E bars (one per expert)
+    class_expert_mean: np.ndarray of shape (num_classes, num_experts)
+    """
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    C, E = class_expert_mean.shape
+    if class_names is None or len(class_names) != C:
+        class_names = [str(i) for i in range(C)]
+
+    x = np.arange(C)
+    width = 0.8 / E  # total group width ~0.8
+
+    plt.figure(figsize=(max(8, C*1.0), 5))
+    for e in range(E):
+        plt.bar(x + (e - (E-1)/2) * width, class_expert_mean[:, e], width=width, label=f"expert {e}")
+    plt.xticks(x, class_names, rotation=30)
+    plt.ylim(0, 1)
+    plt.ylabel("mean gating prob")
+    plt.xlabel("class")
+    plt.title(f"{ff_layer}: Mean expert probabilities by class")
+    plt.legend(ncol=min(E, 4))
+    plt.grid(axis="y", alpha=0.3)
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_expert_probs_heatmap(class_expert_mean, class_names=None, ff_layer="SoftMoE"):
+    """
+    Heatmap view: rows = classes, cols = experts
+    """
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    C, E = class_expert_mean.shape
+    if class_names is None or len(class_names) != C:
+        class_names = [str(i) for i in range(C)]
+
+    plt.figure(figsize=(E*0.6 + 3, C*0.4 + 2))
+    plt.imshow(class_expert_mean, aspect="auto", vmin=0, vmax=1)
+    plt.colorbar(label="mean gating prob")
+    plt.yticks(range(C), class_names)
+    plt.xticks(range(E), [f"E{e}" for e in range(E)])
+    plt.title(f"{ff_layer}: Expert probabilities heatmap (class × expert)")
+    plt.tight_layout()
+    plt.show()
+
+
 #### ----- End of PlottingHelper functions ----- ####

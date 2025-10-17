@@ -17,6 +17,7 @@ from moe.data.cifar10_data import build_cifar10_train_val_test, CIFAR10_STATS
 #project imports
 from moe.models.backbones import FeatureBackbone
 from moe.heads.factory import build_head
+from moe.utils.losses import softmoe_load_balance
 
 # parse arguments
 parser = argparse.ArgumentParser()
@@ -32,6 +33,8 @@ parser.add_argument("--temperature", type=float, default=1)
 parser.add_argument("--dropout_p", type=float, default=0.1)
 parser.add_argument("--hidden_mult", type=float, default=2)
 parser.add_argument("--FF_layer", type=str, default="Dense", choices=["Dense", "SoftMoE", "SparseMoE", "HardMoE"])
+parser.add_argument("--softmoe_load_balance", type=bool, default=False)
+parser.add_argument("--softmoe_load_balance_coef", type=float, default=0.05)
 
 
 def main(args):
@@ -81,11 +84,11 @@ def main(args):
 
     pin_memory = (DEVICE == "cuda")  # reuse for non_blocking=True later
 
-    # --- build model (near where you had backbone/head/classifier) ---
+    # --- build model  ---
     backbone = FeatureBackbone().to(DEVICE)
     if FF_LAYER == "Dense":
         head = build_head(
-            FF_LAYER,                    # "Dense" for now; Soft/Sparse/Hard later
+            FF_LAYER,                    # "Dense"
             in_dim=backbone.output_dim,       #512 
             width=FF_WIDTH,                   # only used by Dense
             num_classes=10,
@@ -156,7 +159,7 @@ def main(args):
             if FF_LAYER == "Dense":
                 logits = model(data, return_gate=False)
             elif FF_LAYER == "SoftMoE":
-                logits, probs, _, _ = model(data, return_gate=True) #sel_idx, aux_loss both set to none for now
+                logits, probs, _, aux_loss = model(data, return_gate=True) #sel_idx, aux_loss both set to none for now
                 # probs: (B, E)
                 B = probs.size(0)
                 util_sum += probs.sum(dim=0)  # sum over batch for each expert
@@ -168,8 +171,12 @@ def main(args):
             else:
                 raise NotImplementedError
                 #logits, probs, sel_idx, aux_loss = model(data, return_gate=True) 
-            ##################
-            loss = criterion(logits, targets)
+            
+            ### -- ADD RELEVANT AUXILIARY LOSS TERMS HERE FOR LOAD BALANCING -- ###
+            if FF_LAYER == "SoftMoE" and args.softmoe_load_balance:
+                loss = criterion(logits, targets) + softmoe_load_balance(probs, NUM_EXPERTS, coef=args.softmoe_load_balance_coef)
+            else:
+                loss = criterion(logits, targets)
             loss.backward()
             optimizer.step()
 
@@ -260,6 +267,44 @@ def main(args):
     test_loss = te_loss_sum / len(test_loader)
     test_acc  = te_correct / te_total
     print(f"[FINAL TEST] loss={test_loss:.4f} acc={test_acc*100:.2f}%")
+
+    # --- per-class gating probabilities (SoftMoE only) ---
+    if FF_LAYER == "SoftMoE":
+        model.eval()
+        num_classes = 10
+        class_names = ["airplane","automobile","bird","cat","deer","dog","frog","horse","ship","truck"]  # for CIFAR-10
+
+        class_prob_sums = torch.zeros(num_classes, NUM_EXPERTS, device=DEVICE) # (10, E)
+        class_counts    = torch.zeros(num_classes, device=DEVICE) # (10,)
+
+        with torch.no_grad():
+            for data, targets in test_loader:
+                data   = data.to(DEVICE)
+                labels = targets.to(DEVICE)  # (B,)
+                logits, probs, _, _ = model(data, return_gate=True)  # probs: (B, E)
+
+                # accumulate sums per class in a vectorized way
+                # one-hot: (B, 10)
+                one_hot = torch.zeros(probs.size(0), num_classes, device=DEVICE)
+                one_hot.scatter_(1, labels.unsqueeze(1), 1.0)  # set correct class to 1
+
+                # (10, B) @ (B, E) -> (10, E): sum probs for samples of each class
+                class_prob_sums += one_hot.T @ probs
+
+                # counts per class
+                class_counts += one_hot.sum(dim=0)
+
+        # avoid divide-by-zero; some splits might have rare classes missing
+        class_counts = class_counts.clamp_min(1.0)
+        class_expert_mean = (class_prob_sums / class_counts.unsqueeze(1)).detach().cpu().numpy()  # (10, E)
+
+        # save into history for plotting later
+        history["class_expert_mean"] = class_expert_mean
+        history["class_names"] = class_names
+
+        # overwrite metrics.pt with the new keys
+        torch.save(history, os.path.join(ckpt_dir, "metrics.pt"))
+    ### -- END OF softmoe per-class gating probabilities -- ###
 
     print("\n=== Summary ===")
     if FF_LAYER == "Dense":

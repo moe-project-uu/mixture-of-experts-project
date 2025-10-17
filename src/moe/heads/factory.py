@@ -8,7 +8,7 @@ def build_head(kind: str, **kwargs):
         return DenseHead(kwargs["in_dim"], kwargs["width"], kwargs["num_classes"])
     # placeholders for later:
     if k == "softmoe":
-        return SoftMoEHead(kw["in_dim"], kw["num_classes"], kw["num_experts"], kw["hidden_mult"], kw["temperature"], kw["dropout_p"])
+        return SoftMoEHead(kwargs["in_dim"], kwargs["num_classes"], kwargs["num_experts"], kwargs["hidden_mult"], kwargs["temperature"], kwargs["dropout_p"])
     if k == "sparsemoe":
         raise NotImplementedError("SparseMoEHead coming later.")
     if k == "hardmoe":
