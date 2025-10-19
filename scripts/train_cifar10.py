@@ -301,6 +301,8 @@ def main(args):
 
                 # counts per class
                 class_counts += one_hot.sum(dim=0)
+        
+        
 
         # avoid divide-by-zero; some splits might have rare classes missing
         class_counts = class_counts.clamp_min(1.0)
@@ -309,6 +311,25 @@ def main(args):
         # save into history for plotting later
         history["class_expert_mean"] = class_expert_mean
         history["class_names"] = class_names
+
+        # --- test snapshot of utilization & entropy (SoftMoE only) ---
+        # we're measuring the utilization and entropy of the test set
+        util_sum_t = torch.zeros(NUM_EXPERTS, device=DEVICE)
+        ent_sum_t  = 0.0
+        cnt_t      = 0
+        with torch.no_grad():
+            for data, _ in test_loader: #data is (B, 3, 32, 32), _ is (B,)
+                data = data.to(DEVICE)
+                _, probs, _, _ = model(data, return_gate=True)  # (B, E)
+                util_sum_t += probs.sum(dim=0)
+                ent_sum_t  += (-(probs * probs.clamp_min(1e-8).log()).sum(dim=1)).sum().item()
+                cnt_t      += probs.size(0)
+
+        util_test = (util_sum_t / cnt_t).detach().cpu().numpy()     # shape (E,)
+        H_test    = ent_sum_t / cnt_t
+
+        history["util_test_snapshot"]    = util_test
+        history["entropy_test_snapshot"] = H_test
 
         # overwrite metrics.pt with the new keys
         torch.save(history, os.path.join(ckpt_dir, "metrics.pt"))

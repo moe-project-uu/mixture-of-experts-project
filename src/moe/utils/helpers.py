@@ -85,11 +85,11 @@ def plot_gating_entropy(
 
 def plot_expert_probs_by_class(class_expert_mean, class_names=None, ff_layer="SoftMoE"):
     """
+    input: class_expert_mean: np.ndarray of shape (num_classes, num_experts)
+    output: matplotlib figure
     Grouped bars: x-axis are classes; for each class, E bars (one per expert)
     class_expert_mean: np.ndarray of shape (num_classes, num_experts)
     """
-    import numpy as np
-    import matplotlib.pyplot as plt
 
     C, E = class_expert_mean.shape
     if class_names is None or len(class_names) != C:
@@ -116,12 +116,10 @@ def plot_expert_probs_heatmap(class_expert_mean, class_names=None, ff_layer="Sof
     """
     Heatmap view: rows = classes, cols = experts
     """
-    import numpy as np
-    import matplotlib.pyplot as plt
 
     C, E = class_expert_mean.shape
     if class_names is None or len(class_names) != C:
-        class_names = [str(i) for i in range(C)]
+        class_names = [str(i) for i in range(C)] # default to class indices if not provided
 
     plt.figure(figsize=(E*0.6 + 3, C*0.4 + 2))
     plt.imshow(class_expert_mean, aspect="auto", vmin=0, vmax=1)
@@ -132,5 +130,20 @@ def plot_expert_probs_heatmap(class_expert_mean, class_names=None, ff_layer="Sof
     plt.tight_layout()
     plt.show()
 
+def plot_expert_utilization_snapshot(util_vec, ff_layer="SoftMoE", label="test (best-val model)"):
+    """
+    Plots a single post-training utilization snapshot.
+    util_vec: 1D array (num_experts,)
+    """
+    E = len(util_vec)
+    plt.figure(figsize=(6, 4))
+    plt.bar(np.arange(E), util_vec)
+    plt.xticks(np.arange(E), [f"E{i}" for i in range(E)])
+    plt.ylim(0, 1)
+    plt.ylabel("mean routing prob U_i")
+    plt.xlabel("expert")
+    plt.title(f"{ff_layer}: Utilization snapshot — {label}")
+    plt.tight_layout()
+    plt.show()
 
 #### ----- End of PlottingHelper functions ----- ####
