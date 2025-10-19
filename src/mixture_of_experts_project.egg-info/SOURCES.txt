@@ -21,4 +21,5 @@ src/moe/models/backbones.py
 src/moe/utils/__init__.py
 src/moe/utils/experts.py
 src/moe/utils/gating.py
+src/moe/utils/helpers.py
 src/moe/utils/losses.py

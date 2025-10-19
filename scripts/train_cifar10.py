@@ -269,6 +269,7 @@ def main(args):
     print(f"[FINAL TEST] loss={test_loss:.4f} acc={test_acc*100:.2f}%")
 
     # --- per-class gating probabilities (SoftMoE only) ---
+    # get class_expert_mean: np.ndarray of shape (num_classes, num_experts) for input to plotting functions
     if FF_LAYER == "SoftMoE":
         model.eval()
         num_classes = 10
@@ -278,14 +279,15 @@ def main(args):
         class_counts    = torch.zeros(num_classes, device=DEVICE) # (10,)
 
         with torch.no_grad():
-            for data, targets in test_loader:
+            #now we're measuring the per-class gating probabilities for the test set
+            for data, targets in test_loader: #data is (B, 3, 32, 32), targets is (B,)
                 data   = data.to(DEVICE)
                 labels = targets.to(DEVICE)  # (B,)
                 logits, probs, _, _ = model(data, return_gate=True)  # probs: (B, E)
 
-                # accumulate sums per class in a vectorized way
+                # accumulate probability sums per class in a vectorized way
                 # one-hot: (B, 10)
-                one_hot = torch.zeros(probs.size(0), num_classes, device=DEVICE)
+                one_hot = torch.zeros(probs.size(0), num_classes, device=DEVICE) # (B, 10)
                 one_hot.scatter_(1, labels.unsqueeze(1), 1.0)  # set correct class to 1
 
                 # (10, B) @ (B, E) -> (10, E): sum probs for samples of each class
