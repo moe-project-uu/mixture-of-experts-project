@@ -31,6 +31,8 @@ parser.add_argument("--ff_width", type=int, default=512)
 parser.add_argument("--num_experts", type=int, default=4)
 parser.add_argument("--temperature", type=float, default=1)
 parser.add_argument("--dropout_p", type=float, default=0.1)
+parser.add_argument("--gate_input_dropout", type=float, default=0.1)
+parser.add_argument("--gate_logits_dropout", type=float, default=0.1)
 parser.add_argument("--hidden_mult", type=float, default=2)
 parser.add_argument("--FF_layer", type=str, default="Dense", choices=["Dense", "SoftMoE", "SparseMoE", "HardMoE"])
 parser.add_argument("--softmoe_load_balance", type=bool, default=False)
@@ -53,6 +55,8 @@ def main(args):
     TEMPERATURE  = args.temperature
     DROPOUT_P    = args.dropout_p
     HIDDEN_MULT  = args.hidden_mult
+    GATE_INPUT_DROPOUT = args.gate_input_dropout
+    GATE_LOGITS_DROPOUT = args.gate_logits_dropout
 
     # --- checkpoint path (general) ---
     if FF_LAYER == "Dense":
@@ -102,6 +106,8 @@ def main(args):
             hidden_mult=HIDDEN_MULT,
             temperature=TEMPERATURE,
             dropout_p=DROPOUT_P,
+            gate_input_dropout=GATE_INPUT_DROPOUT,
+            gate_logits_dropout=GATE_LOGITS_DROPOUT,
         ).to(DEVICE)
     else:
         raise NotImplementedError(f"{FF_LAYER} not implemented yet")
