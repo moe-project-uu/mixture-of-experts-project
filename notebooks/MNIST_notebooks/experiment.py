@@ -108,9 +108,15 @@ def get_hardmoe_parameter_sets():
     excluder_function = hardmoe_excluder_function
     return experiment_parameters, excluder_function
 
+def save_experiment_data(all_experiment_data):
+    # Save dataframe of experimentation data
+    df = pd.DataFrame(all_experiment_data) 
+    experiment_data_path = f"notebooks/MNIST_notebooks/experiment.csv"
+    df.to_csv(experiment_data_path)
+
 if __name__ == "__main__":
     DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-    EPOCHS = 10
+    EPOCHS = 1
     TYPE = "HARDMOE" # SOFTMOE
     
     experiment_parameters = {}
@@ -170,19 +176,7 @@ if __name__ == "__main__":
         
         experiment_data.update(experiment_metrics) # add metrics
         all_experiment_data.append(experiment_data)
+        
+        save_experiment_data(all_experiment_data)
         print(40*"-")
         print()
-    
-    print(50*"*")
-    print(10*" " + "EXPERIMENTATION ENDED")
-    print(50*"*")
-
-    # Create the DataFrame
-    df = pd.DataFrame(all_experiment_data)
-    print(df)
-    
-    # Save dataframe of experimentation data
-    timestamp = time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())
-    experiment_data_path = f"notebooks/MNIST_notebooks/experiment_{timestamp}.csv"
-    df.to_csv(experiment_data_path)
-    print(f"Created {experiment_data_path}")
