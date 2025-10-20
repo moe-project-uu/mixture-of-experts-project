@@ -66,7 +66,7 @@ def training_loop(
 
         # Calculate expert utilization
         all_gating_outputs = torch.cat(epoch_gating_outputs, dim=0)
-        avg_expert_utilization = all_gating_outputs.mean(dim=0).numpy()
+        avg_expert_utilization = all_gating_outputs.mean(dim=0).cpu().numpy()
         expert_utilization_history.append(avg_expert_utilization)
 
         # Test Phase
