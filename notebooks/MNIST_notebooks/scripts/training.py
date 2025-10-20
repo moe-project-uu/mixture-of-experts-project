@@ -27,6 +27,7 @@ def training_loop(
     print("Starting the Training Loop")
     for epoch in tqdm(range(num_epochs)):
         model.train()
+        
         batch_loss = []
         batch_accuracy = []
         epoch_gating_outputs = [] 
@@ -43,7 +44,7 @@ def training_loop(
             # Evaluate
             loss = loss_function(outputs, label) + loss_importance 
             batch_loss.append(loss.item())
-            batch_accuracy.append(calculate_accuracy(outputs.detach(), label.detach()))
+            batch_accuracy.append(calculate_accuracy(outputs.detach(), label.detach())) ## M_A (memorization accuracy)
             
             # Backward pass setting gradients to zero
             optimizer.zero_grad()
@@ -80,12 +81,16 @@ def training_loop(
                 importance_loss_history.append(importance_loss)
                 
                 # Use .detach() for metric calculation
-                test_accuracy_list.append(calculate_accuracy(test_predictions.detach(), label.detach())) 
+                test_accuracy_list.append(calculate_accuracy(test_predictions.detach(), label.detach())) ## G_A (generalization accuracy)
 
-        # Aggregate batch matrics
+        # Aggregate batch metrics
         test_loss.append(np.average(test_loss_list))
         test_accuracy.append(np.average(test_accuracy_list))
-        if epoch % print_freq == 0:
-            print(f"Epoch: {epoch} done. Test loss {test_loss[-1]:.4f}. Test accuracy {test_accuracy[-1]:.4f}")
+        if epoch+1 % print_freq == 0:
+            print(f"Epoch: {epoch+1} done. Test loss {test_loss[-1]:.4f}. Test accuracy {test_accuracy[-1]:.4f}")
+            
+        # Check if model is already overfitted on the training data
+        if training_accuracy[-1] == 1.0:
+            print("Overfitted model, finishing training!")
     
     return training_loss, training_accuracy, test_loss, test_accuracy, expert_utilization_history

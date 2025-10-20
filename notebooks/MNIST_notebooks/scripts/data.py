@@ -33,8 +33,6 @@ def create_class_dataloaders(test_dataset, class_num):
     for idx, (data, label) in enumerate(test_dataset):
         seperated_data_indices[label].append(idx)
         
-    print(f"Grouping example: Found {len(seperated_data_indices[7])} samples for label 7.")
-
     # 2. Create Subsets and DataLoaders
     test_subsets = []
     test_loaders = []
