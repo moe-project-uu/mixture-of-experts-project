@@ -47,7 +47,7 @@ def run_experiment(model, epochs):
             model=model, 
             loss_function=loss_function, 
             optimizer=optimizer,
-            print_freq=50,
+            print_freq=2,
             device=DEVICE)
     training_end = time.time()
     training_duration = training_end-training_start
@@ -90,7 +90,6 @@ def get_softmoe_parameter_sets():
         "expert_hidden_size": [64, 128, 256, 512],
     }
     excluder_function = None
-    
     return experiment_parameters, excluder_function
 
 def get_hardmoe_parameter_sets():
@@ -100,13 +99,18 @@ def get_hardmoe_parameter_sets():
         "topk": [1, 2, 4]
     }
     
-    excluder_function = lambda conf: conf["topk"] > conf["experts"]
+    def hardmoe_excluder_function(conf):
+        exclude = False
+        exclude = exclude or conf["topk"] > conf["experts"]
+        exclude = exclude or conf["topk"] == conf["experts"]
+        return exclude
     
+    excluder_function = hardmoe_excluder_function
     return experiment_parameters, excluder_function
 
 if __name__ == "__main__":
     DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-    EPOCHS = 1
+    EPOCHS = 10
     TYPE = "HARDMOE" # SOFTMOE
     
     experiment_parameters = {}

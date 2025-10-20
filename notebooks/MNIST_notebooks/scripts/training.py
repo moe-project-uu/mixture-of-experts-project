@@ -86,7 +86,7 @@ def training_loop(
         # Aggregate batch metrics
         test_loss.append(np.average(test_loss_list))
         test_accuracy.append(np.average(test_accuracy_list))
-        if epoch+1 % print_freq == 0:
+        if (epoch+1) % print_freq == 0:
             print(f"Epoch: {epoch+1} done. Test loss {test_loss[-1]:.4f}. Test accuracy {test_accuracy[-1]:.4f}")
             
         # Check if model is already overfitted on the training data
