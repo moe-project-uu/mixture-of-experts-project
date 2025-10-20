@@ -28,38 +28,45 @@ def training_loop(
     for epoch in tqdm(range(num_epochs)):
         model.train()
         
-        batch_loss = []
-        batch_accuracy = []
-        epoch_gating_outputs = [] 
+        epoch_loss = 0.0
+        epoch_accuracy = 0.0
+        total_samples = 0
+        epoch_gating_outputs = []
+        
+        # Clear GPU cache periodically
+        if torch.cuda.is_available() and epoch % 10 == 0:
+            torch.cuda.empty_cache()
         
         # Loop through batches (Training Phase)
         for _, (data, label) in enumerate(train_loader):
             data = data.to(device)
             label = label.to(device)
+            batch_size = data.size(0)
             
             # Forward pass
             outputs, gating_output, loss_importance = model(data)
-            epoch_gating_outputs.append(gating_output.detach().cpu())
+            epoch_gating_outputs.append(gating_output.detach())  # Keep on GPU if possible
             
             # Evaluate
             loss = loss_function(outputs, label) + loss_importance 
-            batch_loss.append(loss.item())
-            batch_accuracy.append(calculate_accuracy(outputs.detach(), label.detach())) ## M_A (memorization accuracy)
+            epoch_loss += loss.item() * batch_size
+            epoch_accuracy += calculate_accuracy(outputs.detach(), label.detach()) * batch_size
+            total_samples += batch_size
             
             # Backward pass setting gradients to zero
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
 
-        # Combine all gating outputs from the epoch into a single tensor
-        all_gating_outputs = torch.cat(epoch_gating_outputs, dim=0) # list of (B, N) tensors -> (Total Samples, N)
-        #print("All gating outputs sumed", all_gating_outputs.sum(dim = 0))
-        # Calculate the average utilization for each expert over the entire training set
-        avg_expert_utilization = all_gating_outputs.mean(dim=0).numpy() # (Total Samples, N) -> (N,)
-                
-        # Aggregate batch matrics
-        training_accuracy.append(np.average(batch_accuracy))
-        training_loss.append(np.average(batch_loss))
+        # Calculate epoch metrics
+        epoch_loss /= total_samples
+        epoch_accuracy /= total_samples
+        training_loss.append(epoch_loss)
+        training_accuracy.append(epoch_accuracy)
+
+        # Calculate expert utilization
+        all_gating_outputs = torch.cat(epoch_gating_outputs, dim=0)
+        avg_expert_utilization = all_gating_outputs.mean(dim=0).numpy()
         expert_utilization_history.append(avg_expert_utilization)
 
         # Test Phase
@@ -78,19 +85,20 @@ def training_loop(
                 # Evaluate
                 loss = loss_function(test_predictions, label) 
                 test_loss_list.append(loss.item())
-                importance_loss_history.append(importance_loss)
+                importance_loss_history.append(importance_loss.item())
                 
                 # Use .detach() for metric calculation
-                test_accuracy_list.append(calculate_accuracy(test_predictions.detach(), label.detach())) ## G_A (generalization accuracy)
+                test_accuracy_list.append(calculate_accuracy(test_predictions.detach(), label.detach()))
 
         # Aggregate batch metrics
         test_loss.append(np.average(test_loss_list))
         test_accuracy.append(np.average(test_accuracy_list))
+        
         if (epoch+1) % print_freq == 0:
-            print(f"Epoch: {epoch+1} done. Test loss {test_loss[-1]:.4f}. Test accuracy {test_accuracy[-1]:.4f}")
+            print(f"Epoch: {epoch+1} done. Train loss: {epoch_loss:.4f}, acc: {epoch_accuracy:.4f}. Test loss: {test_loss[-1]:.4f}, acc: {test_accuracy[-1]:.4f}")
             
         # Check if model is already overfitted on the training data
-        if training_accuracy[-1] == 1.0:
+        if epoch_accuracy == 1.0:
             print("Overfitted model, finishing training!")
     
     return training_loss, training_accuracy, test_loss, test_accuracy, expert_utilization_history

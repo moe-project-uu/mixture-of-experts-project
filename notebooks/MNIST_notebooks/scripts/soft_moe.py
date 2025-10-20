@@ -65,24 +65,32 @@ class SoftMOE(torch.nn.Module):
                 output_size = output_size
             ) for _ in range(num_experts)]
         )
+        self.to(device)
 
     def forward(self, x):
-        # if B = batch_size, N = expert_num, D_out = expert output dimension
-        gating_output = self.gate(x) # shape: (B, N)
-        #this follows the importance loss from the paper
-        importance = gating_output.sum(0) # shape: (N,)
-        # print("importance: ", importance)
-        mean = torch.mean(importance)
-        std_dev = torch.std(importance)
-        cv = std_dev / mean
-        loss_importance = 0.1 * cv * cv
-        # print("Importance loss: ", loss_importance.item())
-        expert_outputs = torch.stack([expert(x) for expert in self.experts], dim=2) # shape: (B, D_out, N)
+        batch_size = x.shape[0]
         
-        # Calculating weighted sum:
-        # 1. gating_output.unsqueeze -> (B, N, 1)
-        # 2. torch.bmm(...) -> (B, D_out, 1)
-        # 3. .squeeze(2) -> (B, D_out)
+        # Get gating outputs
+        gating_output = self.gate(x)  # shape: (B, N)
+        
+        # Batch all expert computations together
+        expanded_input = x.unsqueeze(1).expand(-1, len(self.experts), -1)  # (B, N, input_size)
+        stacked_input = expanded_input.reshape(-1, expanded_input.shape[-1])  # (B*N, input_size)
+        
+        # Run all experts in parallel on the batched input
+        all_expert_outputs = torch.vstack([
+            expert(stacked_input) for expert in self.experts
+        ]).reshape(len(self.experts), batch_size, -1)  # (N, B, output_size)
+        
+        # Transpose to get (B, output_size, N)
+        expert_outputs = all_expert_outputs.permute(1, 2, 0)
+        
+        # Calculate importance loss
+        importance = gating_output.sum(0)  # shape: (N,)
+        cv = torch.std(importance) / torch.mean(importance)
+        loss_importance = 0.1 * cv * cv
+        
+        # Calculating weighted sum with batch matrix multiplication
         output = torch.bmm(expert_outputs, gating_output.unsqueeze(2)).squeeze(2)
         
         return output, gating_output, loss_importance

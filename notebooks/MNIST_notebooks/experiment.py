@@ -24,15 +24,27 @@ def run_experiment(model, epochs):
     experiment_metrics = {}
     
     # Training parameters
-    BATCH_SIZE = 128
-    LEARNING_RATE = 0.0001
+    BATCH_SIZE = 512  # Increased for better GPU utilization
+    LEARNING_RATE = 0.01
     EPOCHS = epochs
 
     ## Load data
     train_dataset, test_dataset = load_data(DATA_DIR)
-    train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True)
+    train_loader = torch.utils.data.DataLoader(
+        dataset=train_dataset, 
+        batch_size=BATCH_SIZE, 
+        shuffle=True,
+        num_workers=4,  # Parallel data loading
+        pin_memory=True  # Faster data transfer to GPU
+    )
     test_dataset_size = test_dataset.data.shape[0]
-    test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=test_dataset_size, shuffle=True)
+    test_loader = torch.utils.data.DataLoader(
+        dataset=test_dataset, 
+        batch_size=test_dataset_size, 
+        shuffle=True,
+        num_workers=4,
+        pin_memory=True
+    )
 
     ## --- Training --- ###
     loss_function = torch.nn.CrossEntropyLoss()
@@ -47,7 +59,7 @@ def run_experiment(model, epochs):
             model=model, 
             loss_function=loss_function, 
             optimizer=optimizer,
-            print_freq=2,
+            print_freq=50,
             device=DEVICE)
     training_end = time.time()
     training_duration = training_end-training_start
@@ -75,14 +87,15 @@ def cartesian_product(parameters, excluder_function=None):
     ]
     
     # Filter the config list based on the excluder function
-    filtered_config_list = []
     if excluder_function is not None:
+        filtered_config_list = []
         for conf in config_list:
             excluded = excluder_function(conf)
             if not excluded:
                 filtered_config_list.append(conf)
+        return filtered_config_list
 
-    return filtered_config_list
+    return config_list
 
 def get_softmoe_parameter_sets():
     experiment_parameters = {
@@ -116,7 +129,7 @@ def save_experiment_data(all_experiment_data):
 
 if __name__ == "__main__":
     DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-    EPOCHS = 1
+    EPOCHS = 1000
     TYPE = "HARDMOE" # SOFTMOE
     
     experiment_parameters = {}
