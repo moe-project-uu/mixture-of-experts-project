@@ -128,9 +128,11 @@ def save_experiment_data(all_experiment_data):
     df.to_csv(experiment_data_path)
 
 if __name__ == "__main__":
+    SKIP_EXPERIMENTS = 0
+    
     DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
     EPOCHS = 1000
-    TYPE = "HARDMOE" # SOFTMOE
+    TYPE = "SOFTMOE" # SOFTMOE
     
     experiment_parameters = {}
     excluded_experiment_parameters = {}
@@ -144,6 +146,9 @@ if __name__ == "__main__":
     
     all_experiment_data = []
     for i, config in enumerate(config_list):
+        if i < SKIP_EXPERIMENTS:
+            print(f">>> Skipping Experiment {i:3} <<<")
+            continue
         print(f">>> Starting Experiment {i:3} <<<")
         experiment_data = {}
         experiment_data.update(config) # add config
