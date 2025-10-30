@@ -6,7 +6,7 @@ import torch
 #layer 1: conv(3)-relu-pool(2,2) -> 8x14x14
 #layer 2: conv(3)-relu-pool(2,2) -> 16x7x7  
 #layer 3: conv(3)-relu -> 32x7x7
-#output layer: linear -> 10
+#output layer: linear -> 512 for consistency with other groups model
 ##########----------------------------------###########
 class MNIST_CNN(torch.nn.Module):
     def __init__(self):
@@ -28,7 +28,7 @@ class MNIST_CNN(torch.nn.Module):
         #non linearity
         self.relu3 = torch.nn.ReLU()
         #output netwrok we have 32 channels and an image that is (7,7)
-        self.output = torch.nn.Linear(32 * 7 * 7, 10)
+        self.output = torch.nn.Linear(32 * 7 * 7, 512)
 
     def forward(self, x):
         #pass through the first convolution and relu and pooling layers

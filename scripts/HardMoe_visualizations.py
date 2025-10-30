@@ -2,11 +2,11 @@ import time
 import numpy as np
 import torch
 
-from scripts.visualization import plot_training_curve, plot_utilization_histogram, plot_utilization_trends, plot_expert_activation
-from scripts.data import load_data,create_class_dataloaders
-from scripts.training import training_loop
-from scripts.hard_moe import HardMOE
-from scripts.eval import calculate_accuracy
+from moe.utils.visualization import plot_training_curve, plot_utilization_histogram, plot_utilization_trends, plot_expert_activation
+from moe.data import load_data,create_class_dataloaders
+from moe.training.training import training_loop
+import moe.heads.hard_moe as hardMoe
+from moe.utils.eval import calculate_accuracy
 
 def hardMoE_plots(expert_num = 4, expert_hidden = 128, topk = 2, epochs = 10, figsize = (10,6)):
     # Set parameters
@@ -26,7 +26,7 @@ def hardMoE_plots(expert_num = 4, expert_hidden = 128, topk = 2, epochs = 10, fi
     BATCH_SIZE = 256
     LEARNING_RATE = 0.001
     EPOCHS = epochs
-    model = HardMOE(
+    model = hardMoe.HardMOE(
         input_size=MNIST_LINEAR_LENGTH,
         hidden_size_experts=EXPERT_HIDDEN_SIZE,
         hidden_size_gating=GATING_HIDDEN_SIZE,

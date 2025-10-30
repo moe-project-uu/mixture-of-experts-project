@@ -23,170 +23,83 @@ Components of the script are:
 import numpy as np 
 import random
 import torch
+import torch.nn as nn
 from moe.data import mnist_data
+from moe.models.MNIST_CNN import MNIST_CNN
+from moe.heads.factory import build_head
+from moe.training.training import training_loop
+import time 
+import os
+import torch.optim as optim
+from tqdm import tqdm
+
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 SEED = 42
-BATCH_SIZE = 128
+BATCH_SIZE = 256
 EPOCHS = 100
 LEARNING_RATE = 0.001
 
-loaders = mnist_data.build_mnist_train_val_test()
-print(loaders)
-##########----------------------------------###########
-#Data loading
-##########----------------------------------###########
 
+def train_mnist():
+    ##########----------------------------------###########
+    #Data loading
+    ##########----------------------------------###########
+    train, val, test, meta = mnist_data.build_mnist_train_val_test()
 
-# #calculating the accuracy given outputs not softmaxed and labels one hot encoding used for evaluation during training and testing
-# def calculate_accuracy(outputs, labels):
-#     #don't need to softmax because the max value will be the max softmax we just pull the index to get the digit prediction 
-#     _, output_index = torch.max(outputs,1)
-#     #get the index/ digit of the label
-#     _, label_index = torch.max(labels, 1)
-#     # return the number of correct matches and divide by the size to get accuracy
-#     return (output_index == label_index).sum().item()/labels.size(0)
+    ##########----------------------------------###########
+    #Build the model
+    ##########----------------------------------###########
+    backbone = MNIST_CNN().to(DEVICE)
 
-# ##########----------------------------------###########
-# #Model definition: 3 layered CNN network
-# #input is 1x28x28 
-# #layer 1: conv(3)-relu-pool(2,2) -> 8x14x14
-# #layer 2: conv(3)-relu-pool(2,2) -> 16x7x7  
-# #layer 3: conv(3)-relu -> 32x7x7
-# #output layer: linear -> 10
-# ##########----------------------------------###########
-# class MNIST_CNN(torch.nn.Module):
-#     def __init__(self):
-#         super().__init__()
-#         #1 input channel, 8 output channels, kernel size 3, stride 1, padding 1
-#         self.conv1 = torch.nn.Conv2d(in_channels = 1, out_channels = 8, kernel_size = 3, stride = 1, padding = 1)
-#         #non linearity
-#         self.relu1 = torch.nn.ReLU()
-#         #first pooling layer with kernel size 2, stride 2 reduces image to (8,14,14)
-#         self.pool1 = torch.nn.MaxPool2d(kernel_size = 2, stride = 2)
-#         #8 input channels, 16 output channels, kernel size 3, stride 1 padding 1
-#         self.conv2 = torch.nn.Conv2d(in_channels= 8,out_channels= 16 , kernel_size= 3, stride= 1, padding= 1)
-#         #non linearity
-#         self.relu2 = torch.nn.ReLU()
-#         #second pooling layer with kernel size 2, stride 2 reduces image to (16,7,7)
-#         self.pool2 = torch.nn.MaxPool2d(kernel_size = 2, stride = 2)
-#         # 16 inputs, 32 outputs, kernel size 3, stride 1, padding 1
-#         self.conv3 = torch.nn.Conv2d(in_channels= 16,out_channels= 32 , kernel_size= 3, stride= 1, padding= 1)
-#         #non linearity
-#         self.relu3 = torch.nn.ReLU()
-#         #output netwrok we have 32 channels and an image that is (7,7)
-#         self.output = torch.nn.Linear(32 * 7 * 7, 10)
+    head = build_head(
+                "Dense",                    # "Dense"
+                in_dim=512,       #512 
+                width=32,              
+                num_classes=10
+                ).to(DEVICE)
 
-#     def forward(self, x):
-#         #pass through the first convolution and relu and pooling layers
-#         x = self.pool1(self.relu1(self.conv1(x)))
-#         #pass through the second convolution and relu and pooling layers
-#         x = self.pool2(self.relu2(self.conv2(x)))
-#         #pass through the final convolution and relu
-#         x = self.relu3(self.conv3(x))
-#         #flatten all dimensions except batch dimension which is dimension 0 so we start at 1
-#         x = torch.flatten(x, 1)
-#         #pass through our output layer
-#         x = self.output(x)
-#         return x
-    
-# ##########----------------------------------###########
-# #Training loop
-# ##########----------------------------------###########
+    class Classifier(nn.Module):
+        def __init__(self, backbone, head): 
+            super().__init__()
+            self.backbone, self.head = backbone, head
 
-# def training_loop(train_loader, test_loader, num_epochs, model, loss_function, optimizer):
-#     #arrays for our plots
-#     training_loss = []
-#     training_accuracy = []
-#     test_loss = []
-#     test_accuracy =[]
-#     #Setting up the training loop
-#     print("Starting the Training Loop")
-#     for epoch in range(num_epochs):
-#         #keep the loss and accuracies after each mini batch
-#         batch_loss = []
-#         batch_accuracy = []
-#         #loop through a mini-batch on the same train loadear
-#         for batch_index, (data, label) in enumerate(train_loader):
-#             # Forward pass
-#             outputs = model(data)
-#             #evaluate the loss
-#             loss = loss_function(outputs, label)
-#             #append the loss to the batch loss
-#             batch_loss.append(loss.item())
-#             #calculate the accuracy based on the outputs (not softmaxed) and labels. Do outputs.data so we don't pass gradient info
-#             batch_accuracy.append(calculate_accuracy(outputs.data, label))
+        def forward(self, x, return_gate=False):
+            h = self.backbone(x)                      # (B, 512)
+            return self.head(h, return_gate=return_gate)
 
-#             # Backward pass setting gradients to zero
-#             optimizer.zero_grad()
-#             #calcualting gradients
-#             loss.backward()
-#             #updating parameters
-#             optimizer.step()
+    model = Classifier(backbone, head).to(DEVICE)
 
-#         #add to the training epoch accuracies and losses
-#         training_accuracy.append(np.average(batch_accuracy))
-#         training_loss.append(np.average(batch_loss))
-#         #get the test loss and accuracy
-#         #change mode
-#         model.eval()
-#         #so we don't accidentally change anything
-#         with torch.no_grad():
-#             #get the "batch" of the test data which is all of it
-#             for batch_index, (data, label) in enumerate(test_loader):
-#                 #get our test predicitons
-#                 test_predictions = model(data)
-#                 #test loss and move to cpu so I can plot
-#                 loss = loss_function(test_predictions, label).to("cpu")
-#                 #append statistics
-#                 test_loss.append(loss)
-#                 test_accuracy.append(calculate_accuracy(test_predictions.data, label))
-#         #back to training mode
-#         model.train()
-#         #printing
-#         print(f"Epoch: {epoch} done. Test loss {test_loss[epoch]}. Test accuracy {test_accuracy[epoch]}")
-#     return training_loss, training_accuracy, test_loss, test_accuracy
+    ##########----------------------------------###########
+    #Training the model
+    ##########----------------------------------###########
+    # --- loss & optimizer & scheduler ---
+    criterion = nn.CrossEntropyLoss()  # you can try label_smoothing=0.1
+    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[30, 40], gamma=0.1)  # good for 50 epochs
 
-# ##########----------------------------------###########
-# #Training the model
-# ##########----------------------------------###########
-# def train_mnist():
-#     #get the data
-#     train_loader, test_loader = get_data()
-#     #set the random seeds for reproducibility
-#     random.seed(SEED)
-#     np.random.seed(SEED)
-#     torch.manual_seed(SEED)
-#     torch.cuda.manual_seed_all(SEED)
+    history, (best_train_acc, best_train_epoch), (best_val_acc, best_val_epoch) = training_loop(
+        train_loader = train, 
+        val_loader = val,
+        num_epochs = EPOCHS, 
+        model = model, 
+        optimizer = optimizer, 
+        criterion = criterion,
+        scheduler = scheduler,
+        FF_layer_type = "Dense",
+        DEVICE = DEVICE,
+        ckpt_model_path = "",
+        softmoe_load_balance_required = False,
+        experts=10
+    )
 
-#     #Make the CNN neural netowrk model
-#     model = MNIST_CNN().to(DEVICE)
-#     #Our loss function will be cross entropy since we are getting a probability distribution
-#     loss = torch.nn.CrossEntropyLoss()
-#     #Here we are going to use classic stochastic gradient descent without any special optimizations since we will change this later
-#     optimizer = torch.optim.Adam(model.parameters(), lr= LEARNING_RATE)
+        # os.makedirs('checkpoints', exist_ok=True)
+        # torch.save(
+        #     {'model': model.state_dict(), 'test_accuracy': test_accuracy, 'test_loss': test_loss, 
+        #     'training_accuracy': training_accuracy, 'training_loss': training_loss, 'total_time': total_time,
+        #     'optimizer': optimizer.state_dict()},
+        #     'checkpoints/MNIST.pt'
+        # )
+        # print(f"Saved checkpoint to checkpoints/MNIST.pt")
 
-#     #find the start time
-#     start = time.time()
-
-#     #run the training loop
-#     training_loss, training_accuracy, test_loss, test_accuracy = training_loop(train_loader, test_loader, 
-#     EPOCHS, model, loss, optimizer)
-
-#     #end time and get the total time
-#     end= time.time()
-#     total_time = end - start
-
-#     # save final model
-#     os.makedirs('checkpoints', exist_ok=True)
-#     torch.save(
-#         {'model': model.state_dict(), 'test_accuracy': test_accuracy, 'test_loss': test_loss, 
-#         'training_accuracy': training_accuracy, 'training_loss': training_loss, 'total_time': total_time,
-#         'optimizer': optimizer.state_dict()},
-#         'checkpoints/MNIST.pt'
-#     )
-#     print(f"Saved checkpoint to checkpoints/MNIST.pt")
-
-# if __name__=="__main__":
-#     print(os.getcwd())
-#     print(sys.path)
-#     train_mnist()
+if __name__=="__main__":
+    train_mnist()
