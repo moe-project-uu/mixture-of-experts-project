@@ -6,4 +6,5 @@ Requires-Dist: torch
 Requires-Dist: torchvision
 Requires-Dist: tqdm
 Requires-Dist: numpy
+Requires-Dist: pandas
 Dynamic: license-file
