@@ -63,7 +63,7 @@ def plot_training_curve(
     axs[1].tick_params(axis='both', labelsize=sm)
     
     if save_path is not None:
-        plt.savefig(save_path)
+        plt.savefig(save_path, bbox_inches = "tight")
     plt.close(fig)
     
 def plot_utilization_histogram(
@@ -145,11 +145,10 @@ def plot_utilization_histogram(
     # Adjust layout to prevent overlap
     plt.tight_layout()
     plt.suptitle('Expert Utilization Across Epochs', y=1.02, fontsize=14, fontweight='bold')
-    
-    plt.show()
-    
     if save_path is not None:
-        plt.savefig(save_path)
+        plt.savefig(save_path, bbox_inches = "tight")
+    else:
+        plt.show()
     plt.close(fig)
     
 def plot_utilization_trends(
@@ -226,17 +225,18 @@ def plot_utilization_trends(
     ax.grid(True, linestyle='--', alpha=0.6)
 
     plt.tight_layout()
-
-    plt.show()
     
     if save_path is not None:
-        plt.savefig(save_path)
+        plt.savefig(save_path, bbox_inches = "tight")
+    else:
+        plt.show()
     plt.close(fig)
     
 
 def plot_expert_activation(
     expert_probabilties: List[float],
     expert_num: int,
+    figsize: Tuple[int, int] = (10, 2),
     save_path: Optional[str] = None
 ) -> None:
     """
@@ -251,7 +251,7 @@ def plot_expert_activation(
                         y-axis ticks and labels.
             save_path: Optional path to save the figure.
     """
-    fig = plt.figure(figsize=(10, 2))
+    fig = plt.figure(figsize=figsize)
     plt.imshow(expert_probabilties, cmap='viridis', aspect='auto')
     plt.colorbar(label='Value')
 
@@ -267,8 +267,8 @@ def plot_expert_activation(
     yticks_labels = [f"Expert {i}" for i in range(expert_num)]
     plt.yticks(yticks, yticks_labels)
     
-    plt.show()
-    
     if save_path is not None:
-        plt.savefig(save_path)
+        plt.savefig(save_path, bbox_inches = "tight")
+    else:
+        plt.show()
     plt.close(fig)

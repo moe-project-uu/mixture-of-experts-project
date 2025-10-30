@@ -24,8 +24,8 @@ def run_experiment(model, epochs):
     experiment_metrics = {}
     
     # Training parameters
-    BATCH_SIZE = 512  # Increased for better GPU utilization
-    LEARNING_RATE = 0.01
+    BATCH_SIZE = 256
+    LEARNING_RATE = 0.001
     EPOCHS = epochs
 
     ## Load data
@@ -48,7 +48,7 @@ def run_experiment(model, epochs):
 
     ## --- Training --- ###
     loss_function = torch.nn.CrossEntropyLoss()
-    optimizer = torch.optim.SGD(model.parameters(), lr=LEARNING_RATE)
+    optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
     
     training_start = time.time()
     training_loss, training_accuracy, test_loss, test_accuracy, expert_utilization_history = \
@@ -69,12 +69,16 @@ def run_experiment(model, epochs):
         "M_A": np.max(training_accuracy),
         "ETT_M_A": np.argmax(training_accuracy)+1,
         "G_A": np.max(test_accuracy),
-        "ETT_G_A": np.argmax(test_accuracy)+1
+        "ETT_G_A": np.argmax(test_accuracy)+1,
+        "G_A_min_loss": test_accuracy[test_loss.index(min(test_loss))],
+        "ETT_G_A_min_loss": test_loss.index(min(test_loss))+1
     }
     print(f"M_A (memorization accuracy): {experiment_metrics['M_A']:.2%}")
     print(f"ETT to reach M_A: {experiment_metrics['ETT_M_A']}")
     print(f"G_A (generalization accuracy): {experiment_metrics['G_A']:.2%}")
     print(f"ETT to reach G_A: {experiment_metrics['ETT_G_A']}")
+    print(f"G_A_min_loss (generalization accuracy): {experiment_metrics['G_A_min_loss']:.2%}")
+    print(f"ETT to reach G_A_min_loss: {experiment_metrics['ETT_G_A_min_loss']}")
         
     return experiment_metrics
 
@@ -124,15 +128,15 @@ def get_hardmoe_parameter_sets():
 def save_experiment_data(all_experiment_data):
     # Save dataframe of experimentation data
     df = pd.DataFrame(all_experiment_data) 
-    experiment_data_path = f"notebooks/MNIST_notebooks/experiment.csv"
+    experiment_data_path = f"./experiment.csv"
     df.to_csv(experiment_data_path)
 
 if __name__ == "__main__":
     SKIP_EXPERIMENTS = 0
     
     DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-    EPOCHS = 1000
-    TYPE = "SOFTMOE" # SOFTMOE
+    EPOCHS = 1
+    TYPE = "HARDMOE" # SOFTMOE
     
     experiment_parameters = {}
     excluded_experiment_parameters = {}

@@ -100,5 +100,6 @@ def training_loop(
         # Check if model is already overfitted on the training data
         if epoch_accuracy == 1.0:
             print("Overfitted model, finishing training!")
+            break
     
     return training_loss, training_accuracy, test_loss, test_accuracy, expert_utilization_history
