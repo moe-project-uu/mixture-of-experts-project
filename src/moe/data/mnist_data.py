@@ -1,7 +1,7 @@
 # src/moe/data/cifar10_data.py
 from typing import Dict, Any, Tuple
 import torch
-from torch.utils.data import DataLoader, random_split
+from torch.utils.data import DataLoader, random_split, Subset
 import torchvision
 import torchvision.transforms as T
 
@@ -72,3 +72,30 @@ def build_mnist_train_val_test(
     }
 
     return train_loader, val_loader, test_loader, meta
+
+def create_class_dataloaders(test_dataset, class_num):    
+    # 1. Group test dataset indices by their label (0-9)
+    seperated_data_indices = [[] for _ in range(class_num)]
+    for idx, (data, label) in enumerate(test_dataset):
+        seperated_data_indices[label].append(idx)
+        
+    # 2. Create Subsets and DataLoaders
+    test_subsets = []
+    test_loaders = []
+
+    for label in range(10):
+        indices = seperated_data_indices[label]
+        
+        # Create a Subset of the original dataset using the collected indices
+        subset = Subset(test_dataset, indices)
+        test_subsets.append(subset)
+        
+        # Create a DataLoader for the subset. Using len(indices) as batch_size 
+        loader = DataLoader(
+            dataset=subset, 
+            batch_size=len(indices), 
+            shuffle=False
+        )
+        test_loaders.append(loader)
+    
+    return test_loaders
