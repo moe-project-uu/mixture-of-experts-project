@@ -1,6 +1,7 @@
 Metadata-Version: 2.4
 Name: mixture-of-experts-project
 Version: 0.0.1
+Requires-Python: >=3.11
 License-File: LICENSE
 Requires-Dist: torch
 Requires-Dist: torchvision
