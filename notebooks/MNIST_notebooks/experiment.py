@@ -135,7 +135,7 @@ if __name__ == "__main__":
     SKIP_EXPERIMENTS = 0
     
     DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-    EPOCHS = 1
+    EPOCHS = 1000
     TYPE = "HARDMOE" # SOFTMOE
     
     experiment_parameters = {}
