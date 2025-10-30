@@ -46,11 +46,13 @@ class SoftMoEHead(BaseHead):
     def __init__(
         self,
         in_dim: int,
-        num_classes: int,
+        num_classes: int = 10,
         num_experts: int = 4,
         hidden_mult: float = 2.0,
         temperature: float = 1.0,
         dropout_p: float = 0.0,
+        gate_input_dropout: float = None,
+        gate_logits_dropout: float = None,
     ):
         super().__init__()
         assert temperature > 0.0, "temperature must be > 0"
@@ -58,24 +60,45 @@ class SoftMoEHead(BaseHead):
         self.hidden_mult = float(hidden_mult)
         self.temperature = float(temperature)
         self.dropout_p = float(dropout_p)
-
+        
+        # Gate dropout parameters (default to dropout_p if not specified)
+        gate_input_dropout = gate_input_dropout if gate_input_dropout is not None else dropout_p
+        gate_logits_dropout = gate_logits_dropout if gate_logits_dropout is not None else dropout_p
+        
         # Simple linear gate: (B, D) -> (B, E)
         self.gate = nn.Linear(in_dim, self.num_experts, bias=True) # shape (512, num_experts)
-
-        # Bank of expert MLPs: each maps (B, D) -> (B, C)
+        # Optional: Add dropout to gate input for regularization
+        self.gate_dropout = nn.Dropout(p=gate_input_dropout) if gate_input_dropout > 0 else None
+        # Optional: Add dropout to gate logits for load balancing regularization
+        self.gate_logits_dropout = nn.Dropout(p=gate_logits_dropout) if gate_logits_dropout > 0 else None
+        # expert MLPs: each maps (B, D) -> (B, C)
+        hidden = int(self.hidden_mult * in_dim)
         self.experts = nn.ModuleList(
-            [_make_expert(in_dim, hidden_mult, num_classes, dropout_p) for _ in range(self.num_experts)]
+            [_make_expert(in_dim, hidden, num_classes, dropout_p) for _ in range(self.num_experts)]
         )
+        self.expert_width = hidden                     # H (per-expert hidden width)
+        self.total_width = self.num_experts * hidden   # all experts fire in SoftMoE
+        
+        # (for consistency)
+        self.k = None
+        self.capacity_factor = None
 
     def forward(self, h: torch.Tensor, return_gate: bool = False):
         """
         h: (B, D)
         """
         # --- Gating ---
+        # Apply dropout to input features before gating (if enabled)
+        h_gated = self.gate_dropout(h) if self.gate_dropout is not None else h
         # Raw logits for experts
-        gate_logits = self.gate(h)  # (B, E)
-        # Temperature-scaled softmax for smoother/peaky routing control
+        gate_logits = self.gate(h_gated)  # (B, E)
+        # Apply dropout to gate logits for load balancing regularization
+        gate_logits = self.gate_logits_dropout(gate_logits) if self.gate_logits_dropout is not None else gate_logits
+
+        # Temperature-scaled softmax
         # smaller temperature means more peaky routing (i.e. more confident in the routing decision)
+        #Low T: experts specialize strongly (each input picks one expert).
+        #High T: load is balanced, but specialization is weaker.
         probs = F.softmax(gate_logits / self.temperature, dim=-1)  # (B, E)
 
         # --- Experts ---
