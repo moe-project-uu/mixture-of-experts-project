@@ -9,21 +9,15 @@ Train a CNN classifier for the CIFAR-10 dataset (dense baseline vs MoE variants)
 
 # --- imports ---
 import os, random, numpy as np
-import sys
-import json, csv
-
-# Add project root to Python path
-#project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) 
-#sys.path.insert(0, project_root) #add the project root to the python path
-
 import torch, torch.nn as nn
 import torch.optim as optim
 from tqdm import tqdm
 import argparse
 from moe.data.cifar10_data import build_cifar10_train_val_test, CIFAR10_STATS
-
+#project imports
 from moe.models.backbones import FeatureBackbone
 from moe.heads.factory import build_head
+from moe.utils.losses import softmoe_load_balance
 
 # parse arguments
 parser = argparse.ArgumentParser()
@@ -37,8 +31,12 @@ parser.add_argument("--ff_width", type=int, default=512)
 parser.add_argument("--num_experts", type=int, default=4)
 parser.add_argument("--temperature", type=float, default=1)
 parser.add_argument("--dropout_p", type=float, default=0.1)
+parser.add_argument("--gate_input_dropout", type=float, default=0.1)
+parser.add_argument("--gate_logits_dropout", type=float, default=0.1)
 parser.add_argument("--hidden_mult", type=float, default=2)
 parser.add_argument("--FF_layer", type=str, default="Dense", choices=["Dense", "SoftMoE", "SparseMoE", "HardMoE"])
+parser.add_argument("--softmoe_load_balance", type=bool, default=False)
+parser.add_argument("--softmoe_load_balance_coef", type=float, default=0.05)
 
 
 def main(args):
@@ -57,6 +55,18 @@ def main(args):
     TEMPERATURE  = args.temperature
     DROPOUT_P    = args.dropout_p
     HIDDEN_MULT  = args.hidden_mult
+    GATE_INPUT_DROPOUT = args.gate_input_dropout
+    GATE_LOGITS_DROPOUT = args.gate_logits_dropout
+
+    # --- checkpoint path (general) ---
+    if FF_LAYER == "Dense":
+        run_tag = f"E{EPOCHS}"
+    else:
+        run_tag = f"E{EPOCHS}-X{NUM_EXPERTS}"  # X = num_experts
+
+    ckpt_dir = os.path.join("checkpoints", FF_LAYER, run_tag)
+    os.makedirs(ckpt_dir, exist_ok=True)
+    ckpt_model_path = os.path.join(ckpt_dir, "model.pt")
 
     # --- reproducibility / performance ---
     random.seed(SEED); np.random.seed(SEED)
@@ -78,11 +88,11 @@ def main(args):
 
     pin_memory = (DEVICE == "cuda")  # reuse for non_blocking=True later
 
-    # --- build model (near where you had backbone/head/classifier) ---
+    # --- build model  ---
     backbone = FeatureBackbone().to(DEVICE)
     if FF_LAYER == "Dense":
         head = build_head(
-            FF_LAYER,                    # "Dense" for now; Soft/Sparse/Hard later
+            FF_LAYER,                    # "Dense"
             in_dim=backbone.output_dim,       #512 
             width=FF_WIDTH,                   # only used by Dense
             num_classes=10,
@@ -96,7 +106,11 @@ def main(args):
             hidden_mult=HIDDEN_MULT,
             temperature=TEMPERATURE,
             dropout_p=DROPOUT_P,
+            gate_input_dropout=GATE_INPUT_DROPOUT,
+            gate_logits_dropout=GATE_LOGITS_DROPOUT,
         ).to(DEVICE)
+    else:
+        raise NotImplementedError(f"{FF_LAYER} not implemented yet")
 
     class Classifier(nn.Module):
         def __init__(self, backbone, head): 
@@ -109,29 +123,6 @@ def main(args):
 
     model = Classifier(backbone, head).to(DEVICE)
 
-    # --- generic head suffix for checkpoint names ---
-    def head_id_suffix(head):
-        """
-        Return a short ID string for the head. Works for any head type.
-        - Dense head: ''
-        - MoE head (if it has these attrs): '-E<num_experts>_K<k>_CF<capacity>'
-        """
-        parts = []
-        for attr, short in [("num_experts", "E"), ("k", "K"), ("capacity_factor", "CF")]:
-            if hasattr(head, attr):
-                parts.append(f"{short}{getattr(head, attr)}")
-        return f"-{'_'.join(parts)}" if parts else ""
-
-    # DEFINE CHECKPOINT PATHS (head-agnostic)
-    # Examples:
-    #   Dense:   checkpoints/Dense/W512-S42/
-    #   SparseMoE (E=8,K=2,CF=1.25): checkpoints/SparseMoE/W512-S42-E8_K2_CF1.25/
-    run_tag  = f"W{FF_WIDTH}-S{SEED}{head_id_suffix(head)}" #this is the checkpoint name
-    save_dir = os.path.join("checkpoints", FF_LAYER, run_tag) #checkpoint path
-    os.makedirs(save_dir, exist_ok=True) #create the checkpoint path if it doesn't exist
-
-    ckpt_model_path   = os.path.join(save_dir, "model.pt") # output:checkpoints/Dense/W512-S42-E8_K2_CF1.25/model.pt
-    ckpt_metrics_path = os.path.join(save_dir, "metrics.pt") # output:checkpoints/Dense/W512-S42-E8_K2_CF1.25/metrics.pt
 
     # --- loss & optimizer & scheduler ---
     criterion = nn.CrossEntropyLoss()  # you can try label_smoothing=0.1
@@ -147,9 +138,22 @@ def main(args):
     # --- training loop ---
     best_train_acc, best_val_acc = 0.0, 0.0   # Ma, Ga (Ga = best val acc)
     best_train_epoch, best_val_epoch = None, None   # ETT(Ma), ETT(Ga)
-    train_losses, train_accs, val_losses, val_accs = [], [], [], []   # for plotting
+
+    # --- gating metrics history (SoftMoE only) ---
+    history = {
+        "train_loss": [], "train_acc": [],
+        "val_loss":   [], "val_acc":   [],
+        # SoftMoE-specific:
+        "util_per_epoch": [],   # utilization per epoch.. list of np arrays shape (E,)
+        "entropy_per_epoch": [] # entropy per epoch.. list of floats
+    }
 
     for epoch in range(1, EPOCHS + 1):
+        # reset per-epoch accumulators for gating stats
+        if FF_LAYER == "SoftMoE":
+            util_sum = torch.zeros(NUM_EXPERTS, device=DEVICE) #utilization sum
+            ent_sum = 0.0 #entropy sum
+            count_samples = 0 
         # train
         model.train()
         tr_loss_sum, tr_correct, tr_total = 0.0, 0, 0
@@ -161,12 +165,24 @@ def main(args):
             if FF_LAYER == "Dense":
                 logits = model(data, return_gate=False)
             elif FF_LAYER == "SoftMoE":
-                logits, probs, _, _ = model(data, return_gate=True) #sel_idx, aux_loss both set to none for now
+                logits, probs, _, aux_loss = model(data, return_gate=True) #sel_idx, aux_loss both set to none for now
+                # probs: (B, E)
+                B = probs.size(0)
+                util_sum += probs.sum(dim=0)  # sum over batch for each expert
+                # per-sample entropy: -(p * log p).sum(-1), then sum over batch
+                ent_batch = -(probs * (probs.clamp_min(1e-8).log())).sum(dim=1)  # (B,)
+                ent_sum += ent_batch.sum().item()
+                count_samples += B
+
             else:
                 raise NotImplementedError
                 #logits, probs, sel_idx, aux_loss = model(data, return_gate=True) 
-            ##################
-            loss = criterion(logits, targets)
+            
+            ### -- ADD RELEVANT AUXILIARY LOSS TERMS HERE FOR LOAD BALANCING -- ###
+            if FF_LAYER == "SoftMoE" and args.softmoe_load_balance:
+                loss = criterion(logits, targets) + softmoe_load_balance(probs, NUM_EXPERTS, coef=args.softmoe_load_balance_coef)
+            else:
+                loss = criterion(logits, targets)
             loss.backward()
             optimizer.step()
 
@@ -176,6 +192,17 @@ def main(args):
 
         train_loss = tr_loss_sum / len(train_loader)
         train_acc = tr_correct / tr_total
+        # record generic learning curves
+        history["train_loss"].append(train_loss)
+        history["train_acc"].append(train_acc)
+
+        # record SoftMoE gating stats per epoch
+        if FF_LAYER == "SoftMoE" and count_samples > 0:
+            util_epoch = (util_sum / count_samples).detach().cpu().numpy()  # shape (E,)
+            H_epoch = ent_sum / count_samples 
+            history["util_per_epoch"].append(util_epoch)
+            history["entropy_per_epoch"].append(H_epoch)
+
 
         # --- validation ---
         model.eval()
@@ -200,10 +227,8 @@ def main(args):
 
         val_loss = val_loss_sum / len(val_loader)
         val_acc = val_correct / val_total
-
-        # record per epoch stats
-        train_losses.append(train_loss); train_accs.append(train_acc)
-        val_losses.append(val_loss);     val_accs.append(val_acc)
+        history["val_loss"].append(val_loss)
+        history["val_acc"].append(val_acc)
 
         print(f"Epoch {epoch:03d}/{EPOCHS} | "
               f"train_loss={train_loss:.4f} train_acc={train_acc*100:.2f}% | "
@@ -218,17 +243,14 @@ def main(args):
             best_val_acc = val_acc
             best_val_epoch = epoch
             torch.save({"model": model.state_dict(), "val_acc": best_val_acc}, ckpt_model_path)
-            print(f"Saved checkpoint: {FF_LAYER} {FF_WIDTH} val_acc={best_val_acc*100:.2f}%")
+            print(f"Saved checkpoint: {FF_LAYER} val_acc={best_val_acc*100:.2f}%")
+
 
         # step scheduler
         scheduler.step()
 
-        # save metrics every epoch
-        torch.save(
-            {"train_losses": train_losses, "train_accs": train_accs,
-             "val_losses": val_losses, "val_accs": val_accs},
-            ckpt_metrics_path,
-        )
+    # save metrics for plotting later (optional)
+    torch.save(history, os.path.join(ckpt_dir, "metrics.pt"))
 
     # --- final test evaluation (once more, on best-val model) ---
     if os.path.exists(ckpt_model_path):
@@ -252,38 +274,86 @@ def main(args):
     test_acc  = te_correct / te_total
     print(f"[FINAL TEST] loss={test_loss:.4f} acc={test_acc*100:.2f}%")
 
+    # --- per-class gating probabilities (SoftMoE only) ---
+    # get class_expert_mean: np.ndarray of shape (num_classes, num_experts) for input to plotting functions
+    if FF_LAYER == "SoftMoE":
+        model.eval()
+        num_classes = 10
+        class_names = ["airplane","automobile","bird","cat","deer","dog","frog","horse","ship","truck"]  # for CIFAR-10
+
+        class_prob_sums = torch.zeros(num_classes, NUM_EXPERTS, device=DEVICE) # (10, E)
+        class_counts    = torch.zeros(num_classes, device=DEVICE) # (10,)
+
+        with torch.no_grad():
+            #now we're measuring the per-class gating probabilities for the test set
+            for data, targets in test_loader: #data is (B, 3, 32, 32), targets is (B,)
+                data   = data.to(DEVICE)
+                labels = targets.to(DEVICE)  # (B,)
+                logits, probs, _, _ = model(data, return_gate=True)  # probs: (B, E)
+
+                # accumulate probability sums per class in a vectorized way
+                # one-hot: (B, 10)
+                one_hot = torch.zeros(probs.size(0), num_classes, device=DEVICE) # (B, 10)
+                one_hot.scatter_(1, labels.unsqueeze(1), 1.0)  # set correct class to 1
+
+                # (10, B) @ (B, E) -> (10, E): sum probs for samples of each class
+                class_prob_sums += one_hot.T @ probs
+
+                # counts per class
+                class_counts += one_hot.sum(dim=0)
+        
+        
+
+        # avoid divide-by-zero; some splits might have rare classes missing
+        class_counts = class_counts.clamp_min(1.0)
+        class_expert_mean = (class_prob_sums / class_counts.unsqueeze(1)).detach().cpu().numpy()  # (10, E)
+
+        # save into history for plotting later
+        history["class_expert_mean"] = class_expert_mean
+        history["class_names"] = class_names
+
+        # --- test snapshot of utilization & entropy (SoftMoE only) ---
+        # we're measuring the utilization and entropy of the test set
+        util_sum_t = torch.zeros(NUM_EXPERTS, device=DEVICE)
+        ent_sum_t  = 0.0
+        cnt_t      = 0
+        with torch.no_grad():
+            for data, _ in test_loader: #data is (B, 3, 32, 32), _ is (B,)
+                data = data.to(DEVICE)
+                _, probs, _, _ = model(data, return_gate=True)  # (B, E)
+                util_sum_t += probs.sum(dim=0)
+                ent_sum_t  += (-(probs * probs.clamp_min(1e-8).log()).sum(dim=1)).sum().item()
+                cnt_t      += probs.size(0)
+
+        util_test = (util_sum_t / cnt_t).detach().cpu().numpy()     # shape (E,)
+        H_test    = ent_sum_t / cnt_t
+
+        history["util_test_snapshot"]    = util_test
+        history["entropy_test_snapshot"] = H_test
+
+        # overwrite metrics.pt with the new keys
+        torch.save(history, os.path.join(ckpt_dir, "metrics.pt"))
+    ### -- END OF softmoe per-class gating probabilities -- ###
+
     print("\n=== Summary ===")
-    print(f"M_A  (max train acc): {best_train_acc*100:.2f}%  at epoch {best_train_epoch}")
-    print(f"G_A  (max val  acc): {best_val_acc*100:.2f}%  at epoch {best_val_epoch}")
-    print(f"ETT(M_A) = {best_train_epoch},  ETT(G_A) = {best_val_epoch}")
-
-    # --- save a compact summary for sweep aggregation ---
-    summary = {
-        "ff_layer": FF_LAYER,
-        "width": FF_WIDTH,
-        "Ma": float(best_train_acc),
-        "ETT_Ma": int(best_train_epoch),
-        "Ga": float(best_val_acc),          # best val accuracy
-        "ETT_Ga": int(best_val_epoch),      # epoch of best val accuracy
-        "final_test_acc": float(test_acc),  # test acc of best-val model
-        "final_test_loss": float(test_loss),
-    }
-
-    with open(os.path.join(save_dir, "summary.json"), "w") as f:
-        json.dump(summary, f, indent=2)
-
-    sweep_csv = os.path.join("checkpoints", FF_LAYER, "sweep.csv")
-    write_header = not os.path.exists(sweep_csv)
-    with open(sweep_csv, "a", newline="") as f:
-        writer = csv.DictWriter(
-            f,
-            fieldnames=["ff_layer", "width", "Ma", "ETT_Ma", "Ga", "ETT_Ga", "final_test_acc", "final_test_loss"]
-        )
-        if write_header:
-            writer.writeheader()
-        writer.writerow(summary)
-
-    ######----------------------------------------#####
+    if FF_LAYER == "Dense":
+        print(f"Width {FF_WIDTH}: ")
+        print(f"M_A  (max train acc): {best_train_acc*100:.2f}%  at epoch {best_train_epoch}")
+        print(f"G_A  (max val  acc): {best_val_acc*100:.2f}%  at epoch {best_val_epoch}")
+        print(f"ETT(M_A) = {best_train_epoch},  ETT(G_A) = {best_val_epoch}")
+    elif FF_LAYER == "SoftMoE":
+        expert_hidden = int(HIDDEN_MULT * backbone.output_dim)
+        total_width   = NUM_EXPERTS * expert_hidden
+        print(f"num_experts {NUM_EXPERTS}")
+        print(f"expert_width {expert_hidden}")
+        print(f"total_width  {total_width}")
+        print(f"M_A  (max train acc): {best_train_acc*100:.2f}%  at epoch {best_train_epoch}")
+        print(f"G_A  (max val  acc): {best_val_acc*100:.2f}%  at epoch {best_val_epoch}")
+        print(f"ETT(M_A) = {best_train_epoch},  ETT(G_A) = {best_val_epoch}")
+    else:
+        raise NotImplementedError
+    return history
+#### -----  End of main function ----- ####
 
 
 if __name__ == "__main__":
