@@ -1,5 +1,6 @@
 from .dense import DenseHead
 from .soft_moe import SoftMoEHead
+from .sparse_moe import SparseMoEHead
 # (we'll add Sparse/Hard imports later)
 
 def build_head(kind: str, **kw): #kw=keyword arguments
