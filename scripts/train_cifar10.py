@@ -37,7 +37,9 @@ parser.add_argument("--hidden_mult", type=float, default=2)
 parser.add_argument("--FF_layer", type=str, default="Dense", choices=["Dense", "SoftMoE", "SparseMoE", "HardMoE"])
 parser.add_argument("--softmoe_load_balance", type=bool, default=False)
 parser.add_argument("--softmoe_load_balance_coef", type=float, default=0.05)
-
+parser.add_argument("--sparsemoe_importance_coef", type=float, default=0.1)
+parser.add_argument("--sparsemoe_load_coef", type=float, default=0.1)
+parser.add_argument("--sparsemoe_k", type=int, default=2)
 
 def main(args):
     # --- hyperparameters ---
@@ -57,12 +59,17 @@ def main(args):
     HIDDEN_MULT  = args.hidden_mult
     GATE_INPUT_DROPOUT = args.gate_input_dropout
     GATE_LOGITS_DROPOUT = args.gate_logits_dropout
-
+    SPARSEMOE_IMPORTANCE_COEF = args.sparsemoe_importance_coef
+    SPARSEMOE_LOAD_COEF = args.sparsemoe_load_coef
+    SPARSEMOE_K = args.sparsemoe_k
     # --- checkpoint path (general) ---
     if FF_LAYER == "Dense":
         run_tag = f"E{EPOCHS}"
+    elif FF_LAYER == "SparseMoE":
+        run_tag = f"E{EPOCHS}-X{NUM_EXPERTS}-K{SPARSEMOE_K}"
     else:
-        run_tag = f"E{EPOCHS}-X{NUM_EXPERTS}"  # X = num_experts
+        run_tag = f"E{EPOCHS}-X{NUM_EXPERTS}"
+
 
     ckpt_dir = os.path.join("checkpoints", FF_LAYER, run_tag)
     os.makedirs(ckpt_dir, exist_ok=True)
@@ -109,6 +116,21 @@ def main(args):
             gate_input_dropout=GATE_INPUT_DROPOUT,
             gate_logits_dropout=GATE_LOGITS_DROPOUT,
         ).to(DEVICE)
+    elif FF_LAYER == "SparseMoE":
+        head = build_head(
+            FF_LAYER,                    # "SparseMoE"
+            in_dim=backbone.output_dim,       #512 
+            num_classes=10,
+            num_experts=NUM_EXPERTS,
+            hidden_mult=HIDDEN_MULT,
+            temperature=TEMPERATURE,
+            dropout_p=DROPOUT_P,
+            gate_input_dropout=GATE_INPUT_DROPOUT,
+            gate_logits_dropout=GATE_LOGITS_DROPOUT,
+            importance_coef=SPARSEMOE_IMPORTANCE_COEF,
+            load_coef=SPARSEMOE_LOAD_COEF,
+            k=SPARSEMOE_K, #default k=2 for noisy top-k sparse moe (set to 1 for hardmoe)
+        ).to(DEVICE)
     else:
         raise NotImplementedError(f"{FF_LAYER} not implemented yet")
 
@@ -143,17 +165,20 @@ def main(args):
     history = {
         "train_loss": [], "train_acc": [],
         "val_loss":   [], "val_acc":   [],
-        # SoftMoE-specific:
         "util_per_epoch": [],   # utilization per epoch.. list of np arrays shape (E,)
         "entropy_per_epoch": [] # entropy per epoch.. list of floats
     }
+    if FF_LAYER == "SparseMoE":
+        history["load_per_epoch"] = [] # list of np arrays shape (E,) to track count of images per expert in the batch per epoch
 
     for epoch in range(1, EPOCHS + 1):
         # reset per-epoch accumulators for gating stats
-        if FF_LAYER == "SoftMoE":
-            util_sum = torch.zeros(NUM_EXPERTS, device=DEVICE) #utilization sum
+        if FF_LAYER in ["SoftMoE", "SparseMoE"]:
+            util_sum = torch.zeros(NUM_EXPERTS, device=DEVICE) #utilization sum (probabilities sum)
             ent_sum = 0.0 #entropy sum
             count_samples = 0 
+            if FF_LAYER == "SparseMoE":
+                load_sum = torch.zeros(NUM_EXPERTS, device=DEVICE)
         # train
         model.train()
         tr_loss_sum, tr_correct, tr_total = 0.0, 0, 0
@@ -173,6 +198,16 @@ def main(args):
                 ent_batch = -(probs * (probs.clamp_min(1e-8).log())).sum(dim=1)  # (B,)
                 ent_sum += ent_batch.sum().item()
                 count_samples += B
+            elif FF_LAYER == "SparseMoE":
+                logits, probs, sel_idx, aux_loss = model(data, return_gate=True) #sel_idx, aux_loss both set to none for now
+                # probs: (B, E)
+                B = probs.size(0)
+                util_sum += probs.sum(dim=0)  # sum over batch for each expert
+                # per-sample entropy: -(p * log p).sum(-1), then sum over batch
+                ent_batch = -(probs * (probs.clamp_min(1e-8).log())).sum(dim=1)  # (B,)
+                ent_sum += ent_batch.sum().item()
+                load_sum += (probs > 0).float().sum(dim=0) # number of images per expert in the batch
+                count_samples += B
 
             else:
                 raise NotImplementedError
@@ -181,6 +216,10 @@ def main(args):
             ### -- ADD RELEVANT AUXILIARY LOSS TERMS HERE FOR LOAD BALANCING -- ###
             if FF_LAYER == "SoftMoE" and args.softmoe_load_balance:
                 loss = criterion(logits, targets) + softmoe_load_balance(probs, NUM_EXPERTS, coef=args.softmoe_load_balance_coef)
+            elif FF_LAYER == "SparseMoE":
+                #aux_loss is the sparse moe auxiliary loss which is the sum of the importance 
+                # and load losses (returned by the sparse moe head)
+                loss = criterion(logits, targets) + (aux_loss if (aux_loss is not None) else 0.0)
             else:
                 loss = criterion(logits, targets)
             loss.backward()
@@ -197,11 +236,19 @@ def main(args):
         history["train_acc"].append(train_acc)
 
         # record SoftMoE gating stats per epoch
-        if FF_LAYER == "SoftMoE" and count_samples > 0:
+        if FF_LAYER in ["SoftMoE", "SparseMoE"] and count_samples > 0:
             util_epoch = (util_sum / count_samples).detach().cpu().numpy()  # shape (E,)
             H_epoch = ent_sum / count_samples 
             history["util_per_epoch"].append(util_epoch)
             history["entropy_per_epoch"].append(H_epoch)
+
+            #fraction of images that routed to each expert (Sparse)
+            # or expected fraction (Soft)
+
+            if FF_LAYER == "SparseMoE":
+                load_epoch = (load_sum / count_samples).detach().cpu().numpy()
+                history["load_per_epoch"].append(load_epoch)
+
 
 
         # --- validation ---
@@ -214,10 +261,12 @@ def main(args):
                 if FF_LAYER == "Dense":
                     logits = model(data, return_gate=False)
                 elif FF_LAYER == "SoftMoE":
-                    logits, probs, _, _ = model(data, return_gate=True) #sel_idx, aux_loss both set to none for now
+                    logits, probs, _, aux_loss = model(data, return_gate=True) #sel_idx, aux_loss both set to none for now
+                elif FF_LAYER == "SparseMoE":
+                    logits, probs, sel_idx, aux_loss = model(data, return_gate=True)
                 else:
                     raise NotImplementedError
-                    #logits, probs, sel_idx, aux_loss = model(data, return_gate=True) 
+                #logits, probs, sel_idx, aux_loss = model(data, return_gate=True) 
                 ##################
                 
                 loss = criterion(logits, targets)
@@ -274,9 +323,9 @@ def main(args):
     test_acc  = te_correct / te_total
     print(f"[FINAL TEST] loss={test_loss:.4f} acc={test_acc*100:.2f}%")
 
-    # --- per-class gating probabilities (SoftMoE only) ---
+    # --- per-class gating probabilities Test time (SoftMoE and SparseMoE) ---
     # get class_expert_mean: np.ndarray of shape (num_classes, num_experts) for input to plotting functions
-    if FF_LAYER == "SoftMoE":
+    if FF_LAYER in ["SoftMoE", "SparseMoE"]:
         model.eval()
         num_classes = 10
         class_names = ["airplane","automobile","bird","cat","deer","dog","frog","horse","ship","truck"]  # for CIFAR-10
@@ -293,14 +342,15 @@ def main(args):
 
                 # accumulate probability sums per class in a vectorized way
                 # one-hot: (B, 10)
-                one_hot = torch.zeros(probs.size(0), num_classes, device=DEVICE) # (B, 10)
-                one_hot.scatter_(1, labels.unsqueeze(1), 1.0)  # set correct class to 1
+                one_hot = torch.zeros(probs.size(0), num_classes, device=DEVICE, dtype=probs.dtype) # (B, 10)
+                one_hot.scatter_(1, labels.unsqueeze(1), 1.0) # set correct class to 1
+
 
                 # (10, B) @ (B, E) -> (10, E): sum probs for samples of each class
-                class_prob_sums += one_hot.T @ probs
+                class_prob_sums += one_hot.T @ probs # (10, E)
 
                 # counts per class
-                class_counts += one_hot.sum(dim=0)
+                class_counts += one_hot.sum(dim=0) # (10,)
         
         
 
@@ -316,8 +366,9 @@ def main(args):
         # we're measuring the utilization and entropy of the test set
         util_sum_t = torch.zeros(NUM_EXPERTS, device=DEVICE)
         ent_sum_t  = 0.0
-        cnt_t      = 0
+        cnt_t = 0
         with torch.no_grad():
+            #calculate the utilization and entropy of the test set
             for data, _ in test_loader: #data is (B, 3, 32, 32), _ is (B,)
                 data = data.to(DEVICE)
                 _, probs, _, _ = model(data, return_gate=True)  # (B, E)
@@ -328,7 +379,21 @@ def main(args):
         util_test = (util_sum_t / cnt_t).detach().cpu().numpy()     # shape (E,)
         H_test    = ent_sum_t / cnt_t
 
-        history["util_test_snapshot"]    = util_test
+        # --- load snapshot ---
+        if FF_LAYER == "SparseMoE":
+            #calculate the load of the test set
+            load_sum_t = torch.zeros(NUM_EXPERTS, device=DEVICE)
+            cnt_t_load = 0
+            with torch.no_grad():
+                for data, _ in test_loader:
+                    data = data.to(DEVICE)
+                    _, probs, _, _ = model(data, return_gate=True)
+                    load_sum_t += (probs > 0).float().sum(dim=0)
+                    cnt_t_load += probs.size(0)
+            load_test = (load_sum_t / cnt_t_load).detach().cpu().numpy()
+            history["load_test_snapshot"] = load_test
+
+        history["util_test_snapshot"] = util_test
         history["entropy_test_snapshot"] = H_test
 
         # overwrite metrics.pt with the new keys
@@ -350,6 +415,17 @@ def main(args):
         print(f"M_A  (max train acc): {best_train_acc*100:.2f}%  at epoch {best_train_epoch}")
         print(f"G_A  (max val  acc): {best_val_acc*100:.2f}%  at epoch {best_val_epoch}")
         print(f"ETT(M_A) = {best_train_epoch},  ETT(G_A) = {best_val_epoch}")
+    elif FF_LAYER == "SparseMoE":
+        expert_hidden = int(HIDDEN_MULT * backbone.output_dim)
+        total_width   = NUM_EXPERTS * expert_hidden
+        print(f"num_experts {NUM_EXPERTS}")
+        print(f"top_k       {SPARSEMOE_K}")
+        print(f"expert_width {expert_hidden}")
+        print(f"total_width  {total_width}")
+        print(f"M_A  (max train acc): {best_train_acc*100:.2f}%  at epoch {best_train_epoch}")
+        print(f"G_A  (max val  acc): {best_val_acc*100:.2f}%  at epoch {best_val_epoch}")
+        print(f"ETT(M_A) = {best_train_epoch},  ETT(G_A) = {best_val_epoch}")
+
     else:
         raise NotImplementedError
     return history

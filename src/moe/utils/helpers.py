@@ -146,4 +146,50 @@ def plot_expert_utilization_snapshot(util_vec, ff_layer="SoftMoE", label="test (
     plt.tight_layout()
     plt.show()
 
+def plot_expert_load_over_epochs(history, ff_layer: str):
+    """
+    Expects history['load_per_epoch']: list of arrays (E,)
+    For sparse moe, this is fraction of samples selecting each expert.
+    """
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    load_list = history.get("load_per_epoch", [])
+    if not load_list:
+        print("No load recorded (history['load_per_epoch'] missing or empty).")
+        return
+
+    L = np.stack(load_list, axis=0)  # (epochs, E)
+    num_epochs, num_experts = L.shape
+
+    plt.figure(figsize=(7, 4))
+    for i in range(num_experts):
+        plt.plot(L[:, i], label=f"E{i}")
+    plt.xlabel("epoch")
+    plt.ylabel("fraction of samples (load)")
+    plt.title(f"{ff_layer}: Expert load over epochs")
+    plt.legend(ncol=2)
+    plt.grid(alpha=0.3)
+    plt.tight_layout()
+    plt.show()
+
+def plot_expert_load_snapshot(load_vec, ff_layer="SparseMoE", label="test (best-val model)"):
+    """
+    Bar chart of a single load snapshot: load_vec shape (E,)
+    """
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    E = len(load_vec)
+    plt.figure(figsize=(6, 4))
+    plt.bar(np.arange(E), load_vec)
+    plt.xticks(np.arange(E), [f"E{i}" for i in range(E)])
+    plt.ylim(0, 1)
+    plt.ylabel("fraction of samples (load)")
+    plt.xlabel("expert")
+    plt.title(f"{ff_layer}: Load snapshot — {label}")
+    plt.tight_layout()
+    plt.show()
+
+
 #### ----- End of PlottingHelper functions ----- ####
