@@ -32,6 +32,11 @@ class _NoisyTopKGate(nn.Module):
       g = xW_g + ε * softplus(xW_noise)
       keep top-k per row, mask others with -inf, then softmax over experts.
     Returns probs (B,E) and topk indices (B,k).
+
+    Input: (B, D) where D is 512 for CIFAR-10 implementation
+    Output: probs and topk_idx
+    probs: (B, E) where E is the number of experts
+    topk_idx: (B, k) where k is the number of topk experts
     """
     def __init__(self, in_dim: int, num_experts: int, k: int = 2, temperature: float = 1.0,
                  gate_input_dropout: float = 0.0, gate_logits_dropout: float = 0.0):
@@ -50,7 +55,7 @@ class _NoisyTopKGate(nn.Module):
         h_in = self.gate_in_drop(h) if self.gate_in_drop is not None else h
 
         logits = self.w_gate(h_in) # (B, E)
-        noise_std = F.softplus(self.w_noise(h_in)) # (B, E), strictly positive, this is the learned noise
+        noise_std = F.softplus(self.w_noise(h_in)) + 1e-1  # (B, E), strictly positive, this is the learned noise
         noise = torch.randn_like(noise_std) * noise_std # (B, E) output.. element wise multiplication of the learned noise by standard normal noise
         noisy_logits = logits + noise # (B, E) output.. addition of the learned noise to the logits
 
@@ -93,8 +98,8 @@ class SparseMoEHead(BaseHead):
         dropout_p: float = 0.1,
         gate_input_dropout: float = 0.0,
         gate_logits_dropout: float = 0.0,
-        importance_coef: float = 0.0, #hyperparameter for the importance loss
-        load_coef: float = 0.0, #hyperparameter for the load loss
+        importance_coef: float = 0.1, #hyperparameter for the importance loss
+        load_coef: float = 0.1, #hyperparameter for the load loss
     ):
         super().__init__()
         self.num_experts = int(num_experts)
@@ -103,7 +108,7 @@ class SparseMoEHead(BaseHead):
         self.importance_coef = float(importance_coef)
         self.load_coef = float(load_coef)
 
-        # gate
+        # initialize the noisy top-k gate
         self.gate = _NoisyTopKGate(
             in_dim=in_dim,
             num_experts=self.num_experts,
@@ -113,35 +118,54 @@ class SparseMoEHead(BaseHead):
             gate_logits_dropout=gate_logits_dropout or dropout_p,
         )
 
-        # experts
+        # initialize the experts (list of experts)
         hidden = int(self.hidden_mult * in_dim) #hidden width of the experts
         self.experts = nn.ModuleList(
             [_make_expert(in_dim, hidden, num_classes, dropout_p) for _ in range(self.num_experts)]
         )
 
-        # for consistency with your Dense/Soft heads
+        # for consistency with Dense/Soft MoE heads
         self.expert_width = hidden
         self.total_width = self.num_experts * hidden
-        self.capacity_factor = None
+        self.capacity_factor = None #yet to be implemented
 
-    def forward(self, h: torch.Tensor, return_gate: bool = False):
+    def forward(self, h: torch.Tensor, return_gate: bool = True):
+        """
+        inputs:
+        h: (B, D) - input features
+        return_gate: bool - whether to return the gate probabilities and topk indices
+        output (if return_gate is True, else only logits is returned):
+        logits: (B, C) - output logits
+        probs: (B, E) - gate probabilities
+        sel_idx: (B, k) - topk indices
+        aux_loss: (scalar tensor) - auxiliary loss
+        return_gate: bool - whether to return the gate probabilities and topk indices
+        """
         # --- gating ---
         probs, topk_idx = self.gate(h)                               # probs: (B,E) sparse; topk_idx: (B,k)
 
         # --- experts (run all; small E on CIFAR keeps it simple/fast) ---
         expert_logits = torch.stack([e(h) for e in self.experts], dim=1)  # (B,E,C)
+        #e(h) is (B, C) for each expert
+        #we stack the logits for all the experts to get a tensor of shape (B, E, C)
+        # ex output: tensor([[
+        #  [ 1,  2,  3],    <- batch 0, expert 0
+#          [ 7,  8,  9]],   <- batch 0, expert 1
+#
+#         [[ 4,  5,  6],    <- batch 1, expert 0
+#          [10, 11, 12],    <- batch 1, expert 1
+#           ]])  
 
-        # --- combine (sum over experts with sparse probs) ---
+        # --- combine (sum over experts with experts weighted by their sparse probs) ---
         logits = (probs.unsqueeze(-1) * expert_logits).sum(dim=1)         # (B,C)
 
         # --- Shazeer aux losses: both are w * CV^2 ---
         # importance: total gate mass per expert
-        importance_vec = probs.sum(dim=0)                                  # (E,)
         imp_loss = shazeer_importance_loss(probs, self.importance_coef)
 
         # load: expected #tokens per expert; proxy = how often expert is selected by top-k
         # probs is zero off-topk, >0 on top-k; so count nonzeros per expert in batch
-        load_vec = (probs > 0).float().sum(dim=0)                          # (E,)
+        load_vec = (probs > 0).float().sum(dim=0) # this is the expected number of tokens per expert in the batch (E,)
         load_loss = shazeer_load_loss(load_vec, self.load_coef)
 
         aux_loss = imp_loss + load_loss
