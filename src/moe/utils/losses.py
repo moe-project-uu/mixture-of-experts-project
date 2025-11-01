@@ -26,3 +26,26 @@ def softmoe_load_balance(probs: torch.Tensor, num_experts: int, eps: float = 1e-
     u = torch.full_like(p, 1.0 / num_experts)      # uniform prior
     # KL(p || u) = sum p * (log p - log u) ; F.kl_div expects inputs: log-probs, targets: probs
     return coef * F.kl_div(p.log(), u, reduction="batchmean")
+
+def shazeer_importance_loss(probs: torch.Tensor, coef: float, eps: float = 1e-8) -> torch.Tensor:
+    """
+    Shazeer importance loss: encourage uniform total gating probability mass.
+    L_importance = w_imp * CV(importance)^2
+    output is a scalar tensor
+    """
+    if coef <= 0:
+        return probs.new_zeros(())
+    importance = probs.sum(dim=0) + eps  # (E,) this is the total gating weight per expert
+    cv = importance.std(unbiased=False) / importance.mean()
+    return coef * (cv ** 2)
+
+def shazeer_load_loss(load: torch.Tensor, coef: float, eps: float = 1e-8) -> torch.Tensor:
+    """
+    Shazeer load loss: encourage uniform expected routing load per expert.
+    L_load = w_load * CV(load)^2 
+    output is a scalar tensor
+    """
+    if coef <= 0:
+        return load.new_zeros(())
+    cv = load.std(unbiased=False) / (load.mean() + eps)
+    return coef * (cv ** 2)
