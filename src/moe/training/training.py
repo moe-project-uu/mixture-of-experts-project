@@ -8,6 +8,41 @@ def accuracy_from_logits(logits, targets):
     correct = (preds == targets).sum().item()
     return correct, targets.size(0)
 
+def validation_loop( 
+    val_loader,
+    model, 
+    criterion,
+    FF_layer_type: str,
+    DEVICE: str,
+):              
+    model.eval()
+    val_loss_sum, val_correct, val_total = 0.0, 0, 0
+    with torch.no_grad():
+        for data, targets in val_loader:
+            data, targets = data.to(DEVICE), targets.to(DEVICE)
+            
+            ##################
+            if FF_layer_type == "Dense":
+                logits = model(data, return_gate=False)
+            elif FF_layer_type == "SoftMoE":
+                logits, probs, _, _ = model(data, return_gate=True) #sel_idx, aux_loss both set to none for now
+            else:
+                raise NotImplementedError
+                #logits, probs, sel_idx, aux_loss = model(data, return_gate=True) 
+            ##################
+            
+            loss = criterion(logits, targets)
+            val_loss_sum += loss.item()
+            c, n = accuracy_from_logits(logits, targets)
+            val_correct += c
+            val_total += n
+    
+    ## Metrics
+    val_loss = val_loss_sum / len(val_loader)
+    val_acc = val_correct / val_total
+    
+    return val_loss, val_acc
+    
 def training_loop(
     train_loader, 
     val_loader,
@@ -50,6 +85,7 @@ def training_loop(
         for data, targets in pbar:
             data, targets = data.to(DEVICE, non_blocking=pin_memory), targets.to(DEVICE, non_blocking=pin_memory)
             optimizer.zero_grad(set_to_none=True)
+            
             ##################
             if FF_layer_type == "Dense":
                 logits = model(data, return_gate=False)
@@ -71,6 +107,7 @@ def training_loop(
                 loss = criterion(logits, targets) + softmoe_load_balance(probs, experts, coef=softmoe_load_balance_required)
             else:
                 loss = criterion(logits, targets)
+                
             loss.backward()
             optimizer.step()
 
@@ -80,10 +117,6 @@ def training_loop(
 
         train_loss = tr_loss_sum / len(train_loader)
         train_acc = tr_correct / tr_total
-        
-        # record generic learning curves
-        history["train_loss"].append(train_loss)
-        history["train_acc"].append(train_acc)
 
         # record SoftMoE gating stats per epoch
         if FF_layer_type == "SoftMoE" and count_samples > 0:
@@ -92,47 +125,36 @@ def training_loop(
             history["util_per_epoch"].append(util_epoch)
             history["entropy_per_epoch"].append(H_epoch)
 
-        # --- validation ---
-        model.eval()
-        val_loss_sum, val_correct, val_total = 0.0, 0, 0
-        with torch.no_grad():
-            for data, targets in val_loader:
-                data, targets = data.to(DEVICE), targets.to(DEVICE)
-                ##################
-                if FF_layer_type == "Dense":
-                    logits = model(data, return_gate=False)
-                elif FF_layer_type == "SoftMoE":
-                    logits, probs, _, _ = model(data, return_gate=True) #sel_idx, aux_loss both set to none for now
-                else:
-                    raise NotImplementedError
-                    #logits, probs, sel_idx, aux_loss = model(data, return_gate=True) 
-                ##################
-                
-                loss = criterion(logits, targets)
-                val_loss_sum += loss.item()
-                c, n = accuracy_from_logits(logits, targets)
-                val_correct += c; val_total += n
+        # record generic learning curves
+        history["train_loss"].append(train_loss)
+        history["train_acc"].append(train_acc)
 
-        val_loss = val_loss_sum / len(val_loader)
-        val_acc = val_correct / val_total
+        # validation
+        val_loss, val_acc = validation_loop(
+            val_loader=val_loader, 
+            model=model, 
+            criterion=criterion, 
+            FF_layer_type=FF_layer_type, 
+            DEVICE=DEVICE)
         history["val_loss"].append(val_loss)
         history["val_acc"].append(val_acc)
-
-        print(f"Epoch {epoch:03d}/{num_epochs} | "
-              f"train_loss={train_loss:.4f} train_acc={train_acc*100:.2f}% | "
-              f"val_loss={val_loss:.4f} val_acc={val_acc*100:.2f}%")
         
+        print(f"Epoch {epoch:03d}/{num_epochs} | "
+          f"train_loss={history['train_loss'][-1]:.4f} train_acc={history['train_acc'][-1]*100:.2f}% | "
+          f"val_loss={history['val_loss'][-1]:.4f} val_acc={history['val_acc'][-1]*100:.2f}%")
+    
         # track best train/val and the epoch they occur (Ma, Ga, ETT(Ma), ETT(Ga))
         if train_acc > best_train_acc:
             best_train_acc = train_acc
             best_train_epoch = epoch
-
+        
+        # save best validation model
         if val_acc > best_val_acc:
             best_val_acc = val_acc
             best_val_epoch = epoch
             torch.save({"model": model.state_dict(), "val_acc": best_val_acc}, ckpt_model_path)
             print(f"Saved checkpoint: {FF_layer_type} val_acc={best_val_acc*100:.2f}%")
-
+            
         # step scheduler
         scheduler.step()
 
