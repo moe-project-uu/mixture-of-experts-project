@@ -1,4 +1,4 @@
-# src/moe/heads/soft_moe.py
+# src/moe/heads/sparse_moe.py
 from .base import BaseHead
 from moe.utils.losses import shazeer_importance_loss, shazeer_load_loss
 import torch
@@ -35,8 +35,8 @@ class _NoisyTopKGate(nn.Module):
 
     Input: (B, D) where D is 512 for CIFAR-10 implementation
     Output: probs and topk_idx
-    probs: (B, E) where E is the number of experts
-    topk_idx: (B, k) where k is the number of topk experts
+    probs: (B, E) where E is the number of experts -- zero on non-topk, >0 on topk
+    topk_idx: (B, k) where k is the number of topk experts -- indices of the topk experts for each sample in the batch
     """
     def __init__(self, in_dim: int, num_experts: int, k: int = 2, temperature: float = 1.0,
                  gate_input_dropout: float = 0.0, gate_logits_dropout: float = 0.0):
@@ -53,12 +53,15 @@ class _NoisyTopKGate(nn.Module):
     def forward(self, h: torch.Tensor): #h is the input features (B, D) where D is 512 for CIFAR-10 implementation
         # optional dropout on gate input
         h_in = self.gate_in_drop(h) if self.gate_in_drop is not None else h
-
         logits = self.w_gate(h_in) # (B, E)
-        noise_std = F.softplus(self.w_noise(h_in)) + 1e-1  # (B, E), strictly positive, this is the learned noise
+        #Normalize gate logits per sample before adding noise (prevents a single huge logit from always winning)
+        #Normalization ensures that logits are on a similar scale so that the noise added can actually have an effect on the selection of the topk experts
+        #This is key in getting load balancing to work well -- although the Shazeer paper didn't mention this. 
+        logits = (logits - logits.mean(dim=-1, keepdim=True)) / (logits.std(dim=-1, keepdim=True) + 1e-5)
+        noise_std = F.softplus(self.w_noise(h_in)) + 0.3 # (B, E), strictly positive, this is the learned noise
         noise = torch.randn_like(noise_std) * noise_std # (B, E) output.. element wise multiplication of the learned noise by standard normal noise
         noisy_logits = logits + noise # (B, E) output.. addition of the learned noise to the logits
-
+        # optional dropout on gate logits
         if self.gate_logits_drop is not None:
             noisy_logits = self.gate_logits_drop(noisy_logits)
 
@@ -142,22 +145,23 @@ class SparseMoEHead(BaseHead):
         return_gate: bool - whether to return the gate probabilities and topk indices
         """
         # --- gating ---
-        probs, topk_idx = self.gate(h)                               # probs: (B,E) sparse; topk_idx: (B,k)
+        probs, topk_idx = self.gate(h)   # probs: (B,E) sparse; topk_idx: (B,k)
 
-        # --- experts (run all; small E on CIFAR keeps it simple/fast) ---
-        expert_logits = torch.stack([e(h) for e in self.experts], dim=1)  # (B,E,C)
-        #e(h) is (B, C) for each expert
-        #we stack the logits for all the experts to get a tensor of shape (B, E, C)
-        # ex output: tensor([[
-        #  [ 1,  2,  3],    <- batch 0, expert 0
-#          [ 7,  8,  9]],   <- batch 0, expert 1
-#
-#         [[ 4,  5,  6],    <- batch 1, expert 0
-#          [10, 11, 12],    <- batch 1, expert 1
-#           ]])  
-
-        # --- combine (sum over experts with experts weighted by their sparse probs) ---
-        logits = (probs.unsqueeze(-1) * expert_logits).sum(dim=1)         # (B,C)
+        # --- Experts (compute-sparse): run only chosen experts and get logits for them only (scatter-add) ---
+        B, _ = probs.shape #B is the batch size, _ is the number of experts
+        C = self.experts[0].net[-1].out_features  # num_classes
+        logits = h.new_zeros(B, C)
+        # For each expert, pick only the samples where it's in top-k
+        for e, expert in enumerate(self.experts):
+            #for each expert, we check if it is in the topk for any of the samples in the batch
+            mask = (topk_idx == e).any(dim=1) # (B,) -> True for the samples where the expert is in the topk
+            if not mask.any():
+                continue
+            h_e = h[mask]     # (b_e, D) this is all samples where expert e is in the topk
+            out_e = expert(h_e)   # (b_e, C) for of these samples, we get the logits from the expert
+            w = probs[mask, e].unsqueeze(1)    # (b_e, 1) this is the probability of the expert being selected for the samples where it is in the topk
+            logits[mask] += w * out_e # shape (b_e, C) --- scatter-add into final logits
+            #final logits shape should be (B, C)
 
         # --- Shazeer aux losses: both are w * CV^2 ---
         # importance: total gate mass per expert
@@ -165,7 +169,7 @@ class SparseMoEHead(BaseHead):
 
         # load: expected #tokens per expert; proxy = how often expert is selected by top-k
         # probs is zero off-topk, >0 on top-k; so count nonzeros per expert in batch
-        load_vec = (probs > 0).float().sum(dim=0) # this is the expected number of tokens per expert in the batch (E,)
+        load_vec = probs.sum(dim=0) # this is the expected number of tokens per expert in the batch (E,)
         load_loss = shazeer_load_loss(load_vec, self.load_coef)
 
         aux_loss = imp_loss + load_loss
