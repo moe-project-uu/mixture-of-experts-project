@@ -14,6 +14,7 @@ def build_mnist_train_val_test(
     drop_last: bool = False,
     val_ratio: float = 0.1,   # 10% of training data used for validation
     seed: int = 42,           # reproducible split
+    flatten: bool = False
 ) -> Tuple[DataLoader, DataLoader, DataLoader, Dict[str, Any]]:
     """
     Build MNIST dataloaders with train/val/test splits.
@@ -24,15 +25,18 @@ def build_mnist_train_val_test(
     ## TODO: implement normalization
 
     # --- transforms ---
-    train_tf = T.Compose([
-        T.ToTensor(),
-        T.Lambda(lambda x: x.flatten()) # Flattens the C x H x W tensor to a 1D vector
-    ])
-    # for val + test (no agumentation)
-    eval_tf = T.Compose([
-        T.ToTensor(),
-        T.Lambda(lambda x: x.flatten()) # Flattens the C x H x W tensor to a 1D vector
-    ])  
+    # Add operations
+    common_transform_ops = [T.ToTensor()]
+    train_tf_ops = common_transform_ops.copy()
+    eval_tf_ops = common_transform_ops.copy()
+    
+    # Add flatten operation
+    if flatten:
+        train_tf_ops += [T.Lambda(lambda x: x.flatten())] # Flattens the C x H x W tensor to a 1D vector
+        eval_tf_ops += [T.Lambda(lambda x: x.flatten())]
+    
+    train_tf = T.Compose(train_tf_ops)
+    eval_tf = T.Compose(eval_tf_ops) # val and test
 
     # --- raw datasets ---
     full_train = torchvision.datasets.MNIST(
