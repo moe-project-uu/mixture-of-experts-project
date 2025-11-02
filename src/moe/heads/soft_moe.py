@@ -48,7 +48,7 @@ class SoftMoEHead(BaseHead):
         in_dim: int,
         num_classes: int = 10,
         num_experts: int = 4,
-        hidden_mult: float = 2.0,
+        hidden_mult: float = 0.5,
         temperature: float = 1.0,
         dropout_p: float = 0.0,
         gate_input_dropout: float = None,

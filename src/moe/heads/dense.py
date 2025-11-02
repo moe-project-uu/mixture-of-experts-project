@@ -10,7 +10,7 @@ class DenseHead(BaseHead):
         self.fc = nn.Sequential(
             nn.Linear(in_dim, width),
             nn.ReLU(inplace=True),
-            nn.Dropout(p=0.1),  # Always use dropout
+            nn.Dropout(p=0.1), 
             nn.Linear(width, num_classes),
         )
 

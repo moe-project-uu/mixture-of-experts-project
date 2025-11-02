@@ -17,3 +17,4 @@ class BaseHead(nn.Module):
         aux_loss : extra loss (optional)
         """
         return (logits, probs, sel_idx, aux_loss) if return_gate else logits
+
