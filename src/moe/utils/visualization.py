@@ -62,6 +62,8 @@ def plot_training_curve(
     axs[1].legend(fontsize=sm)
     axs[1].tick_params(axis='both', labelsize=sm)
     
+    plt.show()
+    
     if save_path is not None:
         plt.savefig(save_path)
     plt.close(fig)
