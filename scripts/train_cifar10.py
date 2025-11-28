@@ -8,16 +8,17 @@ Train a CNN classifier for the CIFAR-10 dataset (dense baseline vs MoE variants)
 """
 
 # --- imports ---
-import os, random, numpy as np
+import os, random, json, numpy as np
 import torch, torch.nn as nn
 import torch.optim as optim
 from tqdm import tqdm
 import argparse
 from moe.data.cifar10_data import build_cifar10_train_val_test, CIFAR10_STATS
-#project imports
+# project imports
 from moe.models.backbones import FeatureBackbone
 from moe.heads.factory import build_head
 from moe.utils.losses import softmoe_load_balance
+
 
 
 # parse arguments

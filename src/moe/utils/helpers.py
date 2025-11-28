@@ -4,8 +4,10 @@ import matplotlib.pyplot as plt
 from typing import Iterable, Optional, Sequence, Dict, Any
 from torch.utils.data import DataLoader, Subset
 import torch
+import torch.nn as nn
 from moe.models.backbones import FeatureBackbone
 from moe.heads.factory import build_head
+
 
 
 
