@@ -19,6 +19,7 @@ from moe.models.backbones import FeatureBackbone
 from moe.heads.factory import build_head
 from moe.utils.losses import softmoe_load_balance
 
+
 # parse arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("--epochs", type=int, default=50)
@@ -40,6 +41,16 @@ parser.add_argument("--softmoe_load_balance_coef", type=float, default=0.05)
 parser.add_argument("--sparsemoe_importance_coef", type=float, default=0.1)
 parser.add_argument("--sparsemoe_load_coef", type=float, default=0.1)
 parser.add_argument("--sparsemoe_k", type=int, default=2)
+parser.add_argument(
+    "--ckpt_root",
+    type=str,
+    default="checkpoints",
+    help="Root directory to store checkpoints. "
+         "In Colab, set this to a Google Drive path like "
+         "'/content/drive/MyDrive/moe_project/checkpoints'.",
+)
+
+
 
 def main(args):
     # --- hyperparameters ---
@@ -62,6 +73,8 @@ def main(args):
     SPARSEMOE_IMPORTANCE_COEF = args.sparsemoe_importance_coef
     SPARSEMOE_LOAD_COEF = args.sparsemoe_load_coef
     SPARSEMOE_K = args.sparsemoe_k
+    CKPT_ROOT = args.ckpt_root
+
     # --- checkpoint path (general) ---
     if FF_LAYER == "Dense":
         run_tag = f"E{EPOCHS}"
@@ -71,9 +84,36 @@ def main(args):
         run_tag = f"E{EPOCHS}-X{NUM_EXPERTS}"
 
 
-    ckpt_dir = os.path.join("checkpoints", FF_LAYER, run_tag)
+    ckpt_dir = os.path.join(CKPT_ROOT, FF_LAYER, run_tag)
     os.makedirs(ckpt_dir, exist_ok=True)
     ckpt_model_path = os.path.join(ckpt_dir, "model.pt")
+
+    # --- save json run summary for later reconstruction (Hessian script, etc.) ---
+    summary = {
+        "FF_layer": FF_LAYER,
+        "ff_width": FF_WIDTH,
+        "num_experts": NUM_EXPERTS,
+        "hidden_mult": HIDDEN_MULT,
+        "temperature": TEMPERATURE,
+        "dropout_p": DROPOUT_P,
+        "gate_input_dropout": GATE_INPUT_DROPOUT,
+        "gate_logits_dropout": GATE_LOGITS_DROPOUT,
+        "sparsemoe_k": SPARSEMOE_K,
+        "sparsemoe_importance_coef": SPARSEMOE_IMPORTANCE_COEF,
+        "sparsemoe_load_coef": SPARSEMOE_LOAD_COEF,
+        "epochs": EPOCHS,
+        "batch_size": BATCH_SIZE,
+        "learning_rate": LR,
+        "momentum": MOMENTUM,
+        "weight_decay": WEIGHT_DECAY,
+        "seed": SEED,
+        "val_ratio": 0.1,      
+        "ckpt_dir": ckpt_dir,
+        "ckpt_model_path": ckpt_model_path,
+    }
+    with open(os.path.join(ckpt_dir, "summary.json"), "w") as f:
+        json.dump(summary, f, indent=2)
+    #---end of save run summary---
 
     # --- reproducibility / performance ---
     random.seed(SEED); np.random.seed(SEED)
@@ -153,6 +193,9 @@ def main(args):
 
     # --- metrics helpers ---
     def accuracy_from_logits(logits, targets):
+        """output: correct, total (so that we can calculate 
+        the accuracy = correct/total)
+        """
         preds = logits.argmax(dim=1)
         correct = (preds == targets).sum().item()
         return correct, targets.size(0)
@@ -291,6 +334,7 @@ def main(args):
         if val_acc > best_val_acc:
             best_val_acc = val_acc
             best_val_epoch = epoch
+            #SAVE BEST MODEL 
             torch.save({"model": model.state_dict(), "val_acc": best_val_acc}, ckpt_model_path)
             print(f"Saved checkpoint: {FF_LAYER} val_acc={best_val_acc*100:.2f}%")
 
