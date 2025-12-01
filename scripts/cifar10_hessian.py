@@ -33,7 +33,8 @@ from moe.utils.helpers import make_subset_loader, build_model_from_summary
 def compute_curvature_along_direction(model, criterion, dataloader, device,
                                       direction_vecs, alphas):
     """
-    GOAL: Compute the loss L(θ + α v) for a range of α values.
+    Goal: compute the loss L(θ + α v) for a range of α values along some
+    direction v in parameter space.
 
     Args:
       model          : nn.Module, already loaded with trained weights.
@@ -41,7 +42,7 @@ def compute_curvature_along_direction(model, criterion, dataloader, device,
       dataloader     : DataLoader over a subset (train or test).
       device         : "cuda" or "cpu".
       direction_vecs : list of tensors, same shapes/order as model.parameters(),
-                       representing a single direction v in parameter space
+                       representing one direction v in parameter space
                        (e.g. top Hessian eigenvector).
       alphas         : 1D numpy array of scalars, e.g. np.linspace(-eps, eps, N).
 
@@ -52,10 +53,11 @@ def compute_curvature_along_direction(model, criterion, dataloader, device,
     model.eval()
     params = [p for p in model.parameters() if p.requires_grad]
 
-    # Backup original parameters θ
+    # Backup original parameters θ so we can restore them at the end
     orig = [p.data.clone() for p in params]
 
-    # Normalize direction v to unit norm over all parameters
+    # Normalize direction v to unit norm over all parameters.
+    # This makes α comparable across models and directions.
     with torch.no_grad():
         total_norm_sq = sum((v.to(device) ** 2).sum() for v in direction_vecs)
         norm = total_norm_sq.sqrt().item()
@@ -63,6 +65,7 @@ def compute_curvature_along_direction(model, criterion, dataloader, device,
 
     losses = []
 
+    # Sweep over α and compute L(θ + α v)
     for alpha in alphas:
         alpha = float(alpha)
 
@@ -76,14 +79,14 @@ def compute_curvature_along_direction(model, criterion, dataloader, device,
         with torch.no_grad():
             for x, y in dataloader:
                 x, y = x.to(device), y.to(device)
-                logits = model(x)
+                logits = model(x)  # assuming model(x) returns logits only
                 loss = criterion(logits, y)
                 total_loss += float(loss.item()) * x.size(0)
                 total_n += x.size(0)
 
         losses.append(total_loss / total_n)
 
-    # Restore original parameters θ
+    # Restore original parameters θ so the model is not corrupted
     with torch.no_grad():
         for p, p0 in zip(params, orig):
             p.data = p0
@@ -102,7 +105,7 @@ def compute_hessian_and_curvature(model, criterion, dataloader, device,
     Compute:
       - top eigenvalues (and eigenvectors)
       - trace
-      - ESD (density via SLQ)
+      - ESD (density via SLQ, if available on this PyTorch version)
       - optionally, curvature (loss vs α) along a direction in parameter space
         (by default, the top eigenvector).
 
@@ -124,40 +127,73 @@ def compute_hessian_and_curvature(model, criterion, dataloader, device,
           "lambda_max"      : float
           "top_eigs"        : list[float] of length top_n
           "trace"           : float
-          "density_eigs"    : np.ndarray
-          "density_weights" : np.ndarray
+          "density_eigs"    : np.ndarray (possibly empty if SLQ skipped)
+          "density_weights" : np.ndarray (possibly empty if SLQ skipped)
         and, if curvature_alphas is not None:
           "curvature_alphas": np.ndarray
           "curvature_losses": list[float]
     """
-    # Build PyHessian object for this dataloader
+    # Build PyHessian object for this dataloader.
+    # PyHessian assumes:
+    #   - model(x) returns logits
+    #   - criterion(logits, targets) returns scalar loss
     h = PyHessian(model, criterion, dataloader=dataloader, cuda=(device == "cuda"))
 
-    # 1) Top eigenvalues + eigenvectors (power iteration)
+    # --- Top eigenvalues (power iteration on Hessian-vector products) ---
+    print("[HESSIAN] Computing top eigenvalues...")
     top_eigs, top_vecs = h.eigenvalues(top_n=top_n)
+    print("[HESSIAN] Done top eigenvalues.")
 
-    # 2) Trace via Hutchinson estimator
-    trace = h.trace()
+    # --- Trace(H) via Hutchinson estimator ---
+    print("[HESSIAN] Computing trace (Hutchinson)...")
+    trace_raw = h.trace()
+    # Different versions of pyhessian can return:
+    #   - a scalar (single estimate),
+    #   - or a list/tuple/array of estimates across probes.
+    # I want a single scalar trace, so I average if needed.
+    if isinstance(trace_raw, (list, tuple, np.ndarray)):
+        trace_scalar = float(np.mean(trace_raw))
+    else:
+        trace_scalar = float(trace_raw)
+    print("[HESSIAN] Done trace.")
 
-    # 3) Spectral density (ESD) via SLQ
-    density_eigs, density_weights = h.density()
+    # --- Spectral density (empirical spectral distribution) via SLQ ---
+    # Note:
+    #   Older pyhessian versions call torch.eig internally, which is removed
+    #   in recent PyTorch versions. That will raise a RuntimeError about
+    #   torch.eig being deprecated/removed. To avoid losing our λ_max/trace
+    #   and curvature computations, we catch that specific case and skip ESD.
+    print("[HESSIAN] Computing spectral density (SLQ)...")
+    try:
+        density_eigs, density_weights = h.density()
+        print("[HESSIAN] Done spectral density.")
+    except RuntimeError as e:
+        if "torch.eig" in str(e):
+            print("[HESSIAN] Skipping spectral density: pyhessian uses deprecated torch.eig on this PyTorch version.")
+            density_eigs = np.array([])
+            density_weights = np.array([])
+        else:
+            # If some other error happens, re-raise so I notice it.
+            raise
 
-    # Base stats dict (always saved)
+    # Collect scalar Hessian stats into a dictionary
     stats = {
-        "lambda_max": float(top_eigs[0]),              # largest eigenvalue
-        "top_eigs": [float(x) for x in top_eigs],      # list of top eigenvalues
-        "trace": float(trace),                         # Tr(H)
-        "density_eigs": density_eigs,                  # np.ndarray
-        "density_weights": density_weights,            # np.ndarray
+        "lambda_max": float(top_eigs[0]),
+        "top_eigs": [float(x) for x in top_eigs],
+        "trace": trace_scalar,
+        "density_eigs": density_eigs,
+        "density_weights": density_weights,
     }
 
-    # 4) Curvature along a direction (optional)
+    # --- Optional curvature sweep along a chosen direction in parameter space ---
     if curvature_alphas is not None and len(curvature_alphas) > 0:
+        print(f"[HESSIAN] Computing curvature sweep ({len(curvature_alphas)} alphas)...")
+
         if use_top_eigenvector_for_curvature:
-            # top_vecs[0]: list of tensors matching model.parameters() shapes
+            # Use the top Hessian eigenvector v (as a list of tensors per-parameter)
             direction_vecs = top_vecs[0]
         else:
-            # Alternative: random direction in parameter space
+            # Fallback: random direction with same shapes as parameters
             params = [p for p in model.parameters() if p.requires_grad]
             direction_vecs = [torch.randn_like(p.data) for p in params]
 
@@ -169,6 +205,7 @@ def compute_hessian_and_curvature(model, criterion, dataloader, device,
             direction_vecs=direction_vecs,
             alphas=curvature_alphas,
         )
+        print("[HESSIAN] Done curvature sweep.")
 
         stats["curvature_alphas"] = curvature_alphas
         stats["curvature_losses"] = curv_losses
@@ -254,14 +291,16 @@ def main():
     if not os.path.exists(model_path):
         raise FileNotFoundError(f"model.pt not found at {model_path}")
 
-    # Load JSON summary of model run
+    # Load JSON summary of model run (this encodes architecture and hyperparams)
     with open(summary_path, "r") as f:
         summary = json.load(f)
 
     print(f"Loaded summary from {summary_path}")
     print(f"FF_layer={summary['FF_layer']} | num_experts={summary.get('num_experts', 'N/A')}")
 
-    # Rebuild model and load weights
+    # Rebuild model and load weights from the checkpoint.
+    # build_model_from_summary should reconstruct the same architecture
+    # as in train_cifar10.py.
     model = build_model_from_summary(summary, device)
     state = torch.load(model_path, map_location=device)
     # Saved in train_cifar10.py as {"model": model.state_dict(), "val_acc": ...}
@@ -270,19 +309,22 @@ def main():
     model.eval()
 
     # ---- build CIFAR-10 dataloaders ---- #
-    # For Hessian & curvature, disable augmentation for determinism.
+    # For Hessian & curvature, I disable augmentation for determinism and
+    # to better reflect curvature around the evaluation distribution.
     train_loader, val_loader, test_loader, meta = build_cifar10_train_val_test(
         data_dir=args.data_dir,
         batch_size=args.batch_size,
         num_workers=args.num_workers,
         device=device,
-        augment=False,
+        augment=False,      # important: no random crops/flips here
         drop_last=False,
         val_ratio=summary.get("val_ratio", 0.1),
         seed=summary.get("seed", 42),
     )
 
     # ---- make subsets for Hessian ---- #
+    # I typically use a subset of train/test for Hessian estimation to keep
+    # the computation tractable.
     seed = summary.get("seed", 42)
 
     train_subset_loader = make_subset_loader(
@@ -304,7 +346,7 @@ def main():
 
     criterion = nn.CrossEntropyLoss()
 
-    # curvature alphas for train set (used in slides)
+    # curvature alphas for train set (used in my slides / analysis)
     curvature_alphas = None
     if not args.no_curvature:
         curvature_alphas = np.linspace(
@@ -340,6 +382,9 @@ def main():
           f"trace = {hessian_test['trace']:.4f}")
 
     # ---- save results ---- #
+    # I store:
+    #   - summary: original run metadata (architecture, training hyperparameters)
+    #   - hessian: dict with "train" and "test" Hessian stats (including curvature)
     out_path = os.path.join(args.ckpt_dir, "hessian.pt")
     torch.save(
         {
