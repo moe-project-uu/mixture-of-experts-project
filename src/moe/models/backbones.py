@@ -13,3 +13,16 @@ class FeatureBackbone(nn.Module):
         self.output_dim = 512
     def forward(self, x):
         return self.backbone(x)
+    
+class MNISTFeatureBackbone(nn.Module):
+    """ResNet-18 adapted for MNIST, outputs 512-dim features."""
+    def __init__(self):
+        super().__init__()
+        m = resnet18(weights=None)
+        m.conv1 = nn.Conv2d(1, 64, kernel_size=3, stride=1, padding=1, bias=False)
+        m.maxpool = nn.Identity()
+        m.fc = nn.Identity()
+        self.backbone = m
+        self.output_dim = 512
+    def forward(self, x):
+        return self.backbone(x)
