@@ -1,4 +1,5 @@
 import torch.nn as nn
+from torch import flatten
 from torchvision.models import resnet18
 
 class FeatureBackbone(nn.Module):
@@ -11,6 +12,7 @@ class FeatureBackbone(nn.Module):
         m.fc = nn.Identity()
         self.backbone = m
         self.output_dim = 512
+        
     def forward(self, x):
         return self.backbone(x)
     

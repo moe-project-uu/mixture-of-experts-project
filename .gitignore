@@ -16,3 +16,11 @@ data/*
 outputs/
 checkpoints/
 wandb/
+
+build
+
+#vscode
+.vscode
+
+# Build info
+src/mixture_of_experts_project.egg-info/
