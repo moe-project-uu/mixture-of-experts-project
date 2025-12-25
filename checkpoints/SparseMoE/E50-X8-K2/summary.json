@@ -1,0 +1,22 @@
+{
+  "FF_layer": "SparseMoE",
+  "ff_width": 512,
+  "num_experts": 8,
+  "hidden_mult": 0.125,
+  "temperature": 1,
+  "dropout_p": 0.1,
+  "gate_input_dropout": 0.1,
+  "gate_logits_dropout": 0.1,
+  "sparsemoe_k": 2,
+  "sparsemoe_importance_coef": 0.2,
+  "sparsemoe_load_coef": 0.2,
+  "epochs": 50,
+  "batch_size": 128,
+  "learning_rate": 0.1,
+  "momentum": 0.9,
+  "weight_decay": 0.0005,
+  "seed": 42,
+  "val_ratio": 0.1,
+  "ckpt_dir": "/content/drive/MyDrive/moe_project/checkpoints/SparseMoE/E50-X8-K2",
+  "ckpt_model_path": "/content/drive/MyDrive/moe_project/checkpoints/SparseMoE/E50-X8-K2/model.pt"
+}

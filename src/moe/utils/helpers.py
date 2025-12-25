@@ -2,6 +2,114 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from typing import Iterable, Optional, Sequence, Dict, Any
+from torch.utils.data import DataLoader, Subset
+import torch
+import torch.nn as nn
+from moe.models.backbones import FeatureBackbone
+from moe.heads.factory import build_head
+
+
+
+
+#### ----- Helper functions ----- ####
+# ---------------------------------------------------------------------
+# Model reconstruction helper function (used in cifar10_hessian.py)
+# ---------------------------------------------------------------------
+
+def build_model_from_summary(summary, device):
+    """
+    Rebuild the CIFAR-10 model so that its strucutre is exactly as in train_cifar10.py using summary.json.
+    We later load the state_dict parameters into this reconstructed model.
+    """
+    ff_layer = summary["FF_layer"]
+    backbone = FeatureBackbone().to(device)
+
+    if ff_layer == "Dense":
+        head = build_head(
+            "Dense",
+            in_dim=backbone.output_dim,
+            width=summary["ff_width"],
+            num_classes=10,
+        ).to(device)
+
+    elif ff_layer == "SoftMoE":
+        head = build_head(
+            "SoftMoE",
+            in_dim=backbone.output_dim,
+            num_classes=10,
+            num_experts=summary["num_experts"],
+            hidden_mult=summary["hidden_mult"],
+            temperature=summary["temperature"],
+            dropout_p=summary["dropout_p"],
+            gate_input_dropout=summary["gate_input_dropout"],
+            gate_logits_dropout=summary["gate_logits_dropout"],
+        ).to(device)
+
+    elif ff_layer == "SparseMoE":
+        head = build_head(
+            "SparseMoE",
+            in_dim=backbone.output_dim,
+            num_classes=10,
+            num_experts=summary["num_experts"],
+            hidden_mult=summary["hidden_mult"],
+            temperature=summary["temperature"],
+            dropout_p=summary["dropout_p"],
+            gate_input_dropout=summary["gate_input_dropout"],
+            gate_logits_dropout=summary["gate_logits_dropout"],
+            importance_coef=summary["sparsemoe_importance_coef"],
+            load_coef=summary["sparsemoe_load_coef"],
+            k=summary["sparsemoe_k"],
+        ).to(device)
+
+    else:
+        raise ValueError(f"Unknown FF_layer: {ff_layer}")
+
+    class Classifier(nn.Module):
+        def __init__(self, backbone, head):
+            super().__init__()
+            self.backbone = backbone
+            self.head = head
+
+        def forward(self, x):
+            return self.head(self.backbone(x))
+
+    model = Classifier(backbone, head).to(device)
+    return model
+
+
+#Subset DataLoader helper function (used in cifar10_hessian.py)
+def make_subset_loader(full_loader, num_samples, batch_size, num_workers, device, seed=42):
+    """
+    Description: Create a deterministic subset DataLoader with num_samples from full_loader.dataset.
+    USAGE: We use this in the context of Hessian analysis to create a subset of the dataset for Hessian estimation.
+
+    inputs: full_loader: DataLoader
+    + other arguments as needed
+    output = subset_loader: DataLoader
+    """
+    ds = full_loader.dataset
+    n = len(ds)
+
+    if (num_samples is None) or (num_samples >= n):
+        #if num_samples is None or greater than the dataset size, use all samples
+        indices = torch.arange(n)
+    else:
+        g = torch.Generator().manual_seed(seed)
+        #otherwise, use a random subset of the dataset
+        indices = torch.randperm(n, generator=g)[:num_samples]
+
+    subset = Subset(ds, indices)
+
+    subset_loader = DataLoader(
+        subset,
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=num_workers,
+        pin_memory=(device == "cuda"),
+    )
+    return subset_loader
+
+
 
 #### ----- PlottingHelper functions ----- ####
 def plot_expert_utilization(
