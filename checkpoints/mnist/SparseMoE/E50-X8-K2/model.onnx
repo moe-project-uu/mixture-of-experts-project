@@ -1,0 +1,2628 @@
+
+pytorch2.9.1+cu128:¸ﬂ
+Ø
+input
+backbone.backbone.conv1.weight
+
+input_biasgetitemnode_Conv_273"Conv*
+group†*
+pads@@@@†*
+auto_pad"NOTSET†*
+strides@@†*
+	dilations@@†
+§
+
+getitemrelu	node_relu"ReluJ–
+	namespace¬: __main__.Classifier/backbone: __main__.MNISTFeatureBackbone/backbone.backbone: torchvision.models.resnet.ResNet/backbone.backbone.relu: torch.nn.modules.activation.ReLU/relu: aten.relu.defaultJ∏
+pkg.torch.onnx.class_hierarchyï['__main__.Classifier', '__main__.MNISTFeatureBackbone', 'torchvision.models.resnet.ResNet', 'torch.nn.modules.activation.ReLU', 'aten.relu.default']JÑ
+pkg.torch.onnx.fx_nodej%relu : [num_users=2] = call_function[target=torch.ops.aten.relu.default](args = (%getitem,), kwargs = {})Je
+pkg.torch.onnx.name_scopesG['', 'backbone', 'backbone.backbone', 'backbone.backbone.relu', 'relu']JÖ
+pkg.torch.onnx.stack_traceÊFile "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 83, in forward
+    def forward(self, x): return self.backbone(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 285, in forward
+    return self._forward_impl(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/activation.py", line 144, in forward
+    return F.relu(input, inplace=self.inplace)
+∏
+relu
+'backbone.backbone.layer1.0.conv1.weight
+	relu_bias	getitem_3node_Conv_275"Conv*
+group†*
+pads@@@@†*
+auto_pad"NOTSET†*
+strides@@†*
+	dilations@@†
+±
+	getitem_3relu_1node_relu_1"ReluJ‹
+	namespaceŒ: __main__.Classifier/backbone: __main__.MNISTFeatureBackbone/backbone.backbone: torchvision.models.resnet.ResNet/backbone.backbone.layer1: torch.nn.modules.container.Sequential/backbone.backbone.layer1.0: torchvision.models.resnet.BasicBlock/backbone.backbone.layer1.0.relu: torch.nn.modules.activation.ReLU/relu_1: aten.relu.defaultJâ
+pkg.torch.onnx.class_hierarchyÊ['__main__.Classifier', '__main__.MNISTFeatureBackbone', 'torchvision.models.resnet.ResNet', 'torch.nn.modules.container.Sequential', 'torchvision.models.resnet.BasicBlock', 'torch.nn.modules.activation.ReLU', 'aten.relu.default']Jà
+pkg.torch.onnx.fx_noden%relu_1 : [num_users=1] = call_function[target=torch.ops.aten.relu.default](args = (%getitem_3,), kwargs = {})J´
+pkg.torch.onnx.name_scopeså['', 'backbone', 'backbone.backbone', 'backbone.backbone.layer1', 'backbone.backbone.layer1.0', 'backbone.backbone.layer1.0.relu', 'relu_1']J‰
+pkg.torch.onnx.stack_trace≈File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 83, in forward
+    def forward(self, x): return self.backbone(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 285, in forward
+    return self._forward_impl(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 94, in forward
+    out = self.relu(out)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/activation.py", line 144, in forward
+    return F.relu(input, inplace=self.inplace)
+º
+relu_1
+'backbone.backbone.layer1.0.conv2.weight
+relu_1_bias	getitem_6node_Conv_277"Conv*
+group†*
+pads@@@@†*
+auto_pad"NOTSET†*
+strides@@†*
+	dilations@@†
+“
+	getitem_6
+reluaddnode_add"AddJï
+	namespaceá: __main__.Classifier/backbone: __main__.MNISTFeatureBackbone/backbone.backbone: torchvision.models.resnet.ResNet/backbone.backbone.layer1: torch.nn.modules.container.Sequential/backbone.backbone.layer1.0: torchvision.models.resnet.BasicBlock/add: aten.add.TensorJ„
+pkg.torch.onnx.class_hierarchy¿['__main__.Classifier', '__main__.MNISTFeatureBackbone', 'torchvision.models.resnet.ResNet', 'torch.nn.modules.container.Sequential', 'torchvision.models.resnet.BasicBlock', 'aten.add.Tensor']Jâ
+pkg.torch.onnx.fx_nodeo%add : [num_users=1] = call_function[target=torch.ops.aten.add.Tensor](args = (%getitem_6, %relu), kwargs = {})JÑ
+pkg.torch.onnx.name_scopesf['', 'backbone', 'backbone.backbone', 'backbone.backbone.layer1', 'backbone.backbone.layer1.0', 'add']Jô
+pkg.torch.onnx.stack_trace˙File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 83, in forward
+    def forward(self, x): return self.backbone(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 285, in forward
+    return self._forward_impl(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 102, in forward
+    out += identity
+¶
+addrelu_2node_relu_2"ReluJ‹
+	namespaceŒ: __main__.Classifier/backbone: __main__.MNISTFeatureBackbone/backbone.backbone: torchvision.models.resnet.ResNet/backbone.backbone.layer1: torch.nn.modules.container.Sequential/backbone.backbone.layer1.0: torchvision.models.resnet.BasicBlock/backbone.backbone.layer1.0.relu: torch.nn.modules.activation.ReLU/relu_2: aten.relu.defaultJâ
+pkg.torch.onnx.class_hierarchyÊ['__main__.Classifier', '__main__.MNISTFeatureBackbone', 'torchvision.models.resnet.ResNet', 'torch.nn.modules.container.Sequential', 'torchvision.models.resnet.BasicBlock', 'torch.nn.modules.activation.ReLU', 'aten.relu.default']JÇ
+pkg.torch.onnx.fx_nodeh%relu_2 : [num_users=2] = call_function[target=torch.ops.aten.relu.default](args = (%add,), kwargs = {})J´
+pkg.torch.onnx.name_scopeså['', 'backbone', 'backbone.backbone', 'backbone.backbone.layer1', 'backbone.backbone.layer1.0', 'backbone.backbone.layer1.0.relu', 'relu_2']JÂ
+pkg.torch.onnx.stack_trace∆File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 83, in forward
+    def forward(self, x): return self.backbone(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 285, in forward
+    return self._forward_impl(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 103, in forward
+    out = self.relu(out)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/activation.py", line 144, in forward
+    return F.relu(input, inplace=self.inplace)
+º
+relu_2
+'backbone.backbone.layer1.1.conv1.weight
+relu_2_bias	getitem_9node_Conv_279"Conv*
+group†*
+pads@@@@†*
+auto_pad"NOTSET†*
+strides@@†*
+	dilations@@†
+±
+	getitem_9relu_3node_relu_3"ReluJ‹
+	namespaceŒ: __main__.Classifier/backbone: __main__.MNISTFeatureBackbone/backbone.backbone: torchvision.models.resnet.ResNet/backbone.backbone.layer1: torch.nn.modules.container.Sequential/backbone.backbone.layer1.1: torchvision.models.resnet.BasicBlock/backbone.backbone.layer1.1.relu: torch.nn.modules.activation.ReLU/relu_3: aten.relu.defaultJâ
+pkg.torch.onnx.class_hierarchyÊ['__main__.Classifier', '__main__.MNISTFeatureBackbone', 'torchvision.models.resnet.ResNet', 'torch.nn.modules.container.Sequential', 'torchvision.models.resnet.BasicBlock', 'torch.nn.modules.activation.ReLU', 'aten.relu.default']Jà
+pkg.torch.onnx.fx_noden%relu_3 : [num_users=1] = call_function[target=torch.ops.aten.relu.default](args = (%getitem_9,), kwargs = {})J´
+pkg.torch.onnx.name_scopeså['', 'backbone', 'backbone.backbone', 'backbone.backbone.layer1', 'backbone.backbone.layer1.1', 'backbone.backbone.layer1.1.relu', 'relu_3']J‰
+pkg.torch.onnx.stack_trace≈File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 83, in forward
+    def forward(self, x): return self.backbone(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 285, in forward
+    return self._forward_impl(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 94, in forward
+    out = self.relu(out)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/activation.py", line 144, in forward
+    return F.relu(input, inplace=self.inplace)
+Ω
+relu_3
+'backbone.backbone.layer1.1.conv2.weight
+relu_3_bias
+getitem_12node_Conv_281"Conv*
+group†*
+pads@@@@†*
+auto_pad"NOTSET†*
+strides@@†*
+	dilations@@†
+‚
+
+getitem_12
+relu_2add_1
+node_add_1"AddJó
+	namespaceâ: __main__.Classifier/backbone: __main__.MNISTFeatureBackbone/backbone.backbone: torchvision.models.resnet.ResNet/backbone.backbone.layer1: torch.nn.modules.container.Sequential/backbone.backbone.layer1.1: torchvision.models.resnet.BasicBlock/add_1: aten.add.TensorJ„
+pkg.torch.onnx.class_hierarchy¿['__main__.Classifier', '__main__.MNISTFeatureBackbone', 'torchvision.models.resnet.ResNet', 'torch.nn.modules.container.Sequential', 'torchvision.models.resnet.BasicBlock', 'aten.add.Tensor']Jé
+pkg.torch.onnx.fx_nodet%add_1 : [num_users=1] = call_function[target=torch.ops.aten.add.Tensor](args = (%getitem_12, %relu_2), kwargs = {})JÜ
+pkg.torch.onnx.name_scopesh['', 'backbone', 'backbone.backbone', 'backbone.backbone.layer1', 'backbone.backbone.layer1.1', 'add_1']Jô
+pkg.torch.onnx.stack_trace˙File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 83, in forward
+    def forward(self, x): return self.backbone(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 285, in forward
+    return self._forward_impl(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 102, in forward
+    out += identity
+™
+add_1relu_4node_relu_4"ReluJ‹
+	namespaceŒ: __main__.Classifier/backbone: __main__.MNISTFeatureBackbone/backbone.backbone: torchvision.models.resnet.ResNet/backbone.backbone.layer1: torch.nn.modules.container.Sequential/backbone.backbone.layer1.1: torchvision.models.resnet.BasicBlock/backbone.backbone.layer1.1.relu: torch.nn.modules.activation.ReLU/relu_4: aten.relu.defaultJâ
+pkg.torch.onnx.class_hierarchyÊ['__main__.Classifier', '__main__.MNISTFeatureBackbone', 'torchvision.models.resnet.ResNet', 'torch.nn.modules.container.Sequential', 'torchvision.models.resnet.BasicBlock', 'torch.nn.modules.activation.ReLU', 'aten.relu.default']JÑ
+pkg.torch.onnx.fx_nodej%relu_4 : [num_users=2] = call_function[target=torch.ops.aten.relu.default](args = (%add_1,), kwargs = {})J´
+pkg.torch.onnx.name_scopeså['', 'backbone', 'backbone.backbone', 'backbone.backbone.layer1', 'backbone.backbone.layer1.1', 'backbone.backbone.layer1.1.relu', 'relu_4']JÂ
+pkg.torch.onnx.stack_trace∆File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 83, in forward
+    def forward(self, x): return self.backbone(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 285, in forward
+    return self._forward_impl(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 103, in forward
+    out = self.relu(out)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/activation.py", line 144, in forward
+    return F.relu(input, inplace=self.inplace)
+Ω
+relu_4
+'backbone.backbone.layer2.0.conv1.weight
+relu_4_bias
+getitem_15node_Conv_283"Conv*
+group†*
+pads@@@@†*
+auto_pad"NOTSET†*
+strides@@†*
+	dilations@@†
+≥
+
+getitem_15relu_5node_relu_5"ReluJ‹
+	namespaceŒ: __main__.Classifier/backbone: __main__.MNISTFeatureBackbone/backbone.backbone: torchvision.models.resnet.ResNet/backbone.backbone.layer2: torch.nn.modules.container.Sequential/backbone.backbone.layer2.0: torchvision.models.resnet.BasicBlock/backbone.backbone.layer2.0.relu: torch.nn.modules.activation.ReLU/relu_5: aten.relu.defaultJâ
+pkg.torch.onnx.class_hierarchyÊ['__main__.Classifier', '__main__.MNISTFeatureBackbone', 'torchvision.models.resnet.ResNet', 'torch.nn.modules.container.Sequential', 'torchvision.models.resnet.BasicBlock', 'torch.nn.modules.activation.ReLU', 'aten.relu.default']Jâ
+pkg.torch.onnx.fx_nodeo%relu_5 : [num_users=1] = call_function[target=torch.ops.aten.relu.default](args = (%getitem_15,), kwargs = {})J´
+pkg.torch.onnx.name_scopeså['', 'backbone', 'backbone.backbone', 'backbone.backbone.layer2', 'backbone.backbone.layer2.0', 'backbone.backbone.layer2.0.relu', 'relu_5']J‰
+pkg.torch.onnx.stack_trace≈File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 83, in forward
+    def forward(self, x): return self.backbone(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 285, in forward
+    return self._forward_impl(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 94, in forward
+    out = self.relu(out)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/activation.py", line 144, in forward
+    return F.relu(input, inplace=self.inplace)
+Ω
+relu_5
+'backbone.backbone.layer2.0.conv2.weight
+relu_5_bias
+getitem_18node_Conv_285"Conv*
+group†*
+pads@@@@†*
+auto_pad"NOTSET†*
+strides@@†*
+	dilations@@†
+ƒ
+relu_4
+.backbone.backbone.layer2.0.downsample.0.weight
+relu_4_bias
+getitem_21node_Conv_287"Conv*
+group†*
+pads@ @ @ @ †*
+auto_pad"NOTSET†*
+strides@@†*
+	dilations@@†
+Í
+
+getitem_18
+
+getitem_21add_2
+node_add_2"AddJó
+	namespaceâ: __main__.Classifier/backbone: __main__.MNISTFeatureBackbone/backbone.backbone: torchvision.models.resnet.ResNet/backbone.backbone.layer2: torch.nn.modules.container.Sequential/backbone.backbone.layer2.0: torchvision.models.resnet.BasicBlock/add_2: aten.add.TensorJ„
+pkg.torch.onnx.class_hierarchy¿['__main__.Classifier', '__main__.MNISTFeatureBackbone', 'torchvision.models.resnet.ResNet', 'torch.nn.modules.container.Sequential', 'torchvision.models.resnet.BasicBlock', 'aten.add.Tensor']Jí
+pkg.torch.onnx.fx_nodex%add_2 : [num_users=1] = call_function[target=torch.ops.aten.add.Tensor](args = (%getitem_18, %getitem_21), kwargs = {})JÜ
+pkg.torch.onnx.name_scopesh['', 'backbone', 'backbone.backbone', 'backbone.backbone.layer2', 'backbone.backbone.layer2.0', 'add_2']Jô
+pkg.torch.onnx.stack_trace˙File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 83, in forward
+    def forward(self, x): return self.backbone(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 285, in forward
+    return self._forward_impl(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 102, in forward
+    out += identity
+™
+add_2relu_6node_relu_6"ReluJ‹
+	namespaceŒ: __main__.Classifier/backbone: __main__.MNISTFeatureBackbone/backbone.backbone: torchvision.models.resnet.ResNet/backbone.backbone.layer2: torch.nn.modules.container.Sequential/backbone.backbone.layer2.0: torchvision.models.resnet.BasicBlock/backbone.backbone.layer2.0.relu: torch.nn.modules.activation.ReLU/relu_6: aten.relu.defaultJâ
+pkg.torch.onnx.class_hierarchyÊ['__main__.Classifier', '__main__.MNISTFeatureBackbone', 'torchvision.models.resnet.ResNet', 'torch.nn.modules.container.Sequential', 'torchvision.models.resnet.BasicBlock', 'torch.nn.modules.activation.ReLU', 'aten.relu.default']JÑ
+pkg.torch.onnx.fx_nodej%relu_6 : [num_users=2] = call_function[target=torch.ops.aten.relu.default](args = (%add_2,), kwargs = {})J´
+pkg.torch.onnx.name_scopeså['', 'backbone', 'backbone.backbone', 'backbone.backbone.layer2', 'backbone.backbone.layer2.0', 'backbone.backbone.layer2.0.relu', 'relu_6']JÂ
+pkg.torch.onnx.stack_trace∆File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 83, in forward
+    def forward(self, x): return self.backbone(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 285, in forward
+    return self._forward_impl(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 103, in forward
+    out = self.relu(out)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/activation.py", line 144, in forward
+    return F.relu(input, inplace=self.inplace)
+Ω
+relu_6
+'backbone.backbone.layer2.1.conv1.weight
+relu_6_bias
+getitem_24node_Conv_289"Conv*
+group†*
+pads@@@@†*
+auto_pad"NOTSET†*
+strides@@†*
+	dilations@@†
+≥
+
+getitem_24relu_7node_relu_7"ReluJ‹
+	namespaceŒ: __main__.Classifier/backbone: __main__.MNISTFeatureBackbone/backbone.backbone: torchvision.models.resnet.ResNet/backbone.backbone.layer2: torch.nn.modules.container.Sequential/backbone.backbone.layer2.1: torchvision.models.resnet.BasicBlock/backbone.backbone.layer2.1.relu: torch.nn.modules.activation.ReLU/relu_7: aten.relu.defaultJâ
+pkg.torch.onnx.class_hierarchyÊ['__main__.Classifier', '__main__.MNISTFeatureBackbone', 'torchvision.models.resnet.ResNet', 'torch.nn.modules.container.Sequential', 'torchvision.models.resnet.BasicBlock', 'torch.nn.modules.activation.ReLU', 'aten.relu.default']Jâ
+pkg.torch.onnx.fx_nodeo%relu_7 : [num_users=1] = call_function[target=torch.ops.aten.relu.default](args = (%getitem_24,), kwargs = {})J´
+pkg.torch.onnx.name_scopeså['', 'backbone', 'backbone.backbone', 'backbone.backbone.layer2', 'backbone.backbone.layer2.1', 'backbone.backbone.layer2.1.relu', 'relu_7']J‰
+pkg.torch.onnx.stack_trace≈File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 83, in forward
+    def forward(self, x): return self.backbone(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 285, in forward
+    return self._forward_impl(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 94, in forward
+    out = self.relu(out)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/activation.py", line 144, in forward
+    return F.relu(input, inplace=self.inplace)
+Ω
+relu_7
+'backbone.backbone.layer2.1.conv2.weight
+relu_7_bias
+getitem_27node_Conv_291"Conv*
+group†*
+pads@@@@†*
+auto_pad"NOTSET†*
+strides@@†*
+	dilations@@†
+‚
+
+getitem_27
+relu_6add_3
+node_add_3"AddJó
+	namespaceâ: __main__.Classifier/backbone: __main__.MNISTFeatureBackbone/backbone.backbone: torchvision.models.resnet.ResNet/backbone.backbone.layer2: torch.nn.modules.container.Sequential/backbone.backbone.layer2.1: torchvision.models.resnet.BasicBlock/add_3: aten.add.TensorJ„
+pkg.torch.onnx.class_hierarchy¿['__main__.Classifier', '__main__.MNISTFeatureBackbone', 'torchvision.models.resnet.ResNet', 'torch.nn.modules.container.Sequential', 'torchvision.models.resnet.BasicBlock', 'aten.add.Tensor']Jé
+pkg.torch.onnx.fx_nodet%add_3 : [num_users=1] = call_function[target=torch.ops.aten.add.Tensor](args = (%getitem_27, %relu_6), kwargs = {})JÜ
+pkg.torch.onnx.name_scopesh['', 'backbone', 'backbone.backbone', 'backbone.backbone.layer2', 'backbone.backbone.layer2.1', 'add_3']Jô
+pkg.torch.onnx.stack_trace˙File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 83, in forward
+    def forward(self, x): return self.backbone(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 285, in forward
+    return self._forward_impl(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 102, in forward
+    out += identity
+™
+add_3relu_8node_relu_8"ReluJ‹
+	namespaceŒ: __main__.Classifier/backbone: __main__.MNISTFeatureBackbone/backbone.backbone: torchvision.models.resnet.ResNet/backbone.backbone.layer2: torch.nn.modules.container.Sequential/backbone.backbone.layer2.1: torchvision.models.resnet.BasicBlock/backbone.backbone.layer2.1.relu: torch.nn.modules.activation.ReLU/relu_8: aten.relu.defaultJâ
+pkg.torch.onnx.class_hierarchyÊ['__main__.Classifier', '__main__.MNISTFeatureBackbone', 'torchvision.models.resnet.ResNet', 'torch.nn.modules.container.Sequential', 'torchvision.models.resnet.BasicBlock', 'torch.nn.modules.activation.ReLU', 'aten.relu.default']JÑ
+pkg.torch.onnx.fx_nodej%relu_8 : [num_users=2] = call_function[target=torch.ops.aten.relu.default](args = (%add_3,), kwargs = {})J´
+pkg.torch.onnx.name_scopeså['', 'backbone', 'backbone.backbone', 'backbone.backbone.layer2', 'backbone.backbone.layer2.1', 'backbone.backbone.layer2.1.relu', 'relu_8']JÂ
+pkg.torch.onnx.stack_trace∆File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 83, in forward
+    def forward(self, x): return self.backbone(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 285, in forward
+    return self._forward_impl(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 103, in forward
+    out = self.relu(out)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/activation.py", line 144, in forward
+    return F.relu(input, inplace=self.inplace)
+Ω
+relu_8
+'backbone.backbone.layer3.0.conv1.weight
+relu_8_bias
+getitem_30node_Conv_293"Conv*
+group†*
+pads@@@@†*
+auto_pad"NOTSET†*
+strides@@†*
+	dilations@@†
+≥
+
+getitem_30relu_9node_relu_9"ReluJ‹
+	namespaceŒ: __main__.Classifier/backbone: __main__.MNISTFeatureBackbone/backbone.backbone: torchvision.models.resnet.ResNet/backbone.backbone.layer3: torch.nn.modules.container.Sequential/backbone.backbone.layer3.0: torchvision.models.resnet.BasicBlock/backbone.backbone.layer3.0.relu: torch.nn.modules.activation.ReLU/relu_9: aten.relu.defaultJâ
+pkg.torch.onnx.class_hierarchyÊ['__main__.Classifier', '__main__.MNISTFeatureBackbone', 'torchvision.models.resnet.ResNet', 'torch.nn.modules.container.Sequential', 'torchvision.models.resnet.BasicBlock', 'torch.nn.modules.activation.ReLU', 'aten.relu.default']Jâ
+pkg.torch.onnx.fx_nodeo%relu_9 : [num_users=1] = call_function[target=torch.ops.aten.relu.default](args = (%getitem_30,), kwargs = {})J´
+pkg.torch.onnx.name_scopeså['', 'backbone', 'backbone.backbone', 'backbone.backbone.layer3', 'backbone.backbone.layer3.0', 'backbone.backbone.layer3.0.relu', 'relu_9']J‰
+pkg.torch.onnx.stack_trace≈File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 83, in forward
+    def forward(self, x): return self.backbone(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 285, in forward
+    return self._forward_impl(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 94, in forward
+    out = self.relu(out)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/activation.py", line 144, in forward
+    return F.relu(input, inplace=self.inplace)
+Ω
+relu_9
+'backbone.backbone.layer3.0.conv2.weight
+relu_9_bias
+getitem_33node_Conv_295"Conv*
+group†*
+pads@@@@†*
+auto_pad"NOTSET†*
+strides@@†*
+	dilations@@†
+ƒ
+relu_8
+.backbone.backbone.layer3.0.downsample.0.weight
+relu_8_bias
+getitem_36node_Conv_297"Conv*
+group†*
+pads@ @ @ @ †*
+auto_pad"NOTSET†*
+strides@@†*
+	dilations@@†
+Í
+
+getitem_33
+
+getitem_36add_4
+node_add_4"AddJó
+	namespaceâ: __main__.Classifier/backbone: __main__.MNISTFeatureBackbone/backbone.backbone: torchvision.models.resnet.ResNet/backbone.backbone.layer3: torch.nn.modules.container.Sequential/backbone.backbone.layer3.0: torchvision.models.resnet.BasicBlock/add_4: aten.add.TensorJ„
+pkg.torch.onnx.class_hierarchy¿['__main__.Classifier', '__main__.MNISTFeatureBackbone', 'torchvision.models.resnet.ResNet', 'torch.nn.modules.container.Sequential', 'torchvision.models.resnet.BasicBlock', 'aten.add.Tensor']Jí
+pkg.torch.onnx.fx_nodex%add_4 : [num_users=1] = call_function[target=torch.ops.aten.add.Tensor](args = (%getitem_33, %getitem_36), kwargs = {})JÜ
+pkg.torch.onnx.name_scopesh['', 'backbone', 'backbone.backbone', 'backbone.backbone.layer3', 'backbone.backbone.layer3.0', 'add_4']Jô
+pkg.torch.onnx.stack_trace˙File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 83, in forward
+    def forward(self, x): return self.backbone(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 285, in forward
+    return self._forward_impl(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 102, in forward
+    out += identity
+Ø
+add_4relu_10node_relu_10"ReluJ›
+	namespaceœ: __main__.Classifier/backbone: __main__.MNISTFeatureBackbone/backbone.backbone: torchvision.models.resnet.ResNet/backbone.backbone.layer3: torch.nn.modules.container.Sequential/backbone.backbone.layer3.0: torchvision.models.resnet.BasicBlock/backbone.backbone.layer3.0.relu: torch.nn.modules.activation.ReLU/relu_10: aten.relu.defaultJâ
+pkg.torch.onnx.class_hierarchyÊ['__main__.Classifier', '__main__.MNISTFeatureBackbone', 'torchvision.models.resnet.ResNet', 'torch.nn.modules.container.Sequential', 'torchvision.models.resnet.BasicBlock', 'torch.nn.modules.activation.ReLU', 'aten.relu.default']JÖ
+pkg.torch.onnx.fx_nodek%relu_10 : [num_users=2] = call_function[target=torch.ops.aten.relu.default](args = (%add_4,), kwargs = {})J¨
+pkg.torch.onnx.name_scopesç['', 'backbone', 'backbone.backbone', 'backbone.backbone.layer3', 'backbone.backbone.layer3.0', 'backbone.backbone.layer3.0.relu', 'relu_10']JÂ
+pkg.torch.onnx.stack_trace∆File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 83, in forward
+    def forward(self, x): return self.backbone(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 285, in forward
+    return self._forward_impl(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 103, in forward
+    out = self.relu(out)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/activation.py", line 144, in forward
+    return F.relu(input, inplace=self.inplace)
+ø
+relu_10
+'backbone.backbone.layer3.1.conv1.weight
+relu_10_bias
+getitem_39node_Conv_299"Conv*
+group†*
+pads@@@@†*
+auto_pad"NOTSET†*
+strides@@†*
+	dilations@@†
+∏
+
+getitem_39relu_11node_relu_11"ReluJ›
+	namespaceœ: __main__.Classifier/backbone: __main__.MNISTFeatureBackbone/backbone.backbone: torchvision.models.resnet.ResNet/backbone.backbone.layer3: torch.nn.modules.container.Sequential/backbone.backbone.layer3.1: torchvision.models.resnet.BasicBlock/backbone.backbone.layer3.1.relu: torch.nn.modules.activation.ReLU/relu_11: aten.relu.defaultJâ
+pkg.torch.onnx.class_hierarchyÊ['__main__.Classifier', '__main__.MNISTFeatureBackbone', 'torchvision.models.resnet.ResNet', 'torch.nn.modules.container.Sequential', 'torchvision.models.resnet.BasicBlock', 'torch.nn.modules.activation.ReLU', 'aten.relu.default']Jä
+pkg.torch.onnx.fx_nodep%relu_11 : [num_users=1] = call_function[target=torch.ops.aten.relu.default](args = (%getitem_39,), kwargs = {})J¨
+pkg.torch.onnx.name_scopesç['', 'backbone', 'backbone.backbone', 'backbone.backbone.layer3', 'backbone.backbone.layer3.1', 'backbone.backbone.layer3.1.relu', 'relu_11']J‰
+pkg.torch.onnx.stack_trace≈File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 83, in forward
+    def forward(self, x): return self.backbone(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 285, in forward
+    return self._forward_impl(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 94, in forward
+    out = self.relu(out)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/activation.py", line 144, in forward
+    return F.relu(input, inplace=self.inplace)
+ø
+relu_11
+'backbone.backbone.layer3.1.conv2.weight
+relu_11_bias
+getitem_42node_Conv_301"Conv*
+group†*
+pads@@@@†*
+auto_pad"NOTSET†*
+strides@@†*
+	dilations@@†
+‰
+
+getitem_42
+relu_10add_5
+node_add_5"AddJó
+	namespaceâ: __main__.Classifier/backbone: __main__.MNISTFeatureBackbone/backbone.backbone: torchvision.models.resnet.ResNet/backbone.backbone.layer3: torch.nn.modules.container.Sequential/backbone.backbone.layer3.1: torchvision.models.resnet.BasicBlock/add_5: aten.add.TensorJ„
+pkg.torch.onnx.class_hierarchy¿['__main__.Classifier', '__main__.MNISTFeatureBackbone', 'torchvision.models.resnet.ResNet', 'torch.nn.modules.container.Sequential', 'torchvision.models.resnet.BasicBlock', 'aten.add.Tensor']Jè
+pkg.torch.onnx.fx_nodeu%add_5 : [num_users=1] = call_function[target=torch.ops.aten.add.Tensor](args = (%getitem_42, %relu_10), kwargs = {})JÜ
+pkg.torch.onnx.name_scopesh['', 'backbone', 'backbone.backbone', 'backbone.backbone.layer3', 'backbone.backbone.layer3.1', 'add_5']Jô
+pkg.torch.onnx.stack_trace˙File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 83, in forward
+    def forward(self, x): return self.backbone(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 285, in forward
+    return self._forward_impl(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 102, in forward
+    out += identity
+Ø
+add_5relu_12node_relu_12"ReluJ›
+	namespaceœ: __main__.Classifier/backbone: __main__.MNISTFeatureBackbone/backbone.backbone: torchvision.models.resnet.ResNet/backbone.backbone.layer3: torch.nn.modules.container.Sequential/backbone.backbone.layer3.1: torchvision.models.resnet.BasicBlock/backbone.backbone.layer3.1.relu: torch.nn.modules.activation.ReLU/relu_12: aten.relu.defaultJâ
+pkg.torch.onnx.class_hierarchyÊ['__main__.Classifier', '__main__.MNISTFeatureBackbone', 'torchvision.models.resnet.ResNet', 'torch.nn.modules.container.Sequential', 'torchvision.models.resnet.BasicBlock', 'torch.nn.modules.activation.ReLU', 'aten.relu.default']JÖ
+pkg.torch.onnx.fx_nodek%relu_12 : [num_users=2] = call_function[target=torch.ops.aten.relu.default](args = (%add_5,), kwargs = {})J¨
+pkg.torch.onnx.name_scopesç['', 'backbone', 'backbone.backbone', 'backbone.backbone.layer3', 'backbone.backbone.layer3.1', 'backbone.backbone.layer3.1.relu', 'relu_12']JÂ
+pkg.torch.onnx.stack_trace∆File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 83, in forward
+    def forward(self, x): return self.backbone(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 285, in forward
+    return self._forward_impl(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 103, in forward
+    out = self.relu(out)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/activation.py", line 144, in forward
+    return F.relu(input, inplace=self.inplace)
+ø
+relu_12
+'backbone.backbone.layer4.0.conv1.weight
+relu_12_bias
+getitem_45node_Conv_303"Conv*
+group†*
+pads@@@@†*
+auto_pad"NOTSET†*
+strides@@†*
+	dilations@@†
+∏
+
+getitem_45relu_13node_relu_13"ReluJ›
+	namespaceœ: __main__.Classifier/backbone: __main__.MNISTFeatureBackbone/backbone.backbone: torchvision.models.resnet.ResNet/backbone.backbone.layer4: torch.nn.modules.container.Sequential/backbone.backbone.layer4.0: torchvision.models.resnet.BasicBlock/backbone.backbone.layer4.0.relu: torch.nn.modules.activation.ReLU/relu_13: aten.relu.defaultJâ
+pkg.torch.onnx.class_hierarchyÊ['__main__.Classifier', '__main__.MNISTFeatureBackbone', 'torchvision.models.resnet.ResNet', 'torch.nn.modules.container.Sequential', 'torchvision.models.resnet.BasicBlock', 'torch.nn.modules.activation.ReLU', 'aten.relu.default']Jä
+pkg.torch.onnx.fx_nodep%relu_13 : [num_users=1] = call_function[target=torch.ops.aten.relu.default](args = (%getitem_45,), kwargs = {})J¨
+pkg.torch.onnx.name_scopesç['', 'backbone', 'backbone.backbone', 'backbone.backbone.layer4', 'backbone.backbone.layer4.0', 'backbone.backbone.layer4.0.relu', 'relu_13']J‰
+pkg.torch.onnx.stack_trace≈File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 83, in forward
+    def forward(self, x): return self.backbone(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 285, in forward
+    return self._forward_impl(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 94, in forward
+    out = self.relu(out)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/activation.py", line 144, in forward
+    return F.relu(input, inplace=self.inplace)
+ø
+relu_13
+'backbone.backbone.layer4.0.conv2.weight
+relu_13_bias
+getitem_48node_Conv_305"Conv*
+group†*
+pads@@@@†*
+auto_pad"NOTSET†*
+strides@@†*
+	dilations@@†
+∆
+relu_12
+.backbone.backbone.layer4.0.downsample.0.weight
+relu_12_bias
+getitem_51node_Conv_307"Conv*
+group†*
+pads@ @ @ @ †*
+auto_pad"NOTSET†*
+strides@@†*
+	dilations@@†
+Í
+
+getitem_48
+
+getitem_51add_6
+node_add_6"AddJó
+	namespaceâ: __main__.Classifier/backbone: __main__.MNISTFeatureBackbone/backbone.backbone: torchvision.models.resnet.ResNet/backbone.backbone.layer4: torch.nn.modules.container.Sequential/backbone.backbone.layer4.0: torchvision.models.resnet.BasicBlock/add_6: aten.add.TensorJ„
+pkg.torch.onnx.class_hierarchy¿['__main__.Classifier', '__main__.MNISTFeatureBackbone', 'torchvision.models.resnet.ResNet', 'torch.nn.modules.container.Sequential', 'torchvision.models.resnet.BasicBlock', 'aten.add.Tensor']Jí
+pkg.torch.onnx.fx_nodex%add_6 : [num_users=1] = call_function[target=torch.ops.aten.add.Tensor](args = (%getitem_48, %getitem_51), kwargs = {})JÜ
+pkg.torch.onnx.name_scopesh['', 'backbone', 'backbone.backbone', 'backbone.backbone.layer4', 'backbone.backbone.layer4.0', 'add_6']Jô
+pkg.torch.onnx.stack_trace˙File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 83, in forward
+    def forward(self, x): return self.backbone(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 285, in forward
+    return self._forward_impl(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 102, in forward
+    out += identity
+Ø
+add_6relu_14node_relu_14"ReluJ›
+	namespaceœ: __main__.Classifier/backbone: __main__.MNISTFeatureBackbone/backbone.backbone: torchvision.models.resnet.ResNet/backbone.backbone.layer4: torch.nn.modules.container.Sequential/backbone.backbone.layer4.0: torchvision.models.resnet.BasicBlock/backbone.backbone.layer4.0.relu: torch.nn.modules.activation.ReLU/relu_14: aten.relu.defaultJâ
+pkg.torch.onnx.class_hierarchyÊ['__main__.Classifier', '__main__.MNISTFeatureBackbone', 'torchvision.models.resnet.ResNet', 'torch.nn.modules.container.Sequential', 'torchvision.models.resnet.BasicBlock', 'torch.nn.modules.activation.ReLU', 'aten.relu.default']JÖ
+pkg.torch.onnx.fx_nodek%relu_14 : [num_users=2] = call_function[target=torch.ops.aten.relu.default](args = (%add_6,), kwargs = {})J¨
+pkg.torch.onnx.name_scopesç['', 'backbone', 'backbone.backbone', 'backbone.backbone.layer4', 'backbone.backbone.layer4.0', 'backbone.backbone.layer4.0.relu', 'relu_14']JÂ
+pkg.torch.onnx.stack_trace∆File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 83, in forward
+    def forward(self, x): return self.backbone(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 285, in forward
+    return self._forward_impl(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 103, in forward
+    out = self.relu(out)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/activation.py", line 144, in forward
+    return F.relu(input, inplace=self.inplace)
+ø
+relu_14
+'backbone.backbone.layer4.1.conv1.weight
+relu_14_bias
+getitem_54node_Conv_309"Conv*
+group†*
+pads@@@@†*
+auto_pad"NOTSET†*
+strides@@†*
+	dilations@@†
+∏
+
+getitem_54relu_15node_relu_15"ReluJ›
+	namespaceœ: __main__.Classifier/backbone: __main__.MNISTFeatureBackbone/backbone.backbone: torchvision.models.resnet.ResNet/backbone.backbone.layer4: torch.nn.modules.container.Sequential/backbone.backbone.layer4.1: torchvision.models.resnet.BasicBlock/backbone.backbone.layer4.1.relu: torch.nn.modules.activation.ReLU/relu_15: aten.relu.defaultJâ
+pkg.torch.onnx.class_hierarchyÊ['__main__.Classifier', '__main__.MNISTFeatureBackbone', 'torchvision.models.resnet.ResNet', 'torch.nn.modules.container.Sequential', 'torchvision.models.resnet.BasicBlock', 'torch.nn.modules.activation.ReLU', 'aten.relu.default']Jä
+pkg.torch.onnx.fx_nodep%relu_15 : [num_users=1] = call_function[target=torch.ops.aten.relu.default](args = (%getitem_54,), kwargs = {})J¨
+pkg.torch.onnx.name_scopesç['', 'backbone', 'backbone.backbone', 'backbone.backbone.layer4', 'backbone.backbone.layer4.1', 'backbone.backbone.layer4.1.relu', 'relu_15']J‰
+pkg.torch.onnx.stack_trace≈File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 83, in forward
+    def forward(self, x): return self.backbone(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 285, in forward
+    return self._forward_impl(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 94, in forward
+    out = self.relu(out)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/activation.py", line 144, in forward
+    return F.relu(input, inplace=self.inplace)
+ø
+relu_15
+'backbone.backbone.layer4.1.conv2.weight
+relu_15_bias
+getitem_57node_Conv_311"Conv*
+group†*
+pads@@@@†*
+auto_pad"NOTSET†*
+strides@@†*
+	dilations@@†
+‰
+
+getitem_57
+relu_14add_7
+node_add_7"AddJó
+	namespaceâ: __main__.Classifier/backbone: __main__.MNISTFeatureBackbone/backbone.backbone: torchvision.models.resnet.ResNet/backbone.backbone.layer4: torch.nn.modules.container.Sequential/backbone.backbone.layer4.1: torchvision.models.resnet.BasicBlock/add_7: aten.add.TensorJ„
+pkg.torch.onnx.class_hierarchy¿['__main__.Classifier', '__main__.MNISTFeatureBackbone', 'torchvision.models.resnet.ResNet', 'torch.nn.modules.container.Sequential', 'torchvision.models.resnet.BasicBlock', 'aten.add.Tensor']Jè
+pkg.torch.onnx.fx_nodeu%add_7 : [num_users=1] = call_function[target=torch.ops.aten.add.Tensor](args = (%getitem_57, %relu_14), kwargs = {})JÜ
+pkg.torch.onnx.name_scopesh['', 'backbone', 'backbone.backbone', 'backbone.backbone.layer4', 'backbone.backbone.layer4.1', 'add_7']Jô
+pkg.torch.onnx.stack_trace˙File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 83, in forward
+    def forward(self, x): return self.backbone(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 285, in forward
+    return self._forward_impl(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 102, in forward
+    out += identity
+Ø
+add_7relu_16node_relu_16"ReluJ›
+	namespaceœ: __main__.Classifier/backbone: __main__.MNISTFeatureBackbone/backbone.backbone: torchvision.models.resnet.ResNet/backbone.backbone.layer4: torch.nn.modules.container.Sequential/backbone.backbone.layer4.1: torchvision.models.resnet.BasicBlock/backbone.backbone.layer4.1.relu: torch.nn.modules.activation.ReLU/relu_16: aten.relu.defaultJâ
+pkg.torch.onnx.class_hierarchyÊ['__main__.Classifier', '__main__.MNISTFeatureBackbone', 'torchvision.models.resnet.ResNet', 'torch.nn.modules.container.Sequential', 'torchvision.models.resnet.BasicBlock', 'torch.nn.modules.activation.ReLU', 'aten.relu.default']JÖ
+pkg.torch.onnx.fx_nodek%relu_16 : [num_users=1] = call_function[target=torch.ops.aten.relu.default](args = (%add_7,), kwargs = {})J¨
+pkg.torch.onnx.name_scopesç['', 'backbone', 'backbone.backbone', 'backbone.backbone.layer4', 'backbone.backbone.layer4.1', 'backbone.backbone.layer4.1.relu', 'relu_16']JÂ
+pkg.torch.onnx.stack_trace∆File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 83, in forward
+    def forward(self, x): return self.backbone(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 285, in forward
+    return self._forward_impl(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 103, in forward
+    out = self.relu(out)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/activation.py", line 144, in forward
+    return F.relu(input, inplace=self.inplace)
+á
+relu_16
+val_185mean	node_mean"
+ReduceMean*
+noop_with_empty_axes †*
+keepdims†JŸ
+	namespaceÀ: __main__.Classifier/backbone: __main__.MNISTFeatureBackbone/backbone.backbone: torchvision.models.resnet.ResNet/backbone.backbone.avgpool: torch.nn.modules.pooling.AdaptiveAvgPool2d/mean: aten.mean.dimJæ
+pkg.torch.onnx.class_hierarchyõ['__main__.Classifier', '__main__.MNISTFeatureBackbone', 'torchvision.models.resnet.ResNet', 'torch.nn.modules.pooling.AdaptiveAvgPool2d', 'aten.mean.dim']Jè
+pkg.torch.onnx.fx_nodeu%mean : [num_users=1] = call_function[target=torch.ops.aten.mean.dim](args = (%relu_16, [-1, -2], True), kwargs = {})Jh
+pkg.torch.onnx.name_scopesJ['', 'backbone', 'backbone.backbone', 'backbone.backbone.avgpool', 'mean']Jé
+pkg.torch.onnx.stack_traceÔFile "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 83, in forward
+    def forward(self, x): return self.backbone(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 285, in forward
+    return self._forward_impl(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/pooling.py", line 1500, in forward
+    return F.adaptive_avg_pool2d(input, self.output_size)
+Ü
+mean
+val_189view	node_view"Reshape*
+	allowzero†Jó
+	namespaceâ: __main__.Classifier/backbone: __main__.MNISTFeatureBackbone/backbone.backbone: torchvision.models.resnet.ResNet/view: aten.view.defaultJì
+pkg.torch.onnx.class_hierarchyq['__main__.Classifier', '__main__.MNISTFeatureBackbone', 'torchvision.models.resnet.ResNet', 'aten.view.default']Jä
+pkg.torch.onnx.fx_nodep%view : [num_users=9] = call_function[target=torch.ops.aten.view.default](args = (%mean, [1, 512]), kwargs = {})JK
+pkg.torch.onnx.name_scopes-['', 'backbone', 'backbone.backbone', 'view']Jæ
+pkg.torch.onnx.stack_traceüFile "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 83, in forward
+    def forward(self, x): return self.backbone(x)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torchvision/models/resnet.py", line 285, in forward
+    return self._forward_impl(x)
+°
+
+view
+head.gate.w_gate.weight
+head.gate.w_gate.biaslinearnode_linear"Gemm*
+beta  Ä?†*
+transB†*
+alpha  Ä?†*
+transA †J∞
+	namespace¢: __main__.Classifier/head: __main__.SparseMoEHead/head.gate: __main__._NoisyTopKGate/head.gate.w_gate: torch.nn.modules.linear.Linear/linear: aten.linear.defaultJ®
+pkg.torch.onnx.class_hierarchyÖ['__main__.Classifier', '__main__.SparseMoEHead', '__main__._NoisyTopKGate', 'torch.nn.modules.linear.Linear', 'aten.linear.default']Jª
+pkg.torch.onnx.fx_node†%linear : [num_users=1] = call_function[target=torch.ops.aten.linear.default](args = (%view, %p_head_gate_w_gate_weight, %p_head_gate_w_gate_bias), kwargs = {})JU
+pkg.torch.onnx.name_scopes7['', 'head', 'head.gate', 'head.gate.w_gate', 'linear']Jõ
+pkg.torch.onnx.stack_trace¸File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 70, in forward
+    probs, topk_idx = self.gate(h)
+  File "/tmp/ipykernel_9002/2553343104.py", line 19, in forward
+    logits = self.w_gate(h)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/linear.py", line 134, in forward
+    return F.linear(input, self.weight, self.bias)
+Ò
+linearsoftmaxnode_softmax"Softmax*
+axisˇˇˇˇˇˇˇˇˇ†J|
+	namespaceo: __main__.Classifier/head: __main__.SparseMoEHead/head.gate: __main__._NoisyTopKGate/softmax: aten.softmax.intJÇ
+pkg.torch.onnx.class_hierarchy`['__main__.Classifier', '__main__.SparseMoEHead', '__main__._NoisyTopKGate', 'aten.softmax.int']Jà
+pkg.torch.onnx.fx_noden%softmax : [num_users=1] = call_function[target=torch.ops.aten.softmax.int](args = (%linear, -1), kwargs = {})JB
+pkg.torch.onnx.name_scopes$['', 'head', 'head.gate', 'softmax']Jﬁ
+pkg.torch.onnx.stack_traceøFile "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 70, in forward
+    probs, topk_idx = self.gate(h)
+  File "/tmp/ipykernel_9002/2553343104.py", line 20, in forward
+    probs = F.softmax(logits, dim=-1)
+ß
+view
+head.experts.0.net.0.weight
+head.experts.0.net.0.biaslinear_1node_linear_1"Gemm*
+beta  Ä?†*
+transB†*
+alpha  Ä?†*
+transA †JÛ
+	namespaceÂ: __main__.Classifier/head: __main__.SparseMoEHead/head.experts.0: __main__._make_expert/head.experts.0.net: torch.nn.modules.container.Sequential/head.experts.0.net.0: torch.nn.modules.linear.Linear/linear_1: aten.linear.defaultJœ
+pkg.torch.onnx.class_hierarchy¨['__main__.Classifier', '__main__.SparseMoEHead', '__main__._make_expert', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.linear.Linear', 'aten.linear.default']J≈
+pkg.torch.onnx.fx_node™%linear_1 : [num_users=1] = call_function[target=torch.ops.aten.linear.default](args = (%view, %p_head_experts_0_net_0_weight, %p_head_experts_0_net_0_bias), kwargs = {})Jv
+pkg.torch.onnx.name_scopesX['', 'head', 'head.experts.0', 'head.experts.0.net', 'head.experts.0.net.0', 'linear_1']JÄ
+pkg.torch.onnx.stack_trace·File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 72, in forward
+    expert_outputs = torch.stack([e(h) for e in self.experts], dim=1)
+  File "/tmp/ipykernel_9002/2553343104.py", line 31, in forward
+    def forward(self, h): return self.net(h)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/linear.py", line 134, in forward
+    return F.linear(input, self.weight, self.bias)
+Û
+linear_1relu_17node_relu_17"ReluJÚ
+	namespace‰: __main__.Classifier/head: __main__.SparseMoEHead/head.experts.0: __main__._make_expert/head.experts.0.net: torch.nn.modules.container.Sequential/head.experts.0.net.1: torch.nn.modules.activation.ReLU/relu_17: aten.relu.defaultJœ
+pkg.torch.onnx.class_hierarchy¨['__main__.Classifier', '__main__.SparseMoEHead', '__main__._make_expert', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.activation.ReLU', 'aten.relu.default']Jà
+pkg.torch.onnx.fx_noden%relu_17 : [num_users=1] = call_function[target=torch.ops.aten.relu.default](args = (%linear_1,), kwargs = {})Ju
+pkg.torch.onnx.name_scopesW['', 'head', 'head.experts.0', 'head.experts.0.net', 'head.experts.0.net.1', 'relu_17']JÄ
+pkg.torch.onnx.stack_trace·File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 72, in forward
+    expert_outputs = torch.stack([e(h) for e in self.experts], dim=1)
+  File "/tmp/ipykernel_9002/2553343104.py", line 31, in forward
+    def forward(self, h): return self.net(h)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/activation.py", line 144, in forward
+    return F.relu(input, inplace=self.inplace)
+´
+relu_17
+head.experts.0.net.3.weight
+head.experts.0.net.3.biaslinear_2node_linear_2"Gemm*
+beta  Ä?†*
+transB†*
+alpha  Ä?†*
+transA †JÛ
+	namespaceÂ: __main__.Classifier/head: __main__.SparseMoEHead/head.experts.0: __main__._make_expert/head.experts.0.net: torch.nn.modules.container.Sequential/head.experts.0.net.3: torch.nn.modules.linear.Linear/linear_2: aten.linear.defaultJœ
+pkg.torch.onnx.class_hierarchy¨['__main__.Classifier', '__main__.SparseMoEHead', '__main__._make_expert', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.linear.Linear', 'aten.linear.default']J∆
+pkg.torch.onnx.fx_node´%linear_2 : [num_users=1] = call_function[target=torch.ops.aten.linear.default](args = (%clone, %p_head_experts_0_net_3_weight, %p_head_experts_0_net_3_bias), kwargs = {})Jv
+pkg.torch.onnx.name_scopesX['', 'head', 'head.experts.0', 'head.experts.0.net', 'head.experts.0.net.3', 'linear_2']JÄ
+pkg.torch.onnx.stack_trace·File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 72, in forward
+    expert_outputs = torch.stack([e(h) for e in self.experts], dim=1)
+  File "/tmp/ipykernel_9002/2553343104.py", line 31, in forward
+    def forward(self, h): return self.net(h)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/linear.py", line 134, in forward
+    return F.linear(input, self.weight, self.bias)
+ß
+view
+head.experts.1.net.0.weight
+head.experts.1.net.0.biaslinear_3node_linear_3"Gemm*
+beta  Ä?†*
+transB†*
+alpha  Ä?†*
+transA †JÛ
+	namespaceÂ: __main__.Classifier/head: __main__.SparseMoEHead/head.experts.1: __main__._make_expert/head.experts.1.net: torch.nn.modules.container.Sequential/head.experts.1.net.0: torch.nn.modules.linear.Linear/linear_3: aten.linear.defaultJœ
+pkg.torch.onnx.class_hierarchy¨['__main__.Classifier', '__main__.SparseMoEHead', '__main__._make_expert', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.linear.Linear', 'aten.linear.default']J≈
+pkg.torch.onnx.fx_node™%linear_3 : [num_users=1] = call_function[target=torch.ops.aten.linear.default](args = (%view, %p_head_experts_1_net_0_weight, %p_head_experts_1_net_0_bias), kwargs = {})Jv
+pkg.torch.onnx.name_scopesX['', 'head', 'head.experts.1', 'head.experts.1.net', 'head.experts.1.net.0', 'linear_3']JÄ
+pkg.torch.onnx.stack_trace·File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 72, in forward
+    expert_outputs = torch.stack([e(h) for e in self.experts], dim=1)
+  File "/tmp/ipykernel_9002/2553343104.py", line 31, in forward
+    def forward(self, h): return self.net(h)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/linear.py", line 134, in forward
+    return F.linear(input, self.weight, self.bias)
+Û
+linear_3relu_18node_relu_18"ReluJÚ
+	namespace‰: __main__.Classifier/head: __main__.SparseMoEHead/head.experts.1: __main__._make_expert/head.experts.1.net: torch.nn.modules.container.Sequential/head.experts.1.net.1: torch.nn.modules.activation.ReLU/relu_18: aten.relu.defaultJœ
+pkg.torch.onnx.class_hierarchy¨['__main__.Classifier', '__main__.SparseMoEHead', '__main__._make_expert', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.activation.ReLU', 'aten.relu.default']Jà
+pkg.torch.onnx.fx_noden%relu_18 : [num_users=1] = call_function[target=torch.ops.aten.relu.default](args = (%linear_3,), kwargs = {})Ju
+pkg.torch.onnx.name_scopesW['', 'head', 'head.experts.1', 'head.experts.1.net', 'head.experts.1.net.1', 'relu_18']JÄ
+pkg.torch.onnx.stack_trace·File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 72, in forward
+    expert_outputs = torch.stack([e(h) for e in self.experts], dim=1)
+  File "/tmp/ipykernel_9002/2553343104.py", line 31, in forward
+    def forward(self, h): return self.net(h)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/activation.py", line 144, in forward
+    return F.relu(input, inplace=self.inplace)
+≠
+relu_18
+head.experts.1.net.3.weight
+head.experts.1.net.3.biaslinear_4node_linear_4"Gemm*
+beta  Ä?†*
+transB†*
+alpha  Ä?†*
+transA †JÛ
+	namespaceÂ: __main__.Classifier/head: __main__.SparseMoEHead/head.experts.1: __main__._make_expert/head.experts.1.net: torch.nn.modules.container.Sequential/head.experts.1.net.3: torch.nn.modules.linear.Linear/linear_4: aten.linear.defaultJœ
+pkg.torch.onnx.class_hierarchy¨['__main__.Classifier', '__main__.SparseMoEHead', '__main__._make_expert', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.linear.Linear', 'aten.linear.default']J»
+pkg.torch.onnx.fx_node≠%linear_4 : [num_users=1] = call_function[target=torch.ops.aten.linear.default](args = (%clone_1, %p_head_experts_1_net_3_weight, %p_head_experts_1_net_3_bias), kwargs = {})Jv
+pkg.torch.onnx.name_scopesX['', 'head', 'head.experts.1', 'head.experts.1.net', 'head.experts.1.net.3', 'linear_4']JÄ
+pkg.torch.onnx.stack_trace·File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 72, in forward
+    expert_outputs = torch.stack([e(h) for e in self.experts], dim=1)
+  File "/tmp/ipykernel_9002/2553343104.py", line 31, in forward
+    def forward(self, h): return self.net(h)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/linear.py", line 134, in forward
+    return F.linear(input, self.weight, self.bias)
+ß
+view
+head.experts.2.net.0.weight
+head.experts.2.net.0.biaslinear_5node_linear_5"Gemm*
+beta  Ä?†*
+transB†*
+alpha  Ä?†*
+transA †JÛ
+	namespaceÂ: __main__.Classifier/head: __main__.SparseMoEHead/head.experts.2: __main__._make_expert/head.experts.2.net: torch.nn.modules.container.Sequential/head.experts.2.net.0: torch.nn.modules.linear.Linear/linear_5: aten.linear.defaultJœ
+pkg.torch.onnx.class_hierarchy¨['__main__.Classifier', '__main__.SparseMoEHead', '__main__._make_expert', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.linear.Linear', 'aten.linear.default']J≈
+pkg.torch.onnx.fx_node™%linear_5 : [num_users=1] = call_function[target=torch.ops.aten.linear.default](args = (%view, %p_head_experts_2_net_0_weight, %p_head_experts_2_net_0_bias), kwargs = {})Jv
+pkg.torch.onnx.name_scopesX['', 'head', 'head.experts.2', 'head.experts.2.net', 'head.experts.2.net.0', 'linear_5']JÄ
+pkg.torch.onnx.stack_trace·File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 72, in forward
+    expert_outputs = torch.stack([e(h) for e in self.experts], dim=1)
+  File "/tmp/ipykernel_9002/2553343104.py", line 31, in forward
+    def forward(self, h): return self.net(h)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/linear.py", line 134, in forward
+    return F.linear(input, self.weight, self.bias)
+Û
+linear_5relu_19node_relu_19"ReluJÚ
+	namespace‰: __main__.Classifier/head: __main__.SparseMoEHead/head.experts.2: __main__._make_expert/head.experts.2.net: torch.nn.modules.container.Sequential/head.experts.2.net.1: torch.nn.modules.activation.ReLU/relu_19: aten.relu.defaultJœ
+pkg.torch.onnx.class_hierarchy¨['__main__.Classifier', '__main__.SparseMoEHead', '__main__._make_expert', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.activation.ReLU', 'aten.relu.default']Jà
+pkg.torch.onnx.fx_noden%relu_19 : [num_users=1] = call_function[target=torch.ops.aten.relu.default](args = (%linear_5,), kwargs = {})Ju
+pkg.torch.onnx.name_scopesW['', 'head', 'head.experts.2', 'head.experts.2.net', 'head.experts.2.net.1', 'relu_19']JÄ
+pkg.torch.onnx.stack_trace·File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 72, in forward
+    expert_outputs = torch.stack([e(h) for e in self.experts], dim=1)
+  File "/tmp/ipykernel_9002/2553343104.py", line 31, in forward
+    def forward(self, h): return self.net(h)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/activation.py", line 144, in forward
+    return F.relu(input, inplace=self.inplace)
+≠
+relu_19
+head.experts.2.net.3.weight
+head.experts.2.net.3.biaslinear_6node_linear_6"Gemm*
+beta  Ä?†*
+transB†*
+alpha  Ä?†*
+transA †JÛ
+	namespaceÂ: __main__.Classifier/head: __main__.SparseMoEHead/head.experts.2: __main__._make_expert/head.experts.2.net: torch.nn.modules.container.Sequential/head.experts.2.net.3: torch.nn.modules.linear.Linear/linear_6: aten.linear.defaultJœ
+pkg.torch.onnx.class_hierarchy¨['__main__.Classifier', '__main__.SparseMoEHead', '__main__._make_expert', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.linear.Linear', 'aten.linear.default']J»
+pkg.torch.onnx.fx_node≠%linear_6 : [num_users=1] = call_function[target=torch.ops.aten.linear.default](args = (%clone_2, %p_head_experts_2_net_3_weight, %p_head_experts_2_net_3_bias), kwargs = {})Jv
+pkg.torch.onnx.name_scopesX['', 'head', 'head.experts.2', 'head.experts.2.net', 'head.experts.2.net.3', 'linear_6']JÄ
+pkg.torch.onnx.stack_trace·File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 72, in forward
+    expert_outputs = torch.stack([e(h) for e in self.experts], dim=1)
+  File "/tmp/ipykernel_9002/2553343104.py", line 31, in forward
+    def forward(self, h): return self.net(h)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/linear.py", line 134, in forward
+    return F.linear(input, self.weight, self.bias)
+ß
+view
+head.experts.3.net.0.weight
+head.experts.3.net.0.biaslinear_7node_linear_7"Gemm*
+beta  Ä?†*
+transB†*
+alpha  Ä?†*
+transA †JÛ
+	namespaceÂ: __main__.Classifier/head: __main__.SparseMoEHead/head.experts.3: __main__._make_expert/head.experts.3.net: torch.nn.modules.container.Sequential/head.experts.3.net.0: torch.nn.modules.linear.Linear/linear_7: aten.linear.defaultJœ
+pkg.torch.onnx.class_hierarchy¨['__main__.Classifier', '__main__.SparseMoEHead', '__main__._make_expert', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.linear.Linear', 'aten.linear.default']J≈
+pkg.torch.onnx.fx_node™%linear_7 : [num_users=1] = call_function[target=torch.ops.aten.linear.default](args = (%view, %p_head_experts_3_net_0_weight, %p_head_experts_3_net_0_bias), kwargs = {})Jv
+pkg.torch.onnx.name_scopesX['', 'head', 'head.experts.3', 'head.experts.3.net', 'head.experts.3.net.0', 'linear_7']JÄ
+pkg.torch.onnx.stack_trace·File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 72, in forward
+    expert_outputs = torch.stack([e(h) for e in self.experts], dim=1)
+  File "/tmp/ipykernel_9002/2553343104.py", line 31, in forward
+    def forward(self, h): return self.net(h)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/linear.py", line 134, in forward
+    return F.linear(input, self.weight, self.bias)
+Û
+linear_7relu_20node_relu_20"ReluJÚ
+	namespace‰: __main__.Classifier/head: __main__.SparseMoEHead/head.experts.3: __main__._make_expert/head.experts.3.net: torch.nn.modules.container.Sequential/head.experts.3.net.1: torch.nn.modules.activation.ReLU/relu_20: aten.relu.defaultJœ
+pkg.torch.onnx.class_hierarchy¨['__main__.Classifier', '__main__.SparseMoEHead', '__main__._make_expert', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.activation.ReLU', 'aten.relu.default']Jà
+pkg.torch.onnx.fx_noden%relu_20 : [num_users=1] = call_function[target=torch.ops.aten.relu.default](args = (%linear_7,), kwargs = {})Ju
+pkg.torch.onnx.name_scopesW['', 'head', 'head.experts.3', 'head.experts.3.net', 'head.experts.3.net.1', 'relu_20']JÄ
+pkg.torch.onnx.stack_trace·File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 72, in forward
+    expert_outputs = torch.stack([e(h) for e in self.experts], dim=1)
+  File "/tmp/ipykernel_9002/2553343104.py", line 31, in forward
+    def forward(self, h): return self.net(h)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/activation.py", line 144, in forward
+    return F.relu(input, inplace=self.inplace)
+≠
+relu_20
+head.experts.3.net.3.weight
+head.experts.3.net.3.biaslinear_8node_linear_8"Gemm*
+beta  Ä?†*
+transB†*
+alpha  Ä?†*
+transA †JÛ
+	namespaceÂ: __main__.Classifier/head: __main__.SparseMoEHead/head.experts.3: __main__._make_expert/head.experts.3.net: torch.nn.modules.container.Sequential/head.experts.3.net.3: torch.nn.modules.linear.Linear/linear_8: aten.linear.defaultJœ
+pkg.torch.onnx.class_hierarchy¨['__main__.Classifier', '__main__.SparseMoEHead', '__main__._make_expert', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.linear.Linear', 'aten.linear.default']J»
+pkg.torch.onnx.fx_node≠%linear_8 : [num_users=1] = call_function[target=torch.ops.aten.linear.default](args = (%clone_3, %p_head_experts_3_net_3_weight, %p_head_experts_3_net_3_bias), kwargs = {})Jv
+pkg.torch.onnx.name_scopesX['', 'head', 'head.experts.3', 'head.experts.3.net', 'head.experts.3.net.3', 'linear_8']JÄ
+pkg.torch.onnx.stack_trace·File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 72, in forward
+    expert_outputs = torch.stack([e(h) for e in self.experts], dim=1)
+  File "/tmp/ipykernel_9002/2553343104.py", line 31, in forward
+    def forward(self, h): return self.net(h)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/linear.py", line 134, in forward
+    return F.linear(input, self.weight, self.bias)
+ß
+view
+head.experts.4.net.0.weight
+head.experts.4.net.0.biaslinear_9node_linear_9"Gemm*
+beta  Ä?†*
+transB†*
+alpha  Ä?†*
+transA †JÛ
+	namespaceÂ: __main__.Classifier/head: __main__.SparseMoEHead/head.experts.4: __main__._make_expert/head.experts.4.net: torch.nn.modules.container.Sequential/head.experts.4.net.0: torch.nn.modules.linear.Linear/linear_9: aten.linear.defaultJœ
+pkg.torch.onnx.class_hierarchy¨['__main__.Classifier', '__main__.SparseMoEHead', '__main__._make_expert', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.linear.Linear', 'aten.linear.default']J≈
+pkg.torch.onnx.fx_node™%linear_9 : [num_users=1] = call_function[target=torch.ops.aten.linear.default](args = (%view, %p_head_experts_4_net_0_weight, %p_head_experts_4_net_0_bias), kwargs = {})Jv
+pkg.torch.onnx.name_scopesX['', 'head', 'head.experts.4', 'head.experts.4.net', 'head.experts.4.net.0', 'linear_9']JÄ
+pkg.torch.onnx.stack_trace·File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 72, in forward
+    expert_outputs = torch.stack([e(h) for e in self.experts], dim=1)
+  File "/tmp/ipykernel_9002/2553343104.py", line 31, in forward
+    def forward(self, h): return self.net(h)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/linear.py", line 134, in forward
+    return F.linear(input, self.weight, self.bias)
+Û
+linear_9relu_21node_relu_21"ReluJÚ
+	namespace‰: __main__.Classifier/head: __main__.SparseMoEHead/head.experts.4: __main__._make_expert/head.experts.4.net: torch.nn.modules.container.Sequential/head.experts.4.net.1: torch.nn.modules.activation.ReLU/relu_21: aten.relu.defaultJœ
+pkg.torch.onnx.class_hierarchy¨['__main__.Classifier', '__main__.SparseMoEHead', '__main__._make_expert', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.activation.ReLU', 'aten.relu.default']Jà
+pkg.torch.onnx.fx_noden%relu_21 : [num_users=1] = call_function[target=torch.ops.aten.relu.default](args = (%linear_9,), kwargs = {})Ju
+pkg.torch.onnx.name_scopesW['', 'head', 'head.experts.4', 'head.experts.4.net', 'head.experts.4.net.1', 'relu_21']JÄ
+pkg.torch.onnx.stack_trace·File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 72, in forward
+    expert_outputs = torch.stack([e(h) for e in self.experts], dim=1)
+  File "/tmp/ipykernel_9002/2553343104.py", line 31, in forward
+    def forward(self, h): return self.net(h)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/activation.py", line 144, in forward
+    return F.relu(input, inplace=self.inplace)
+≤
+relu_21
+head.experts.4.net.3.weight
+head.experts.4.net.3.bias	linear_10node_linear_10"Gemm*
+beta  Ä?†*
+transB†*
+alpha  Ä?†*
+transA †JÙ
+	namespaceÊ: __main__.Classifier/head: __main__.SparseMoEHead/head.experts.4: __main__._make_expert/head.experts.4.net: torch.nn.modules.container.Sequential/head.experts.4.net.3: torch.nn.modules.linear.Linear/linear_10: aten.linear.defaultJœ
+pkg.torch.onnx.class_hierarchy¨['__main__.Classifier', '__main__.SparseMoEHead', '__main__._make_expert', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.linear.Linear', 'aten.linear.default']J…
+pkg.torch.onnx.fx_nodeÆ%linear_10 : [num_users=1] = call_function[target=torch.ops.aten.linear.default](args = (%clone_4, %p_head_experts_4_net_3_weight, %p_head_experts_4_net_3_bias), kwargs = {})Jw
+pkg.torch.onnx.name_scopesY['', 'head', 'head.experts.4', 'head.experts.4.net', 'head.experts.4.net.3', 'linear_10']JÄ
+pkg.torch.onnx.stack_trace·File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 72, in forward
+    expert_outputs = torch.stack([e(h) for e in self.experts], dim=1)
+  File "/tmp/ipykernel_9002/2553343104.py", line 31, in forward
+    def forward(self, h): return self.net(h)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/linear.py", line 134, in forward
+    return F.linear(input, self.weight, self.bias)
+¨
+view
+head.experts.5.net.0.weight
+head.experts.5.net.0.bias	linear_11node_linear_11"Gemm*
+beta  Ä?†*
+transB†*
+alpha  Ä?†*
+transA †JÙ
+	namespaceÊ: __main__.Classifier/head: __main__.SparseMoEHead/head.experts.5: __main__._make_expert/head.experts.5.net: torch.nn.modules.container.Sequential/head.experts.5.net.0: torch.nn.modules.linear.Linear/linear_11: aten.linear.defaultJœ
+pkg.torch.onnx.class_hierarchy¨['__main__.Classifier', '__main__.SparseMoEHead', '__main__._make_expert', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.linear.Linear', 'aten.linear.default']J∆
+pkg.torch.onnx.fx_node´%linear_11 : [num_users=1] = call_function[target=torch.ops.aten.linear.default](args = (%view, %p_head_experts_5_net_0_weight, %p_head_experts_5_net_0_bias), kwargs = {})Jw
+pkg.torch.onnx.name_scopesY['', 'head', 'head.experts.5', 'head.experts.5.net', 'head.experts.5.net.0', 'linear_11']JÄ
+pkg.torch.onnx.stack_trace·File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 72, in forward
+    expert_outputs = torch.stack([e(h) for e in self.experts], dim=1)
+  File "/tmp/ipykernel_9002/2553343104.py", line 31, in forward
+    def forward(self, h): return self.net(h)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/linear.py", line 134, in forward
+    return F.linear(input, self.weight, self.bias)
+ı
+	linear_11relu_22node_relu_22"ReluJÚ
+	namespace‰: __main__.Classifier/head: __main__.SparseMoEHead/head.experts.5: __main__._make_expert/head.experts.5.net: torch.nn.modules.container.Sequential/head.experts.5.net.1: torch.nn.modules.activation.ReLU/relu_22: aten.relu.defaultJœ
+pkg.torch.onnx.class_hierarchy¨['__main__.Classifier', '__main__.SparseMoEHead', '__main__._make_expert', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.activation.ReLU', 'aten.relu.default']Jâ
+pkg.torch.onnx.fx_nodeo%relu_22 : [num_users=1] = call_function[target=torch.ops.aten.relu.default](args = (%linear_11,), kwargs = {})Ju
+pkg.torch.onnx.name_scopesW['', 'head', 'head.experts.5', 'head.experts.5.net', 'head.experts.5.net.1', 'relu_22']JÄ
+pkg.torch.onnx.stack_trace·File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 72, in forward
+    expert_outputs = torch.stack([e(h) for e in self.experts], dim=1)
+  File "/tmp/ipykernel_9002/2553343104.py", line 31, in forward
+    def forward(self, h): return self.net(h)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/activation.py", line 144, in forward
+    return F.relu(input, inplace=self.inplace)
+≤
+relu_22
+head.experts.5.net.3.weight
+head.experts.5.net.3.bias	linear_12node_linear_12"Gemm*
+beta  Ä?†*
+transB†*
+alpha  Ä?†*
+transA †JÙ
+	namespaceÊ: __main__.Classifier/head: __main__.SparseMoEHead/head.experts.5: __main__._make_expert/head.experts.5.net: torch.nn.modules.container.Sequential/head.experts.5.net.3: torch.nn.modules.linear.Linear/linear_12: aten.linear.defaultJœ
+pkg.torch.onnx.class_hierarchy¨['__main__.Classifier', '__main__.SparseMoEHead', '__main__._make_expert', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.linear.Linear', 'aten.linear.default']J…
+pkg.torch.onnx.fx_nodeÆ%linear_12 : [num_users=1] = call_function[target=torch.ops.aten.linear.default](args = (%clone_5, %p_head_experts_5_net_3_weight, %p_head_experts_5_net_3_bias), kwargs = {})Jw
+pkg.torch.onnx.name_scopesY['', 'head', 'head.experts.5', 'head.experts.5.net', 'head.experts.5.net.3', 'linear_12']JÄ
+pkg.torch.onnx.stack_trace·File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 72, in forward
+    expert_outputs = torch.stack([e(h) for e in self.experts], dim=1)
+  File "/tmp/ipykernel_9002/2553343104.py", line 31, in forward
+    def forward(self, h): return self.net(h)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/linear.py", line 134, in forward
+    return F.linear(input, self.weight, self.bias)
+¨
+view
+head.experts.6.net.0.weight
+head.experts.6.net.0.bias	linear_13node_linear_13"Gemm*
+beta  Ä?†*
+transB†*
+alpha  Ä?†*
+transA †JÙ
+	namespaceÊ: __main__.Classifier/head: __main__.SparseMoEHead/head.experts.6: __main__._make_expert/head.experts.6.net: torch.nn.modules.container.Sequential/head.experts.6.net.0: torch.nn.modules.linear.Linear/linear_13: aten.linear.defaultJœ
+pkg.torch.onnx.class_hierarchy¨['__main__.Classifier', '__main__.SparseMoEHead', '__main__._make_expert', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.linear.Linear', 'aten.linear.default']J∆
+pkg.torch.onnx.fx_node´%linear_13 : [num_users=1] = call_function[target=torch.ops.aten.linear.default](args = (%view, %p_head_experts_6_net_0_weight, %p_head_experts_6_net_0_bias), kwargs = {})Jw
+pkg.torch.onnx.name_scopesY['', 'head', 'head.experts.6', 'head.experts.6.net', 'head.experts.6.net.0', 'linear_13']JÄ
+pkg.torch.onnx.stack_trace·File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 72, in forward
+    expert_outputs = torch.stack([e(h) for e in self.experts], dim=1)
+  File "/tmp/ipykernel_9002/2553343104.py", line 31, in forward
+    def forward(self, h): return self.net(h)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/linear.py", line 134, in forward
+    return F.linear(input, self.weight, self.bias)
+ı
+	linear_13relu_23node_relu_23"ReluJÚ
+	namespace‰: __main__.Classifier/head: __main__.SparseMoEHead/head.experts.6: __main__._make_expert/head.experts.6.net: torch.nn.modules.container.Sequential/head.experts.6.net.1: torch.nn.modules.activation.ReLU/relu_23: aten.relu.defaultJœ
+pkg.torch.onnx.class_hierarchy¨['__main__.Classifier', '__main__.SparseMoEHead', '__main__._make_expert', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.activation.ReLU', 'aten.relu.default']Jâ
+pkg.torch.onnx.fx_nodeo%relu_23 : [num_users=1] = call_function[target=torch.ops.aten.relu.default](args = (%linear_13,), kwargs = {})Ju
+pkg.torch.onnx.name_scopesW['', 'head', 'head.experts.6', 'head.experts.6.net', 'head.experts.6.net.1', 'relu_23']JÄ
+pkg.torch.onnx.stack_trace·File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 72, in forward
+    expert_outputs = torch.stack([e(h) for e in self.experts], dim=1)
+  File "/tmp/ipykernel_9002/2553343104.py", line 31, in forward
+    def forward(self, h): return self.net(h)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/activation.py", line 144, in forward
+    return F.relu(input, inplace=self.inplace)
+≤
+relu_23
+head.experts.6.net.3.weight
+head.experts.6.net.3.bias	linear_14node_linear_14"Gemm*
+beta  Ä?†*
+transB†*
+alpha  Ä?†*
+transA †JÙ
+	namespaceÊ: __main__.Classifier/head: __main__.SparseMoEHead/head.experts.6: __main__._make_expert/head.experts.6.net: torch.nn.modules.container.Sequential/head.experts.6.net.3: torch.nn.modules.linear.Linear/linear_14: aten.linear.defaultJœ
+pkg.torch.onnx.class_hierarchy¨['__main__.Classifier', '__main__.SparseMoEHead', '__main__._make_expert', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.linear.Linear', 'aten.linear.default']J…
+pkg.torch.onnx.fx_nodeÆ%linear_14 : [num_users=1] = call_function[target=torch.ops.aten.linear.default](args = (%clone_6, %p_head_experts_6_net_3_weight, %p_head_experts_6_net_3_bias), kwargs = {})Jw
+pkg.torch.onnx.name_scopesY['', 'head', 'head.experts.6', 'head.experts.6.net', 'head.experts.6.net.3', 'linear_14']JÄ
+pkg.torch.onnx.stack_trace·File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 72, in forward
+    expert_outputs = torch.stack([e(h) for e in self.experts], dim=1)
+  File "/tmp/ipykernel_9002/2553343104.py", line 31, in forward
+    def forward(self, h): return self.net(h)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/linear.py", line 134, in forward
+    return F.linear(input, self.weight, self.bias)
+¨
+view
+head.experts.7.net.0.weight
+head.experts.7.net.0.bias	linear_15node_linear_15"Gemm*
+beta  Ä?†*
+transB†*
+alpha  Ä?†*
+transA †JÙ
+	namespaceÊ: __main__.Classifier/head: __main__.SparseMoEHead/head.experts.7: __main__._make_expert/head.experts.7.net: torch.nn.modules.container.Sequential/head.experts.7.net.0: torch.nn.modules.linear.Linear/linear_15: aten.linear.defaultJœ
+pkg.torch.onnx.class_hierarchy¨['__main__.Classifier', '__main__.SparseMoEHead', '__main__._make_expert', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.linear.Linear', 'aten.linear.default']J∆
+pkg.torch.onnx.fx_node´%linear_15 : [num_users=1] = call_function[target=torch.ops.aten.linear.default](args = (%view, %p_head_experts_7_net_0_weight, %p_head_experts_7_net_0_bias), kwargs = {})Jw
+pkg.torch.onnx.name_scopesY['', 'head', 'head.experts.7', 'head.experts.7.net', 'head.experts.7.net.0', 'linear_15']JÄ
+pkg.torch.onnx.stack_trace·File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 72, in forward
+    expert_outputs = torch.stack([e(h) for e in self.experts], dim=1)
+  File "/tmp/ipykernel_9002/2553343104.py", line 31, in forward
+    def forward(self, h): return self.net(h)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/linear.py", line 134, in forward
+    return F.linear(input, self.weight, self.bias)
+ı
+	linear_15relu_24node_relu_24"ReluJÚ
+	namespace‰: __main__.Classifier/head: __main__.SparseMoEHead/head.experts.7: __main__._make_expert/head.experts.7.net: torch.nn.modules.container.Sequential/head.experts.7.net.1: torch.nn.modules.activation.ReLU/relu_24: aten.relu.defaultJœ
+pkg.torch.onnx.class_hierarchy¨['__main__.Classifier', '__main__.SparseMoEHead', '__main__._make_expert', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.activation.ReLU', 'aten.relu.default']Jâ
+pkg.torch.onnx.fx_nodeo%relu_24 : [num_users=1] = call_function[target=torch.ops.aten.relu.default](args = (%linear_15,), kwargs = {})Ju
+pkg.torch.onnx.name_scopesW['', 'head', 'head.experts.7', 'head.experts.7.net', 'head.experts.7.net.1', 'relu_24']JÄ
+pkg.torch.onnx.stack_trace·File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 72, in forward
+    expert_outputs = torch.stack([e(h) for e in self.experts], dim=1)
+  File "/tmp/ipykernel_9002/2553343104.py", line 31, in forward
+    def forward(self, h): return self.net(h)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/activation.py", line 144, in forward
+    return F.relu(input, inplace=self.inplace)
+≤
+relu_24
+head.experts.7.net.3.weight
+head.experts.7.net.3.bias	linear_16node_linear_16"Gemm*
+beta  Ä?†*
+transB†*
+alpha  Ä?†*
+transA †JÙ
+	namespaceÊ: __main__.Classifier/head: __main__.SparseMoEHead/head.experts.7: __main__._make_expert/head.experts.7.net: torch.nn.modules.container.Sequential/head.experts.7.net.3: torch.nn.modules.linear.Linear/linear_16: aten.linear.defaultJœ
+pkg.torch.onnx.class_hierarchy¨['__main__.Classifier', '__main__.SparseMoEHead', '__main__._make_expert', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.linear.Linear', 'aten.linear.default']J…
+pkg.torch.onnx.fx_nodeÆ%linear_16 : [num_users=1] = call_function[target=torch.ops.aten.linear.default](args = (%clone_7, %p_head_experts_7_net_3_weight, %p_head_experts_7_net_3_bias), kwargs = {})Jw
+pkg.torch.onnx.name_scopesY['', 'head', 'head.experts.7', 'head.experts.7.net', 'head.experts.7.net.3', 'linear_16']JÄ
+pkg.torch.onnx.stack_trace·File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 72, in forward
+    expert_outputs = torch.stack([e(h) for e in self.experts], dim=1)
+  File "/tmp/ipykernel_9002/2553343104.py", line 31, in forward
+    def forward(self, h): return self.net(h)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+  File "/home/dani/sem_3/ds_project/mixture-of-experts-project/.venv/lib/python3.13/site-packages/torch/nn/modules/linear.py", line 134, in forward
+    return F.linear(input, self.weight, self.bias)
+¥
+linear_2
+val_210val_191node_Unsqueeze_191"	UnsqueezeJY
+	namespaceL: __main__.Classifier/head: __main__.SparseMoEHead/stack: aten.stack.defaultJi
+pkg.torch.onnx.class_hierarchyG['__main__.Classifier', '__main__.SparseMoEHead', 'aten.stack.default']J›
+pkg.torch.onnx.fx_node¬%stack : [num_users=1] = call_function[target=torch.ops.aten.stack.default](args = ([%linear_2, %linear_4, %linear_6, %linear_8, %linear_10, %linear_12, %linear_14, %linear_16], 1), kwargs = {})J3
+pkg.torch.onnx.name_scopes['', 'head', 'stack']Jõ
+pkg.torch.onnx.stack_trace¸File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 72, in forward
+    expert_outputs = torch.stack([e(h) for e in self.experts], dim=1)
+¥
+linear_4
+val_210val_193node_Unsqueeze_193"	UnsqueezeJY
+	namespaceL: __main__.Classifier/head: __main__.SparseMoEHead/stack: aten.stack.defaultJi
+pkg.torch.onnx.class_hierarchyG['__main__.Classifier', '__main__.SparseMoEHead', 'aten.stack.default']J›
+pkg.torch.onnx.fx_node¬%stack : [num_users=1] = call_function[target=torch.ops.aten.stack.default](args = ([%linear_2, %linear_4, %linear_6, %linear_8, %linear_10, %linear_12, %linear_14, %linear_16], 1), kwargs = {})J3
+pkg.torch.onnx.name_scopes['', 'head', 'stack']Jõ
+pkg.torch.onnx.stack_trace¸File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 72, in forward
+    expert_outputs = torch.stack([e(h) for e in self.experts], dim=1)
+¥
+linear_6
+val_210val_195node_Unsqueeze_195"	UnsqueezeJY
+	namespaceL: __main__.Classifier/head: __main__.SparseMoEHead/stack: aten.stack.defaultJi
+pkg.torch.onnx.class_hierarchyG['__main__.Classifier', '__main__.SparseMoEHead', 'aten.stack.default']J›
+pkg.torch.onnx.fx_node¬%stack : [num_users=1] = call_function[target=torch.ops.aten.stack.default](args = ([%linear_2, %linear_4, %linear_6, %linear_8, %linear_10, %linear_12, %linear_14, %linear_16], 1), kwargs = {})J3
+pkg.torch.onnx.name_scopes['', 'head', 'stack']Jõ
+pkg.torch.onnx.stack_trace¸File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 72, in forward
+    expert_outputs = torch.stack([e(h) for e in self.experts], dim=1)
+¥
+linear_8
+val_210val_197node_Unsqueeze_197"	UnsqueezeJY
+	namespaceL: __main__.Classifier/head: __main__.SparseMoEHead/stack: aten.stack.defaultJi
+pkg.torch.onnx.class_hierarchyG['__main__.Classifier', '__main__.SparseMoEHead', 'aten.stack.default']J›
+pkg.torch.onnx.fx_node¬%stack : [num_users=1] = call_function[target=torch.ops.aten.stack.default](args = ([%linear_2, %linear_4, %linear_6, %linear_8, %linear_10, %linear_12, %linear_14, %linear_16], 1), kwargs = {})J3
+pkg.torch.onnx.name_scopes['', 'head', 'stack']Jõ
+pkg.torch.onnx.stack_trace¸File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 72, in forward
+    expert_outputs = torch.stack([e(h) for e in self.experts], dim=1)
+µ
+	linear_10
+val_210val_199node_Unsqueeze_199"	UnsqueezeJY
+	namespaceL: __main__.Classifier/head: __main__.SparseMoEHead/stack: aten.stack.defaultJi
+pkg.torch.onnx.class_hierarchyG['__main__.Classifier', '__main__.SparseMoEHead', 'aten.stack.default']J›
+pkg.torch.onnx.fx_node¬%stack : [num_users=1] = call_function[target=torch.ops.aten.stack.default](args = ([%linear_2, %linear_4, %linear_6, %linear_8, %linear_10, %linear_12, %linear_14, %linear_16], 1), kwargs = {})J3
+pkg.torch.onnx.name_scopes['', 'head', 'stack']Jõ
+pkg.torch.onnx.stack_trace¸File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 72, in forward
+    expert_outputs = torch.stack([e(h) for e in self.experts], dim=1)
+µ
+	linear_12
+val_210val_201node_Unsqueeze_201"	UnsqueezeJY
+	namespaceL: __main__.Classifier/head: __main__.SparseMoEHead/stack: aten.stack.defaultJi
+pkg.torch.onnx.class_hierarchyG['__main__.Classifier', '__main__.SparseMoEHead', 'aten.stack.default']J›
+pkg.torch.onnx.fx_node¬%stack : [num_users=1] = call_function[target=torch.ops.aten.stack.default](args = ([%linear_2, %linear_4, %linear_6, %linear_8, %linear_10, %linear_12, %linear_14, %linear_16], 1), kwargs = {})J3
+pkg.torch.onnx.name_scopes['', 'head', 'stack']Jõ
+pkg.torch.onnx.stack_trace¸File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 72, in forward
+    expert_outputs = torch.stack([e(h) for e in self.experts], dim=1)
+µ
+	linear_14
+val_210val_203node_Unsqueeze_203"	UnsqueezeJY
+	namespaceL: __main__.Classifier/head: __main__.SparseMoEHead/stack: aten.stack.defaultJi
+pkg.torch.onnx.class_hierarchyG['__main__.Classifier', '__main__.SparseMoEHead', 'aten.stack.default']J›
+pkg.torch.onnx.fx_node¬%stack : [num_users=1] = call_function[target=torch.ops.aten.stack.default](args = ([%linear_2, %linear_4, %linear_6, %linear_8, %linear_10, %linear_12, %linear_14, %linear_16], 1), kwargs = {})J3
+pkg.torch.onnx.name_scopes['', 'head', 'stack']Jõ
+pkg.torch.onnx.stack_trace¸File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 72, in forward
+    expert_outputs = torch.stack([e(h) for e in self.experts], dim=1)
+µ
+	linear_16
+val_210val_205node_Unsqueeze_205"	UnsqueezeJY
+	namespaceL: __main__.Classifier/head: __main__.SparseMoEHead/stack: aten.stack.defaultJi
+pkg.torch.onnx.class_hierarchyG['__main__.Classifier', '__main__.SparseMoEHead', 'aten.stack.default']J›
+pkg.torch.onnx.fx_node¬%stack : [num_users=1] = call_function[target=torch.ops.aten.stack.default](args = ([%linear_2, %linear_4, %linear_6, %linear_8, %linear_10, %linear_12, %linear_14, %linear_16], 1), kwargs = {})J3
+pkg.torch.onnx.name_scopes['', 'head', 'stack']Jõ
+pkg.torch.onnx.stack_trace¸File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 72, in forward
+    expert_outputs = torch.stack([e(h) for e in self.experts], dim=1)
+È
+val_191
+val_193
+val_195
+val_197
+val_199
+val_201
+val_203
+val_205stack
+node_stack"Concat*
+axis†JY
+	namespaceL: __main__.Classifier/head: __main__.SparseMoEHead/stack: aten.stack.defaultJi
+pkg.torch.onnx.class_hierarchyG['__main__.Classifier', '__main__.SparseMoEHead', 'aten.stack.default']J›
+pkg.torch.onnx.fx_node¬%stack : [num_users=1] = call_function[target=torch.ops.aten.stack.default](args = ([%linear_2, %linear_4, %linear_6, %linear_8, %linear_10, %linear_12, %linear_14, %linear_16], 1), kwargs = {})J3
+pkg.torch.onnx.name_scopes['', 'head', 'stack']Jõ
+pkg.torch.onnx.stack_trace¸File "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 72, in forward
+    expert_outputs = torch.stack([e(h) for e in self.experts], dim=1)
+Ó
+softmax
+val_206	unsqueezenode_unsqueeze"	UnsqueezeJa
+	namespaceT: __main__.Classifier/head: __main__.SparseMoEHead/unsqueeze: aten.unsqueeze.defaultJm
+pkg.torch.onnx.class_hierarchyK['__main__.Classifier', '__main__.SparseMoEHead', 'aten.unsqueeze.default']Jë
+pkg.torch.onnx.fx_nodew%unsqueeze : [num_users=1] = call_function[target=torch.ops.aten.unsqueeze.default](args = (%softmax, -1), kwargs = {})J7
+pkg.torch.onnx.name_scopes['', 'head', 'unsqueeze']Jî
+pkg.torch.onnx.stack_traceıFile "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 73, in forward
+    logits = (probs.unsqueeze(-1) * expert_outputs).sum(dim=1)
+ª
+	unsqueeze
+stackmulnode_mul"MulJT
+	namespaceG: __main__.Classifier/head: __main__.SparseMoEHead/mul: aten.mul.TensorJf
+pkg.torch.onnx.class_hierarchyD['__main__.Classifier', '__main__.SparseMoEHead', 'aten.mul.Tensor']Jä
+pkg.torch.onnx.fx_nodep%mul : [num_users=1] = call_function[target=torch.ops.aten.mul.Tensor](args = (%unsqueeze, %stack), kwargs = {})J1
+pkg.torch.onnx.name_scopes['', 'head', 'mul']Jî
+pkg.torch.onnx.stack_traceıFile "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 73, in forward
+    logits = (probs.unsqueeze(-1) * expert_outputs).sum(dim=1)
+¸
+mul
+val_210logits
+node_sum_1"	ReduceSum*
+noop_with_empty_axes †*
+keepdims †J[
+	namespaceN: __main__.Classifier/head: __main__.SparseMoEHead/sum_1: aten.sum.dim_IntListJk
+pkg.torch.onnx.class_hierarchyI['__main__.Classifier', '__main__.SparseMoEHead', 'aten.sum.dim_IntList']Jà
+pkg.torch.onnx.fx_noden%sum_1 : [num_users=1] = call_function[target=torch.ops.aten.sum.dim_IntList](args = (%mul, [1]), kwargs = {})J3
+pkg.torch.onnx.name_scopes['', 'head', 'sum_1']Jî
+pkg.torch.onnx.stack_traceıFile "/tmp/ipykernel_9002/2553343104.py", line 90, in forward
+    return self.head(torch.flatten(self.backbone(x), 1))
+  File "/tmp/ipykernel_9002/2553343104.py", line 73, in forward
+    logits = (probs.unsqueeze(-1) * expert_outputs).sum(dim=1)
+main_graph*j@Bbackbone.backbone.conv1.weightj
+locationmodel.onnx.dataj
+offset14336j
+length2304p*w@@B'backbone.backbone.layer1.0.conv1.weightj
+locationmodel.onnx.dataj
+offset1265920j
+length147456p*w@@B'backbone.backbone.layer1.0.conv2.weightj
+locationmodel.onnx.dataj
+offset1413376j
+length147456p*w@@B'backbone.backbone.layer1.1.conv1.weightj
+locationmodel.onnx.dataj
+offset1560832j
+length147456p*w@@B'backbone.backbone.layer1.1.conv2.weightj
+locationmodel.onnx.dataj
+offset1708288j
+length147456p*xÄ@B'backbone.backbone.layer2.0.conv1.weightj
+locationmodel.onnx.dataj
+offset1855744j
+length294912p*yÄÄB'backbone.backbone.layer2.0.conv2.weightj
+locationmodel.onnx.dataj
+offset2674944j
+length589824p*|Ä@B.backbone.backbone.layer2.0.downsample.0.weightj
+locationmodel.onnx.dataj
+offset53504j
+length32768p*yÄÄB'backbone.backbone.layer2.1.conv1.weightj
+locationmodel.onnx.dataj
+offset3264768j
+length589824p*yÄÄB'backbone.backbone.layer2.1.conv2.weightj
+locationmodel.onnx.dataj
+offset3854592j
+length589824p*zÄÄB'backbone.backbone.layer3.0.conv1.weightj
+locationmodel.onnx.dataj
+offset4456448j
+length1179648p*zÄÄB'backbone.backbone.layer3.0.conv2.weightj
+locationmodel.onnx.dataj
+offset5636096j
+length2359296p*~ÄÄB.backbone.backbone.layer3.0.downsample.0.weightj
+locationmodel.onnx.dataj
+offset86272j
+length131072p*zÄÄB'backbone.backbone.layer3.1.conv1.weightj
+locationmodel.onnx.dataj
+offset7995392j
+length2359296p*{ÄÄB'backbone.backbone.layer3.1.conv2.weightj
+locationmodel.onnx.dataj
+offset10354688j
+length2359296p*{ÄÄB'backbone.backbone.layer4.0.conv1.weightj
+locationmodel.onnx.dataj
+offset12713984j
+length4718592p*{ÄÄB'backbone.backbone.layer4.0.conv2.weightj
+locationmodel.onnx.dataj
+offset17432576j
+length9437184p*ÄÄÄB.backbone.backbone.layer4.0.downsample.0.weightj
+locationmodel.onnx.dataj
+offset2150656j
+length524288p*{ÄÄB'backbone.backbone.layer4.1.conv1.weightj
+locationmodel.onnx.dataj
+offset26869760j
+length9437184p*{ÄÄB'backbone.backbone.layer4.1.conv2.weightj
+locationmodel.onnx.dataj
+offset36306944j
+length9437184p*g@ÄBhead.experts.0.net.0.weightj
+locationmodel.onnx.dataj
+offset217344j
+length131072p*¢@Bhead.experts.0.net.0.biasJÄwòé<‰Te7ÉgE<R}8E“î∏Ú’<≥L=Æ-¢:ˇ¥;j=…<¨Tå∏Öp?=}ÛZ=Ç'ê;öñ
+=Ä=ÌVö<˜¶r8qÅ∂<[Dò<Eı<väŒ<ÔŒ8∫	Á9/®ó:V#’<÷Qª∑.∑∏|A#=“ºT:=≥$¬7«!8ñ1≥<‚Ì;°"∏∑§T=E∞˛<.=Êπ<ˇÏ<È±Í<Ø&7;:u8ã®Ú<bˇ<ª•∆<oêQ∏oC8Úìu:o÷O<@ì≤;ìÜÌ<ñï =Ï÷8Áˇö∑ßKx8	ƒ9=Î‘<ìt»<£Ád∏‡R=3Ï:6‘;*c
+@Bhead.experts.0.net.3.weightj
+locationmodel.onnx.dataj
+offset16640j
+length2560p*I
+Bhead.experts.0.net.3.biasJ(∑âΩ;äB=ƒ‰]Ω ’¥<…”>=| ÅΩVÑtΩß’i=8~éºD‹µ=*g@ÄBhead.experts.1.net.0.weightj
+locationmodel.onnx.dataj
+offset348416j
+length131072p*¢@Bhead.experts.1.net.0.biasJÄZü≠;â®≤<¿˙∞7Hò<)=fu=7è1=ID¡∑Ÿz=&›>8#7∏SD=6ê;Á$Ú<È˛Ù<"∏ï<lz£<ùØﬂ∂c»<x„å∏kù<∏*òA<˛K:÷ ;lã´<Û—í∑⁄ü<Ô£)∏ßıÛ78Q∏'ìk<â4◊<ã˙∏Ø¨H=Ïí.;.‚∑ 18+g‰<	£˜<ÄdG<wª≈<H/=Ÿ±:ìÊ†∏\™<!¬∂ã1<öX58˛ﬂ==˚Ù<cà[=QÍé<:«:=e∏7<∏Û<˛ã-;¡SÀ<Ò›'=Èqd<íà8–qÅ8„∞Ω:"ö∑vu€<*c
+@Bhead.experts.1.net.3.weightj
+locationmodel.onnx.dataj
+offset19200j
+length2560p*I
+Bhead.experts.1.net.3.biasJ(ı¶_Ωw1bΩK√ñ=‚(™<	(%Ω⁄í4=Ê%=˘K6Ω'ä9=SpÎº*g@ÄBhead.experts.2.net.0.weightj
+locationmodel.onnx.dataj
+offset479488j
+length131072p*¢@Bhead.experts.2.net.0.biasJÄÓÜ<87+e;íÈ<Ël∑NÁ%=ÌO¯;Ñ+\:x†ç7¸>Ã7◊ÅŒ<{Â<®Ôæ<_˘=ˆ[8ìKR;Ó\é∏†›ê<\≈4=I·µ:Ñ©=ûàË;Ü˜ =Å$='Œ5F⁄=I$˙<i·=A‰Œ;wø8l¥=Jêë∑÷=,|)7ÊÎ∂Å,;b(N=Ü`=•˚	=”©∂:à}=ã‡=ˇ)ƒ<z√G=©nã:î=Øn∂<Z)›<Ñ™Z;˚Ú,:!§ó<ãÑ<Ï=2{;]Û=)¬Ç∏ÀΩ=≠!H∏¸›◊<˘º™<÷=õﬁ<
+G\8iﬁ¿<)m8*c
+@Bhead.experts.2.net.3.weightj
+locationmodel.onnx.dataj
+offset21760j
+length2560p*I
+Bhead.experts.2.net.3.biasJ(∑FÚ<“/!=ìe¨<âb$ºÿ^ÇΩ==ó?<gê^Ω9=…!Ω*g@ÄBhead.experts.3.net.0.weightj
+locationmodel.onnx.dataj
+offset610560j
+length131072p*¢@Bhead.experts.3.net.0.biasJÄ«Ò<ó‘±<«˙˚<M?∏äV_8‹¥ì<Ω§∏ƒv=‡2Œ<|d:
+âé<j‡è;ïë9=‚ô˝;ªt;;{»A∏Òù⁄<É˙û<Ä‹Œ∑ípƒ∑†o = ññ∏/º:7^éª<˝Ë=[©:˝‘8»Œ<P,«<^\;3ú=aß:¶†©<∞5*=ï7Ñ<@Ω0=^Ç?8∂o=aKê<àe#:∂_π6<˝ı∂∫Rè∏Ä?J<¡Ô<Ë¡#=h8◊´+<ıΩç<.7a=Ωô∑2£Ó:–|π<—<8Õ[$8;Fà8ò˜Ä∑0G;=8∫9∏iøõ;(ŸÁ:®.·9ål˙;!yê:*c
+@Bhead.experts.3.net.3.weightj
+locationmodel.onnx.dataj
+offset24320j
+length2560p*I
+Bhead.experts.3.net.3.biasJ(2eΩ‘ÙΩ÷8öº ∑ò<{a©º-à:=T≥DΩŸâ=¸ë;ΩB«ø=*g@ÄBhead.experts.4.net.0.weightj
+locationmodel.onnx.dataj
+offset741632j
+length131072p*¢@Bhead.experts.4.net.0.biasJÄFé=M´;ŒéÕ<E∆8	û<ñ”‡;?»º7Ã=7VF∏)≈u<»¥<Æ˛6£=<-ö	6Œ =TÓ◊<°oë<bê=n"D;ò	}<‚„:@¬8&HQ;(è}<|◊ù7òúÉ;˙—¶;∂ÒÅ<Ò—∏Tåı<Oj
+<fß˚;DîR8	„8Zv<;∞9;b˝Ö<;ù∏<ˇ˚Ó< K6∏/I/<&~≈∑J˜<uÒg∂:x°<+7	7ÙN:‘uË<gï@8zUå<4óô;yFµ:'%G=(…ª<úì<£ÒÄ8∂Ôﬁ;l√Ò∑F“ı∑ç∂=(G<=s!M∏`{=*c
+@Bhead.experts.4.net.3.weightj
+locationmodel.onnx.dataj
+offset26880j
+length2560p*I
+Bhead.experts.4.net.3.biasJ(Ÿ„ì=ŸvFΩ«8Ωîı∑<}òÄ=√#Ω⁄k!=I°ΩXﬁΩº™Å:ª*g@ÄBhead.experts.5.net.0.weightj
+locationmodel.onnx.dataj
+offset872704j
+length131072p*¢@Bhead.experts.5.net.0.biasJÄ•/è7·Ò∆<√»<b[Ú8“ﬁ∑XG=∆¢<ù˜:éVµ;ƒ’¬<Ã˝D<ö‹Ó<ÿz@=◊!∑•º<Ê±B=Ö≈<f†<Õ˚=◊%ô∏ƒU∆<ıw=O	J:;~:g]=˙·=∂sg8È=ßˆÓ<,⁄o8∂Hí∏IC9(Ã<p	==F8ã3 =púæ∂ÒpÒ<u∆ô∏ï0m<%Îx<5ü<ù9p∂6‘¢7y<”ù˙<ˆ|W<î“7<µﬁ'=!ñ›<»GÉ<,Õ=Ô√;ûﬁ': Ç}∑π™®<m≤≈:è0°<„?=Pè	=Q2ô∑Eaé<˙”<ê∏)8*c
+@Bhead.experts.5.net.3.weightj
+locationmodel.onnx.dataj
+offset29440j
+length2560p*I
+Bhead.experts.5.net.3.biasJ(óŸiΩÖ2=êÿk=í3:=Â—Û<V/ÉΩöΩhΩ#VÜ=“{YΩóÓ2º*h@ÄBhead.experts.6.net.0.weightj
+locationmodel.onnx.dataj
+offset1003776j
+length131072p*¢@Bhead.experts.6.net.0.biasJÄê«k;ﬁÿÅ<|§ä9Ñ{ö9àA1;X‚Û;Cw∂Òhô:ûœë:]πu&∫;ûg¸;í’ä:ù`π¶ü^π˙m•97ò∏·9‡††8ÍåÕ8ö<•¡âπñÓ9:⁄∆í;Åñ9TNW8öíóπp‘E:Úƒ9@hCπÿg:àM¨:]`üπ“∏<ôK:%)¨;a$ÂπÑÿ”83økπ¯‰Í∑C7õ7å·;ˆi»9–«9DkOπ◊n≠;Ú°:xÏ;≤Ô;ÌN:Ñd§;b’"<òS;àÑÈ9¿j§∑%8Å%‹;õ.P:‚˝πÍ¥ :π:àJ?<ùœ<\â><*c
+@Bhead.experts.6.net.3.weightj
+locationmodel.onnx.dataj
+offset32000j
+length2560p*I
+Bhead.experts.6.net.3.biasJ(B‚¨ªÇ~˘º›î	<ÖK="ïª£÷=Xïùºı*5º®Dµ;|Jº*h@ÄBhead.experts.7.net.0.weightj
+locationmodel.onnx.dataj
+offset1134848j
+length131072p*¢@Bhead.experts.7.net.0.biasJÄÛÒ8Ÿy±<É\÷<Nt[<˜∏Ã<Ó{=B’√∏yë7Kú;†¢k<´æî<ÉÀñ<§ˆ=∫ÇÂ∑ñ»Ì:cπ∏È$Á7œkp;3Bˆ<ï®=O™Æ<PÅ<ÀËø:Àée∏u ∞<¬F˚<‘9¸<06¿<7aÖ<Sü<»«X4û[A∏}4<4·§<$\#=‰\∂∑ot8íìÁ9mS≈<Ôs∏g¸6;Ú>Ç<ˆ¡Q;Ü&u<≠(8Ç%=⁄∞¶<ÂÅA8Ü	S∏¢8î<¯äæ<‡_Î<-Ãç<^¸â∏FƒÒ<†s
+∏_´M9z8≥<6.^9 °;3€*=`ÄÅ;˛≈*∏ÌQ]8*c
+@Bhead.experts.7.net.3.weightj
+locationmodel.onnx.dataj
+offset34560j
+length2560p*I
+Bhead.experts.7.net.3.biasJ(’£L=¸?YΩﬂÃ4ΩﬁÚ<ÎØÖºò¯º◊çGΩP•…º“r=v*°=*aÄBhead.gate.w_gate.weightj
+locationmodel.onnx.dataj
+offset37120j
+length16384p*=Bhead.gate.w_gate.biasJ Ö=‡Bê<˘˚=õ-OΩFëΩ-Òá;sÎ.Ω∏ÄXΩ*Bval_185Jˇˇˇˇˇˇˇˇ˛ˇˇˇˇˇˇˇ*Bval_189J              *Bval_210J       *ì@B
+input_biasJÄ~vº6∆¢<..˚∫∆˛
+=÷;È<~KZ=%◊Ö<˝ 
+<ßRÍ=jÄo=æ€∫ÿ3ê<õ|Ø<⁄„;ÒàºQ´E∫Ê‚æª´Éö<E <…eµ;êàÄ=d9v=“=∑</4-º˜πæ=®I<#||<e9ﬁ<5pIª/Á§∫¸=`>!ﬁ<=îâ=»$©ºüÎF=Y∞=g4"=ç'2= U%=Ñ|-=é¥=ú«ºßj:Àiº;M=uü‡=≥o	>äœ=Ÿî=∆ ú=“W=Ê◊Ω{C= =`ïºïÚª¬ô=Gî…;Yªá—Ü<»ÆÄ<	}p∫SS<*í@B	relu_biasJÄRU>¡bM=6k™<î∞àªƒ=⁄ª/>‚a->2Ç=…º3†>'Ë<oWé=∂eÛ;ô*;åìºOã<lù¨=cÌ:S•=∂UØºÙzX<˙Ò;,å∞=ò◊TΩêm7=t†å;áıM=‹Œ;Ö->©èDΩœ=_^´<¨t∫ê£¢ºFV‰ºû‹ä<_I<P◊¿<èCêº∏uÀ=„Å”=éôª«gî<ﬁy¥º≠X(<“•É=NMÛ=˙‹»º*ú<ºjTº¿ÅÁ<≥vπ<SU6º∫·>FÂΩÓ!=hŒ£ªFìºÿƒ>õ&7ºàÜΩç=wï=19%=*î@Brelu_1_biasJÄpßª‘Â<îÈΩD3Rº0Z<ï|,=¶ÉΩL}3=F˙<ÑÎÌΩ˘<=“2i=Ë8‡<NJ9>¯Ñ>a¥œ=Ò†V>@QRªs=-∂A>G>Æ‘∏º¿≤D:{ßYΩ÷˛(=—S>fÁuºÜòΩ8T>$¢wºv˘Ö=∂wÊ<ØûUΩ_œ¿<–‡ì>ë¢>Ù›ﬁ;kbêΩÇsæÓŸæê=*¡=ﬂ˜<œ>>⁄ÿi=¢¨ü<^¢Ω 1:?ÁΩ‘Ö>Ç+¯=·ÀÌ<jJ«<ñ∂â=öΩí⁄éºÄÁ%>∂±ﬂ=,A∑=ﬂ˙æ=¬_Æ= ‹ºøã<=01z=*î@Brelu_2_biasJÄˇÍã=Xh ;ÿ≤ûªõã$<ºÈØ<(R ="*=põ2º7Î;’]Ö<R<.oÆ=^Ÿ∫˚1=£Ò;∂{ö<Œ™=Uê<¯R=F=ùb=—x:ºñn›=®˝ÜºÃ¢¨<WÀî=~H.=Á’iº®˛<-r°<´áª<Zj√=T\=ª™t=øa∆=lëºÍï;<p<F<@úÃ∫»é	;o9¡=%ºΩ<˛<`Àn<ÅQ≈<L˘\;X5<gµá=ÍL>∞)b=3éµ=«¸P=.£Ó<òL7<2ß,=ƒü=–˜Vªé6x=»Q<@ f;¯≤ôªoﬂÿ;9’z<X≥Ñ;*î@Brelu_3_biasJÄÈ°™<ûÏª»
+RΩÉ7ΩüÉºéúãºy~#æÍ”ºVdE;f4y=Ëì<2 Ω&R;=—˘Å<0√eº xΩŸ‰<≈≥ß<£ÙΩ'¡Ñ=mÍ=ÔHïΩ¶X)= ã<R“9ºR÷<Ω eºe_ªñ>öº v:ÀÑΩ¶cºÑ„(<˘à_<éÃ<<H<Òw¡ºñÉΩ—XÌ<Ygﬂ<d1Ã<SÕ7ΩlDdΩf≠%=a‰K<5÷µΩ›©Q=R˙‚;ØA]=)µ<ñä∫t^Åπ¯ï9;◊J=`gÍ<K≈ˇºJÈòºÄN¢Ω5E$æ˙o∫,Ä=<ˆç=µTΩ@f¿Ω*MÄBrelu_4_biasj
+locationmodel.onnx.dataj
+offset0j
+length512p*OÄBrelu_5_biasj
+locationmodel.onnx.dataj
+offset512j
+length512p*PÄBrelu_6_biasj
+locationmodel.onnx.dataj
+offset1024j
+length512p*PÄBrelu_7_biasj
+locationmodel.onnx.dataj
+offset1536j
+length512p*QÄBrelu_8_biasj
+locationmodel.onnx.dataj
+offset2048j
+length1024p*QÄBrelu_9_biasj
+locationmodel.onnx.dataj
+offset3072j
+length1024p*RÄBrelu_10_biasj
+locationmodel.onnx.dataj
+offset4096j
+length1024p*RÄBrelu_11_biasj
+locationmodel.onnx.dataj
+offset5120j
+length1024p*RÄBrelu_12_biasj
+locationmodel.onnx.dataj
+offset6144j
+length2048p*RÄBrelu_13_biasj
+locationmodel.onnx.dataj
+offset8192j
+length2048p*SÄBrelu_14_biasj
+locationmodel.onnx.dataj
+offset10240j
+length2048p*SÄBrelu_15_biasj
+locationmodel.onnx.dataj
+offset12288j
+length2048p*Bval_206JˇˇˇˇˇˇˇˇZ≈
+input
+
+
+
+
+"=
+/pkg.torch.export.graph_signature.InputSpec.kind
+USER_INPUT"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"&
+!pkg.torch.onnx.original_node_namexbÖ
+logits
+
+
+
+"?
+0pkg.torch.export.graph_signature.OutputSpec.kindUSER_OUTPUT"*
+!pkg.torch.onnx.original_node_namesum_1j8
+backbone.backbone.conv1.weight
+
+@
+
+
+jA
+'backbone.backbone.layer1.0.conv1.weight
+
+@
+@
+
+jA
+'backbone.backbone.layer1.0.conv2.weight
+
+@
+@
+
+jA
+'backbone.backbone.layer1.1.conv1.weight
+
+@
+@
+
+jA
+'backbone.backbone.layer1.1.conv2.weight
+
+@
+@
+
+jB
+'backbone.backbone.layer2.0.conv1.weight
+
+Ä
+@
+
+jC
+'backbone.backbone.layer2.0.conv2.weight
+
+Ä
+Ä
+
+jI
+.backbone.backbone.layer2.0.downsample.0.weight
+
+Ä
+@
+
+jC
+'backbone.backbone.layer2.1.conv1.weight
+
+Ä
+Ä
+
+jC
+'backbone.backbone.layer2.1.conv2.weight
+
+Ä
+Ä
+
+jC
+'backbone.backbone.layer3.0.conv1.weight
+
+Ä
+Ä
+
+jC
+'backbone.backbone.layer3.0.conv2.weight
+
+Ä
+Ä
+
+jJ
+.backbone.backbone.layer3.0.downsample.0.weight
+
+Ä
+Ä
+
+jC
+'backbone.backbone.layer3.1.conv1.weight
+
+Ä
+Ä
+
+jC
+'backbone.backbone.layer3.1.conv2.weight
+
+Ä
+Ä
+
+jC
+'backbone.backbone.layer4.0.conv1.weight
+
+Ä
+Ä
+
+jC
+'backbone.backbone.layer4.0.conv2.weight
+
+Ä
+Ä
+
+jJ
+.backbone.backbone.layer4.0.downsample.0.weight
+
+Ä
+Ä
+
+jC
+'backbone.backbone.layer4.1.conv1.weight
+
+Ä
+Ä
+
+jC
+'backbone.backbone.layer4.1.conv2.weight
+
+Ä
+Ä
+
+jÔ
+head.experts.0.net.0.weight
+	
+@
+Ä"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"B
+!pkg.torch.onnx.original_node_namep_head_experts_0_net_0_weightjÊ
+head.experts.0.net.0.bias
+
+
+@"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"@
+!pkg.torch.onnx.original_node_namep_head_experts_0_net_0_biasjÓ
+head.experts.0.net.3.weight
+
+
+
+@"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"B
+!pkg.torch.onnx.original_node_namep_head_experts_0_net_3_weightjÊ
+head.experts.0.net.3.bias
+
+
+
+"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"@
+!pkg.torch.onnx.original_node_namep_head_experts_0_net_3_biasjÔ
+head.experts.1.net.0.weight
+	
+@
+Ä"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"B
+!pkg.torch.onnx.original_node_namep_head_experts_1_net_0_weightjÊ
+head.experts.1.net.0.bias
+
+
+@"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"@
+!pkg.torch.onnx.original_node_namep_head_experts_1_net_0_biasjÓ
+head.experts.1.net.3.weight
+
+
+
+@"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"B
+!pkg.torch.onnx.original_node_namep_head_experts_1_net_3_weightjÊ
+head.experts.1.net.3.bias
+
+
+
+"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"@
+!pkg.torch.onnx.original_node_namep_head_experts_1_net_3_biasjÔ
+head.experts.2.net.0.weight
+	
+@
+Ä"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"B
+!pkg.torch.onnx.original_node_namep_head_experts_2_net_0_weightjÊ
+head.experts.2.net.0.bias
+
+
+@"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"@
+!pkg.torch.onnx.original_node_namep_head_experts_2_net_0_biasjÓ
+head.experts.2.net.3.weight
+
+
+
+@"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"B
+!pkg.torch.onnx.original_node_namep_head_experts_2_net_3_weightjÊ
+head.experts.2.net.3.bias
+
+
+
+"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"@
+!pkg.torch.onnx.original_node_namep_head_experts_2_net_3_biasjÔ
+head.experts.3.net.0.weight
+	
+@
+Ä"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"B
+!pkg.torch.onnx.original_node_namep_head_experts_3_net_0_weightjÊ
+head.experts.3.net.0.bias
+
+
+@"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"@
+!pkg.torch.onnx.original_node_namep_head_experts_3_net_0_biasjÓ
+head.experts.3.net.3.weight
+
+
+
+@"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"B
+!pkg.torch.onnx.original_node_namep_head_experts_3_net_3_weightjÊ
+head.experts.3.net.3.bias
+
+
+
+"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"@
+!pkg.torch.onnx.original_node_namep_head_experts_3_net_3_biasjÔ
+head.experts.4.net.0.weight
+	
+@
+Ä"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"B
+!pkg.torch.onnx.original_node_namep_head_experts_4_net_0_weightjÊ
+head.experts.4.net.0.bias
+
+
+@"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"@
+!pkg.torch.onnx.original_node_namep_head_experts_4_net_0_biasjÓ
+head.experts.4.net.3.weight
+
+
+
+@"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"B
+!pkg.torch.onnx.original_node_namep_head_experts_4_net_3_weightjÊ
+head.experts.4.net.3.bias
+
+
+
+"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"@
+!pkg.torch.onnx.original_node_namep_head_experts_4_net_3_biasjÔ
+head.experts.5.net.0.weight
+	
+@
+Ä"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"B
+!pkg.torch.onnx.original_node_namep_head_experts_5_net_0_weightjÊ
+head.experts.5.net.0.bias
+
+
+@"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"@
+!pkg.torch.onnx.original_node_namep_head_experts_5_net_0_biasjÓ
+head.experts.5.net.3.weight
+
+
+
+@"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"B
+!pkg.torch.onnx.original_node_namep_head_experts_5_net_3_weightjÊ
+head.experts.5.net.3.bias
+
+
+
+"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"@
+!pkg.torch.onnx.original_node_namep_head_experts_5_net_3_biasjÔ
+head.experts.6.net.0.weight
+	
+@
+Ä"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"B
+!pkg.torch.onnx.original_node_namep_head_experts_6_net_0_weightjÊ
+head.experts.6.net.0.bias
+
+
+@"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"@
+!pkg.torch.onnx.original_node_namep_head_experts_6_net_0_biasjÓ
+head.experts.6.net.3.weight
+
+
+
+@"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"B
+!pkg.torch.onnx.original_node_namep_head_experts_6_net_3_weightjÊ
+head.experts.6.net.3.bias
+
+
+
+"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"@
+!pkg.torch.onnx.original_node_namep_head_experts_6_net_3_biasjÔ
+head.experts.7.net.0.weight
+	
+@
+Ä"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"B
+!pkg.torch.onnx.original_node_namep_head_experts_7_net_0_weightjÊ
+head.experts.7.net.0.bias
+
+
+@"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"@
+!pkg.torch.onnx.original_node_namep_head_experts_7_net_0_biasjÓ
+head.experts.7.net.3.weight
+
+
+
+@"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"B
+!pkg.torch.onnx.original_node_namep_head_experts_7_net_3_weightjÊ
+head.experts.7.net.3.bias
+
+
+
+"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"@
+!pkg.torch.onnx.original_node_namep_head_experts_7_net_3_biasjÁ
+head.gate.w_gate.weight
+	
+
+Ä"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone">
+!pkg.torch.onnx.original_node_namep_head_gate_w_gate_weightjﬁ
+head.gate.w_gate.bias
+
+
+"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"<
+!pkg.torch.onnx.original_node_namep_head_gate_w_gate_biasjU
+val_185
+
+
+">
+$pkg.onnxscript.optimizer.folded_from['val_183', 'val_184']jU
+val_189
+
+
+">
+$pkg.onnxscript.optimizer.folded_from['val_187', 'val_188']j`
+val_210
+
+
+"I
+$pkg.onnxscript.optimizer.folded_from!['val_207', 'val_208', 'val_209']j
+
+input_bias
+
+
+@j
+	relu_bias
+
+
+@j
+relu_1_bias
+
+
+@j
+relu_2_bias
+
+
+@j
+relu_3_bias
+
+
+@j
+relu_4_bias
+	
+Äj
+relu_5_bias
+	
+Äj
+relu_6_bias
+	
+Äj
+relu_7_bias
+	
+Äj
+relu_8_bias
+	
+Äj
+relu_9_bias
+	
+Äj
+relu_10_bias
+	
+Äj
+relu_11_bias
+	
+Äj
+relu_12_bias
+	
+Äj
+relu_13_bias
+	
+Äj
+relu_14_bias
+	
+Äj
+relu_15_bias
+	
+Äj
+val_206
+
+
+j!
+getitem
+
+
+@
+
+j
+relu
+
+
+@
+
+j#
+	getitem_3
+
+
+@
+
+j 
+relu_1
+
+
+@
+
+j#
+	getitem_6
+
+
+@
+
+j
+add
+
+
+@
+
+j 
+relu_2
+
+
+@
+
+j#
+	getitem_9
+
+
+@
+
+j 
+relu_3
+
+
+@
+
+j$
+
+getitem_12
+
+
+@
+
+j
+add_1
+
+
+@
+
+j 
+relu_4
+
+
+@
+
+j%
+
+getitem_15
+
+
+Ä
+
+j!
+relu_5
+
+
+Ä
+
+j%
+
+getitem_18
+
+
+Ä
+
+j%
+
+getitem_21
+
+
+Ä
+
+j 
+add_2
+
+
+Ä
+
+j!
+relu_6
+
+
+Ä
+
+j%
+
+getitem_24
+
+
+Ä
+
+j!
+relu_7
+
+
+Ä
+
+j%
+
+getitem_27
+
+
+Ä
+
+j 
+add_3
+
+
+Ä
+
+j!
+relu_8
+
+
+Ä
+
+j%
+
+getitem_30
+
+
+Ä
+
+j!
+relu_9
+
+
+Ä
+
+j%
+
+getitem_33
+
+
+Ä
+
+j%
+
+getitem_36
+
+
+Ä
+
+j 
+add_4
+
+
+Ä
+
+j"
+relu_10
+
+
+Ä
+
+j%
+
+getitem_39
+
+
+Ä
+
+j"
+relu_11
+
+
+Ä
+
+j%
+
+getitem_42
+
+
+Ä
+
+j 
+add_5
+
+
+Ä
+
+j"
+relu_12
+
+
+Ä
+
+j%
+
+getitem_45
+
+
+Ä
+
+j"
+relu_13
+
+
+Ä
+
+j%
+
+getitem_48
+
+
+Ä
+
+j%
+
+getitem_51
+
+
+Ä
+
+j 
+add_6
+
+
+Ä
+
+j"
+relu_14
+
+
+Ä
+
+j%
+
+getitem_54
+
+
+Ä
+
+j"
+relu_15
+
+
+Ä
+
+j%
+
+getitem_57
+
+
+Ä
+
+j 
+add_7
+
+
+Ä
+
+j"
+relu_16
+
+
+Ä
+
+j
+mean
+
+
+Ä
+
+j
+view
+	
+
+Äj
+linear
+
+
+j
+softmax
+
+
+j
+linear_1
+
+
+@j
+relu_17
+
+
+@j
+linear_2
+
+
+
+j
+linear_3
+
+
+@j
+relu_18
+
+
+@j
+linear_4
+
+
+
+j
+linear_5
+
+
+@j
+relu_19
+
+
+@j
+linear_6
+
+
+
+j
+linear_7
+
+
+@j
+relu_20
+
+
+@j
+linear_8
+
+
+
+j
+linear_9
+
+
+@j
+relu_21
+
+
+@j
+	linear_10
+
+
+
+j
+	linear_11
+
+
+@j
+relu_22
+
+
+@j
+	linear_12
+
+
+
+j
+	linear_13
+
+
+@j
+relu_23
+
+
+@j
+	linear_14
+
+
+
+j
+	linear_15
+
+
+@j
+relu_24
+
+
+@j
+	linear_16
+
+
+
+j
+val_191
+
+
+
+
+j
+val_193
+
+
+
+
+j
+val_195
+
+
+
+
+j
+val_197
+
+
+
+
+j
+val_199
+
+
+
+
+j
+val_201
+
+
+
+
+j
+val_203
+
+
+
+
+j
+val_205
+
+
+
+
+j
+stack
+
+
+
+
+j
+	unsqueeze
+
+
+
+j
+mul
+
+
+
+
+ÇàÅ
+0pkg.torch.export.ExportedProgram.graph_signature“Ä
+# inputs
+p_backbone_backbone_conv1_weight: PARAMETER target='backbone.backbone.conv1.weight'
+p_backbone_backbone_bn1_weight: PARAMETER target='backbone.backbone.bn1.weight'
+p_backbone_backbone_bn1_bias: PARAMETER target='backbone.backbone.bn1.bias'
+p_backbone_backbone_layer1_0_conv1_weight: PARAMETER target='backbone.backbone.layer1.0.conv1.weight'
+p_backbone_backbone_layer1_0_bn1_weight: PARAMETER target='backbone.backbone.layer1.0.bn1.weight'
+p_backbone_backbone_layer1_0_bn1_bias: PARAMETER target='backbone.backbone.layer1.0.bn1.bias'
+p_backbone_backbone_layer1_0_conv2_weight: PARAMETER target='backbone.backbone.layer1.0.conv2.weight'
+p_backbone_backbone_layer1_0_bn2_weight: PARAMETER target='backbone.backbone.layer1.0.bn2.weight'
+p_backbone_backbone_layer1_0_bn2_bias: PARAMETER target='backbone.backbone.layer1.0.bn2.bias'
+p_backbone_backbone_layer1_1_conv1_weight: PARAMETER target='backbone.backbone.layer1.1.conv1.weight'
+p_backbone_backbone_layer1_1_bn1_weight: PARAMETER target='backbone.backbone.layer1.1.bn1.weight'
+p_backbone_backbone_layer1_1_bn1_bias: PARAMETER target='backbone.backbone.layer1.1.bn1.bias'
+p_backbone_backbone_layer1_1_conv2_weight: PARAMETER target='backbone.backbone.layer1.1.conv2.weight'
+p_backbone_backbone_layer1_1_bn2_weight: PARAMETER target='backbone.backbone.layer1.1.bn2.weight'
+p_backbone_backbone_layer1_1_bn2_bias: PARAMETER target='backbone.backbone.layer1.1.bn2.bias'
+p_backbone_backbone_layer2_0_conv1_weight: PARAMETER target='backbone.backbone.layer2.0.conv1.weight'
+p_backbone_backbone_layer2_0_bn1_weight: PARAMETER target='backbone.backbone.layer2.0.bn1.weight'
+p_backbone_backbone_layer2_0_bn1_bias: PARAMETER target='backbone.backbone.layer2.0.bn1.bias'
+p_backbone_backbone_layer2_0_conv2_weight: PARAMETER target='backbone.backbone.layer2.0.conv2.weight'
+p_backbone_backbone_layer2_0_bn2_weight: PARAMETER target='backbone.backbone.layer2.0.bn2.weight'
+p_backbone_backbone_layer2_0_bn2_bias: PARAMETER target='backbone.backbone.layer2.0.bn2.bias'
+p_backbone_backbone_layer2_0_downsample_0_weight: PARAMETER target='backbone.backbone.layer2.0.downsample.0.weight'
+p_backbone_backbone_layer2_0_downsample_1_weight: PARAMETER target='backbone.backbone.layer2.0.downsample.1.weight'
+p_backbone_backbone_layer2_0_downsample_1_bias: PARAMETER target='backbone.backbone.layer2.0.downsample.1.bias'
+p_backbone_backbone_layer2_1_conv1_weight: PARAMETER target='backbone.backbone.layer2.1.conv1.weight'
+p_backbone_backbone_layer2_1_bn1_weight: PARAMETER target='backbone.backbone.layer2.1.bn1.weight'
+p_backbone_backbone_layer2_1_bn1_bias: PARAMETER target='backbone.backbone.layer2.1.bn1.bias'
+p_backbone_backbone_layer2_1_conv2_weight: PARAMETER target='backbone.backbone.layer2.1.conv2.weight'
+p_backbone_backbone_layer2_1_bn2_weight: PARAMETER target='backbone.backbone.layer2.1.bn2.weight'
+p_backbone_backbone_layer2_1_bn2_bias: PARAMETER target='backbone.backbone.layer2.1.bn2.bias'
+p_backbone_backbone_layer3_0_conv1_weight: PARAMETER target='backbone.backbone.layer3.0.conv1.weight'
+p_backbone_backbone_layer3_0_bn1_weight: PARAMETER target='backbone.backbone.layer3.0.bn1.weight'
+p_backbone_backbone_layer3_0_bn1_bias: PARAMETER target='backbone.backbone.layer3.0.bn1.bias'
+p_backbone_backbone_layer3_0_conv2_weight: PARAMETER target='backbone.backbone.layer3.0.conv2.weight'
+p_backbone_backbone_layer3_0_bn2_weight: PARAMETER target='backbone.backbone.layer3.0.bn2.weight'
+p_backbone_backbone_layer3_0_bn2_bias: PARAMETER target='backbone.backbone.layer3.0.bn2.bias'
+p_backbone_backbone_layer3_0_downsample_0_weight: PARAMETER target='backbone.backbone.layer3.0.downsample.0.weight'
+p_backbone_backbone_layer3_0_downsample_1_weight: PARAMETER target='backbone.backbone.layer3.0.downsample.1.weight'
+p_backbone_backbone_layer3_0_downsample_1_bias: PARAMETER target='backbone.backbone.layer3.0.downsample.1.bias'
+p_backbone_backbone_layer3_1_conv1_weight: PARAMETER target='backbone.backbone.layer3.1.conv1.weight'
+p_backbone_backbone_layer3_1_bn1_weight: PARAMETER target='backbone.backbone.layer3.1.bn1.weight'
+p_backbone_backbone_layer3_1_bn1_bias: PARAMETER target='backbone.backbone.layer3.1.bn1.bias'
+p_backbone_backbone_layer3_1_conv2_weight: PARAMETER target='backbone.backbone.layer3.1.conv2.weight'
+p_backbone_backbone_layer3_1_bn2_weight: PARAMETER target='backbone.backbone.layer3.1.bn2.weight'
+p_backbone_backbone_layer3_1_bn2_bias: PARAMETER target='backbone.backbone.layer3.1.bn2.bias'
+p_backbone_backbone_layer4_0_conv1_weight: PARAMETER target='backbone.backbone.layer4.0.conv1.weight'
+p_backbone_backbone_layer4_0_bn1_weight: PARAMETER target='backbone.backbone.layer4.0.bn1.weight'
+p_backbone_backbone_layer4_0_bn1_bias: PARAMETER target='backbone.backbone.layer4.0.bn1.bias'
+p_backbone_backbone_layer4_0_conv2_weight: PARAMETER target='backbone.backbone.layer4.0.conv2.weight'
+p_backbone_backbone_layer4_0_bn2_weight: PARAMETER target='backbone.backbone.layer4.0.bn2.weight'
+p_backbone_backbone_layer4_0_bn2_bias: PARAMETER target='backbone.backbone.layer4.0.bn2.bias'
+p_backbone_backbone_layer4_0_downsample_0_weight: PARAMETER target='backbone.backbone.layer4.0.downsample.0.weight'
+p_backbone_backbone_layer4_0_downsample_1_weight: PARAMETER target='backbone.backbone.layer4.0.downsample.1.weight'
+p_backbone_backbone_layer4_0_downsample_1_bias: PARAMETER target='backbone.backbone.layer4.0.downsample.1.bias'
+p_backbone_backbone_layer4_1_conv1_weight: PARAMETER target='backbone.backbone.layer4.1.conv1.weight'
+p_backbone_backbone_layer4_1_bn1_weight: PARAMETER target='backbone.backbone.layer4.1.bn1.weight'
+p_backbone_backbone_layer4_1_bn1_bias: PARAMETER target='backbone.backbone.layer4.1.bn1.bias'
+p_backbone_backbone_layer4_1_conv2_weight: PARAMETER target='backbone.backbone.layer4.1.conv2.weight'
+p_backbone_backbone_layer4_1_bn2_weight: PARAMETER target='backbone.backbone.layer4.1.bn2.weight'
+p_backbone_backbone_layer4_1_bn2_bias: PARAMETER target='backbone.backbone.layer4.1.bn2.bias'
+p_head_experts_0_net_0_weight: PARAMETER target='head.experts.0.net.0.weight'
+p_head_experts_0_net_0_bias: PARAMETER target='head.experts.0.net.0.bias'
+p_head_experts_0_net_3_weight: PARAMETER target='head.experts.0.net.3.weight'
+p_head_experts_0_net_3_bias: PARAMETER target='head.experts.0.net.3.bias'
+p_head_experts_1_net_0_weight: PARAMETER target='head.experts.1.net.0.weight'
+p_head_experts_1_net_0_bias: PARAMETER target='head.experts.1.net.0.bias'
+p_head_experts_1_net_3_weight: PARAMETER target='head.experts.1.net.3.weight'
+p_head_experts_1_net_3_bias: PARAMETER target='head.experts.1.net.3.bias'
+p_head_experts_2_net_0_weight: PARAMETER target='head.experts.2.net.0.weight'
+p_head_experts_2_net_0_bias: PARAMETER target='head.experts.2.net.0.bias'
+p_head_experts_2_net_3_weight: PARAMETER target='head.experts.2.net.3.weight'
+p_head_experts_2_net_3_bias: PARAMETER target='head.experts.2.net.3.bias'
+p_head_experts_3_net_0_weight: PARAMETER target='head.experts.3.net.0.weight'
+p_head_experts_3_net_0_bias: PARAMETER target='head.experts.3.net.0.bias'
+p_head_experts_3_net_3_weight: PARAMETER target='head.experts.3.net.3.weight'
+p_head_experts_3_net_3_bias: PARAMETER target='head.experts.3.net.3.bias'
+p_head_experts_4_net_0_weight: PARAMETER target='head.experts.4.net.0.weight'
+p_head_experts_4_net_0_bias: PARAMETER target='head.experts.4.net.0.bias'
+p_head_experts_4_net_3_weight: PARAMETER target='head.experts.4.net.3.weight'
+p_head_experts_4_net_3_bias: PARAMETER target='head.experts.4.net.3.bias'
+p_head_experts_5_net_0_weight: PARAMETER target='head.experts.5.net.0.weight'
+p_head_experts_5_net_0_bias: PARAMETER target='head.experts.5.net.0.bias'
+p_head_experts_5_net_3_weight: PARAMETER target='head.experts.5.net.3.weight'
+p_head_experts_5_net_3_bias: PARAMETER target='head.experts.5.net.3.bias'
+p_head_experts_6_net_0_weight: PARAMETER target='head.experts.6.net.0.weight'
+p_head_experts_6_net_0_bias: PARAMETER target='head.experts.6.net.0.bias'
+p_head_experts_6_net_3_weight: PARAMETER target='head.experts.6.net.3.weight'
+p_head_experts_6_net_3_bias: PARAMETER target='head.experts.6.net.3.bias'
+p_head_experts_7_net_0_weight: PARAMETER target='head.experts.7.net.0.weight'
+p_head_experts_7_net_0_bias: PARAMETER target='head.experts.7.net.0.bias'
+p_head_experts_7_net_3_weight: PARAMETER target='head.experts.7.net.3.weight'
+p_head_experts_7_net_3_bias: PARAMETER target='head.experts.7.net.3.bias'
+p_head_gate_w_gate_weight: PARAMETER target='head.gate.w_gate.weight'
+p_head_gate_w_gate_bias: PARAMETER target='head.gate.w_gate.bias'
+p_head_gate_w_noise_weight: PARAMETER target='head.gate.w_noise.weight'
+p_head_gate_w_noise_bias: PARAMETER target='head.gate.w_noise.bias'
+b_backbone_backbone_bn1_running_mean: BUFFER target='backbone.backbone.bn1.running_mean' persistent=True
+b_backbone_backbone_bn1_running_var: BUFFER target='backbone.backbone.bn1.running_var' persistent=True
+b_backbone_backbone_bn1_num_batches_tracked: BUFFER target='backbone.backbone.bn1.num_batches_tracked' persistent=True
+b_backbone_backbone_layer1_0_bn1_running_mean: BUFFER target='backbone.backbone.layer1.0.bn1.running_mean' persistent=True
+b_backbone_backbone_layer1_0_bn1_running_var: BUFFER target='backbone.backbone.layer1.0.bn1.running_var' persistent=True
+b_backbone_backbone_layer1_0_bn1_num_batches_tracked: BUFFER target='backbone.backbone.layer1.0.bn1.num_batches_tracked' persistent=True
+b_backbone_backbone_layer1_0_bn2_running_mean: BUFFER target='backbone.backbone.layer1.0.bn2.running_mean' persistent=True
+b_backbone_backbone_layer1_0_bn2_running_var: BUFFER target='backbone.backbone.layer1.0.bn2.running_var' persistent=True
+b_backbone_backbone_layer1_0_bn2_num_batches_tracked: BUFFER target='backbone.backbone.layer1.0.bn2.num_batches_tracked' persistent=True
+b_backbone_backbone_layer1_1_bn1_running_mean: BUFFER target='backbone.backbone.layer1.1.bn1.running_mean' persistent=True
+b_backbone_backbone_layer1_1_bn1_running_var: BUFFER target='backbone.backbone.layer1.1.bn1.running_var' persistent=True
+b_backbone_backbone_layer1_1_bn1_num_batches_tracked: BUFFER target='backbone.backbone.layer1.1.bn1.num_batches_tracked' persistent=True
+b_backbone_backbone_layer1_1_bn2_running_mean: BUFFER target='backbone.backbone.layer1.1.bn2.running_mean' persistent=True
+b_backbone_backbone_layer1_1_bn2_running_var: BUFFER target='backbone.backbone.layer1.1.bn2.running_var' persistent=True
+b_backbone_backbone_layer1_1_bn2_num_batches_tracked: BUFFER target='backbone.backbone.layer1.1.bn2.num_batches_tracked' persistent=True
+b_backbone_backbone_layer2_0_bn1_running_mean: BUFFER target='backbone.backbone.layer2.0.bn1.running_mean' persistent=True
+b_backbone_backbone_layer2_0_bn1_running_var: BUFFER target='backbone.backbone.layer2.0.bn1.running_var' persistent=True
+b_backbone_backbone_layer2_0_bn1_num_batches_tracked: BUFFER target='backbone.backbone.layer2.0.bn1.num_batches_tracked' persistent=True
+b_backbone_backbone_layer2_0_bn2_running_mean: BUFFER target='backbone.backbone.layer2.0.bn2.running_mean' persistent=True
+b_backbone_backbone_layer2_0_bn2_running_var: BUFFER target='backbone.backbone.layer2.0.bn2.running_var' persistent=True
+b_backbone_backbone_layer2_0_bn2_num_batches_tracked: BUFFER target='backbone.backbone.layer2.0.bn2.num_batches_tracked' persistent=True
+b_backbone_backbone_layer2_0_downsample_1_running_mean: BUFFER target='backbone.backbone.layer2.0.downsample.1.running_mean' persistent=True
+b_backbone_backbone_layer2_0_downsample_1_running_var: BUFFER target='backbone.backbone.layer2.0.downsample.1.running_var' persistent=True
+b_backbone_backbone_layer2_0_downsample_1_num_batches_tracked: BUFFER target='backbone.backbone.layer2.0.downsample.1.num_batches_tracked' persistent=True
+b_backbone_backbone_layer2_1_bn1_running_mean: BUFFER target='backbone.backbone.layer2.1.bn1.running_mean' persistent=True
+b_backbone_backbone_layer2_1_bn1_running_var: BUFFER target='backbone.backbone.layer2.1.bn1.running_var' persistent=True
+b_backbone_backbone_layer2_1_bn1_num_batches_tracked: BUFFER target='backbone.backbone.layer2.1.bn1.num_batches_tracked' persistent=True
+b_backbone_backbone_layer2_1_bn2_running_mean: BUFFER target='backbone.backbone.layer2.1.bn2.running_mean' persistent=True
+b_backbone_backbone_layer2_1_bn2_running_var: BUFFER target='backbone.backbone.layer2.1.bn2.running_var' persistent=True
+b_backbone_backbone_layer2_1_bn2_num_batches_tracked: BUFFER target='backbone.backbone.layer2.1.bn2.num_batches_tracked' persistent=True
+b_backbone_backbone_layer3_0_bn1_running_mean: BUFFER target='backbone.backbone.layer3.0.bn1.running_mean' persistent=True
+b_backbone_backbone_layer3_0_bn1_running_var: BUFFER target='backbone.backbone.layer3.0.bn1.running_var' persistent=True
+b_backbone_backbone_layer3_0_bn1_num_batches_tracked: BUFFER target='backbone.backbone.layer3.0.bn1.num_batches_tracked' persistent=True
+b_backbone_backbone_layer3_0_bn2_running_mean: BUFFER target='backbone.backbone.layer3.0.bn2.running_mean' persistent=True
+b_backbone_backbone_layer3_0_bn2_running_var: BUFFER target='backbone.backbone.layer3.0.bn2.running_var' persistent=True
+b_backbone_backbone_layer3_0_bn2_num_batches_tracked: BUFFER target='backbone.backbone.layer3.0.bn2.num_batches_tracked' persistent=True
+b_backbone_backbone_layer3_0_downsample_1_running_mean: BUFFER target='backbone.backbone.layer3.0.downsample.1.running_mean' persistent=True
+b_backbone_backbone_layer3_0_downsample_1_running_var: BUFFER target='backbone.backbone.layer3.0.downsample.1.running_var' persistent=True
+b_backbone_backbone_layer3_0_downsample_1_num_batches_tracked: BUFFER target='backbone.backbone.layer3.0.downsample.1.num_batches_tracked' persistent=True
+b_backbone_backbone_layer3_1_bn1_running_mean: BUFFER target='backbone.backbone.layer3.1.bn1.running_mean' persistent=True
+b_backbone_backbone_layer3_1_bn1_running_var: BUFFER target='backbone.backbone.layer3.1.bn1.running_var' persistent=True
+b_backbone_backbone_layer3_1_bn1_num_batches_tracked: BUFFER target='backbone.backbone.layer3.1.bn1.num_batches_tracked' persistent=True
+b_backbone_backbone_layer3_1_bn2_running_mean: BUFFER target='backbone.backbone.layer3.1.bn2.running_mean' persistent=True
+b_backbone_backbone_layer3_1_bn2_running_var: BUFFER target='backbone.backbone.layer3.1.bn2.running_var' persistent=True
+b_backbone_backbone_layer3_1_bn2_num_batches_tracked: BUFFER target='backbone.backbone.layer3.1.bn2.num_batches_tracked' persistent=True
+b_backbone_backbone_layer4_0_bn1_running_mean: BUFFER target='backbone.backbone.layer4.0.bn1.running_mean' persistent=True
+b_backbone_backbone_layer4_0_bn1_running_var: BUFFER target='backbone.backbone.layer4.0.bn1.running_var' persistent=True
+b_backbone_backbone_layer4_0_bn1_num_batches_tracked: BUFFER target='backbone.backbone.layer4.0.bn1.num_batches_tracked' persistent=True
+b_backbone_backbone_layer4_0_bn2_running_mean: BUFFER target='backbone.backbone.layer4.0.bn2.running_mean' persistent=True
+b_backbone_backbone_layer4_0_bn2_running_var: BUFFER target='backbone.backbone.layer4.0.bn2.running_var' persistent=True
+b_backbone_backbone_layer4_0_bn2_num_batches_tracked: BUFFER target='backbone.backbone.layer4.0.bn2.num_batches_tracked' persistent=True
+b_backbone_backbone_layer4_0_downsample_1_running_mean: BUFFER target='backbone.backbone.layer4.0.downsample.1.running_mean' persistent=True
+b_backbone_backbone_layer4_0_downsample_1_running_var: BUFFER target='backbone.backbone.layer4.0.downsample.1.running_var' persistent=True
+b_backbone_backbone_layer4_0_downsample_1_num_batches_tracked: BUFFER target='backbone.backbone.layer4.0.downsample.1.num_batches_tracked' persistent=True
+b_backbone_backbone_layer4_1_bn1_running_mean: BUFFER target='backbone.backbone.layer4.1.bn1.running_mean' persistent=True
+b_backbone_backbone_layer4_1_bn1_running_var: BUFFER target='backbone.backbone.layer4.1.bn1.running_var' persistent=True
+b_backbone_backbone_layer4_1_bn1_num_batches_tracked: BUFFER target='backbone.backbone.layer4.1.bn1.num_batches_tracked' persistent=True
+b_backbone_backbone_layer4_1_bn2_running_mean: BUFFER target='backbone.backbone.layer4.1.bn2.running_mean' persistent=True
+b_backbone_backbone_layer4_1_bn2_running_var: BUFFER target='backbone.backbone.layer4.1.bn2.running_var' persistent=True
+b_backbone_backbone_layer4_1_bn2_num_batches_tracked: BUFFER target='backbone.backbone.layer4.1.bn2.num_batches_tracked' persistent=True
+x: USER_INPUT
+
+# outputs
+sum_1: USER_OUTPUT
+Ç8
+2pkg.torch.export.ExportedProgram.range_constraints{}B
+ 
