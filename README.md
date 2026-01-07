@@ -40,3 +40,11 @@ Important directories and files:
   - _train_cifar.py_ and _train_mnist.py_ are the model training scripts on the CIFAR-10 and MNIST datasets
   - _cifar10_hessian.py_ is the script that calculate the hessian on the CIFAR-10 dataset
 - **src:** MoE implementation, data processing scripts and visualization scripts
+
+
+## Contributions  
+We had several different versions of the code from start to finish and restructured it several times so code specific to one person may be hard to find in the final version as we continuously adapted it to be more modular and coherent. Also we worked on several differnt branches and merged and combined the code base several times. In general the code distribution looked like this:  
+Adam - worked on the CIFAR-10 dataset and made the Sparse and Soft MoE networks and also worked on generalization results of these models and their training, also did some visualizations  
+Sourav - worked on the CIFAR-10 dataset and making MoE models to compare, also worked on some generalization of the CIFAR-10 MoE models, also worked on some visualizations  
+Caleb - worked on MNIST dataset and making the Sparse and Soft MoE networks, also worked on the training of these models and producing some results, also did some visulations   
+Daniel - worked on the MNIST dataset and refactoring Caleb's MoE models to work with Adam's code, also worked on eigenvalue and generalization code for MNIST, also did some visualizations, also did the final merging of the code base  
