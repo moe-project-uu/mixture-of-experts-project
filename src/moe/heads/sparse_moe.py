@@ -1,4 +1,11 @@
 # src/moe/heads/sparse_moe.py
+# Primary author (final main-branch implementation): Adam
+# Contributions:
+#   - Daniel: refactoring/integration into unified codebase; compatibility adjustments with shared training pipeline.
+#   - Caleb: earlier MNIST SoftMoE head drafts/experiments that informed design choices.
+# Notes:
+#   This module reflects the consolidated implementation after multiple iterations and merges.
+
 from .base import BaseHead
 from moe.utils.losses import shazeer_importance_loss, shazeer_load_loss
 import torch
