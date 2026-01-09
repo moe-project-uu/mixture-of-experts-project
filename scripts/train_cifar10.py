@@ -1,3 +1,7 @@
+###
+#SCRIPT AUTHOR: Adam Rokah
+###
+
 """
 Train a CNN classifier for the CIFAR-10 dataset (dense baseline vs MoE variants)
 - Supports ResNet-18 with a CIFAR stem
