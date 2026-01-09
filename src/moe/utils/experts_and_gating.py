@@ -1,3 +1,5 @@
+#NOISYTOPKGATE Contributors: Adam, Caleb
+
 """keep all expert and gating-building logic in one place so every MoE variant can reuse the same code instead of duplicating
  expert definitions."""
 
