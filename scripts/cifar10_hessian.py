@@ -1,10 +1,11 @@
-###
-#SCRIPT AUTHOR: Adam Rokah
-###
-
-
 # scripts/cifar10_hessian.py
-#
+# Final main-branch implementation: Adam Rokah
+# Major contributions / provenance:
+#   - Daniel: MNIST PyHessian pipeline and analysis patterns that informed the curvature/generalization workflow.
+#   - Sourav: early CIFAR-10 Hessian experimentation on separate branches during development.
+# Notes:
+#   This script is the consolidated CIFAR-10 Hessian/curvature analysis used for final results and reporting.
+
 # Hessian-based generalization & curvature analysis for CIFAR-10 models.
 # Expects that train_cifar10.py has produced:
 #   - checkpoints/.../model.pt
