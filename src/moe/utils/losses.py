@@ -1,4 +1,11 @@
 # src/moe/utils/losses.py
+# final main-branch implementation: Adam
+# Major contributions:
+#   - Caleb: earlier MNIST-specific implementations of related Shazeer-style load/importance losses (separate branches).
+#   - Daniel: refactoring/consolidation into shared utilities during MNIST/CIFAR codebase merge.
+
+
+
 import torch
 import torch.nn.functional as F
 
