@@ -1,4 +1,5 @@
 # src/moe/data/cifar10_data.py
+#script author: Adam Rokah
 from typing import Dict, Any, Tuple
 import torch
 from torch.utils.data import DataLoader, random_split
