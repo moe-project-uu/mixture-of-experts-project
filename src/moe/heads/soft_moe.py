@@ -1,4 +1,11 @@
-#Authors: Adam, Dani, Caleb
+# File: src/moe/heads/soft_moe.py
+# Primary author (final main-branch implementation): Adam
+# Contributions:
+#   - Daniel: refactoring/integration into unified codebase; compatibility adjustments with shared training pipeline.
+#   - Caleb: earlier MNIST SoftMoE head drafts/experiments that informed design choices.
+# Notes:
+#   This module reflects the consolidated implementation after multiple iterations and merges.
+
 # src/moe/heads/soft_moe.py
 from .base import BaseHead
 import torch
