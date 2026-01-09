@@ -1,5 +1,4 @@
 # src/moe/heads/sparse_moe.py
-# Script Author: Adam Rokah
 from .base import BaseHead
 from moe.utils.losses import shazeer_importance_loss, shazeer_load_loss
 import torch
