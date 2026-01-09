@@ -2,6 +2,7 @@ import torch.nn as nn
 from torch import flatten
 from torchvision.models import resnet18
 
+#Author: Adam
 class FeatureBackbone(nn.Module):
     """ResNet-18 adapted for CIFAR-10, outputs 512-dim features."""
     def __init__(self):
@@ -15,7 +16,7 @@ class FeatureBackbone(nn.Module):
         
     def forward(self, x):
         return self.backbone(x)
-    
+#Authord: Dani
 class MNISTFeatureBackbone(nn.Module):
     """ResNet-18 adapted for MNIST, outputs 512-dim features."""
     def __init__(self):
