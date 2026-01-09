@@ -43,8 +43,16 @@ Important directories and files:
 
 
 ## Contributions  
-We had several different versions of the code from start to finish and restructured it several times so code specific to one person may be hard to find in the final version as we continuously adapted it to be more modular and coherent. Also we worked on several differnt branches and merged and combined the code base several times. In general the code distribution looked like this:  
-Adam - worked on the CIFAR-10 dataset and made the Sparse and Soft MoE networks and also worked on generalization results of these models and their training, also did some visualizations  
-Sourav - worked on the CIFAR-10 dataset and making MoE models to compare, also worked on some generalization of the CIFAR-10 MoE models, also worked on some visualizations  
-Caleb - worked on MNIST dataset and making the Sparse and Soft MoE networks, also worked on the training of these models and producing some results, also did some visulations   
-Daniel - worked on the MNIST dataset and refactoring Caleb's MoE models to work with Adam's code, also worked on eigenvalue and generalization code for MNIST, also did some visualizations, also did the final merging of the code base  
+At an early stage, the project was split into two subgroups: CIFAR-10 (Adam, Sourav) and MNIST (Caleb, Daniel). Caleb and Daniel implemented the Dense baseline and Mixture-of-Experts (MoE) variants for MNIST, while Adam implemented the corresponding models for CIFAR-10. Sourav implemented early CIFAR-10 MoE variants and supporting experiments on separate branches; these were used for exploratory comparison during development but are not included in the final consolidated main branch.
+
+For generalization analysis, Daniel implemented MNIST generalization experiments, while Adam implemented CIFAR-10 generalization experiments. Toward the end of the project, the goal was to produce a single consistent and modular codebase. This required substantial refactoring and consolidation, performed primarily by Daniel, who merged the MNIST and CIFAR-10 pipelines and removed duplicate or intermediate implementations. As a result, much of the final code resides in files originally written by Adam, although the design reflects iterative collaboration and multiple development stages.
+
+In general, the contribution distribution was as follows:
+
+Adam – Implemented Sparse, Soft, and Hard MoE networks for CIFAR-10, including load-balancing strategies and true conditional computation. Implemented CIFAR-10 generalization analysis using PyHessian and produced corresponding visualizations.
+
+Sourav – Implemented early CIFAR-10 MoE variants and exploratory generalization experiments and visualizations used for comparison during development.
+
+Caleb – Implemented MNIST Sparse and Soft MoE models, trained these models, and produced experimental results and visualizations.
+
+Daniel – Implemented MNIST Sparse and Soft MoE models, trained these models, and produced experimental results and visualizations. Refactored MNIST MoE implementations to integrate with the CIFAR-10 codebase, implemented MNIST eigenvalue and generalization analysis, produced visualizations, and performed the final merging and restructuring of the codebase.
