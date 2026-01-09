@@ -1,4 +1,5 @@
 # src/moe/heads/dense.py
+# Author: Adam
 from .base import BaseHead
 import torch.nn as nn
 
