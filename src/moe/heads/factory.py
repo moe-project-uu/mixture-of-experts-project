@@ -1,3 +1,4 @@
+# Author: Adam 
 from .dense import DenseHead
 from .soft_moe import SoftMoEHead
 from .sparse_moe import SparseMoEHead
