@@ -1,4 +1,12 @@
 # src/moe/utils/helpers.py
+# Primary author (final main-branch implementation): Adam
+# Major contributions:
+#   - Daniel: refactoring/consolidation across MNIST and CIFAR pipelines; removed duplicate plotting/helpers during merge.
+#   - Caleb: earlier MNIST helper/visualization prototypes that informed the final plotting interface (not present verbatim in main).
+# Notes:
+#   This module is the consolidated version after multiple iterations and merges; earlier MNIST-specific helper code was
+#   superseded during refactoring to maintain a single consistent codebase.
+
 import numpy as np
 import matplotlib.pyplot as plt
 from typing import Iterable, Optional, Sequence, Dict, Any
