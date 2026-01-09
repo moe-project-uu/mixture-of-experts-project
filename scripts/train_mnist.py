@@ -1,3 +1,7 @@
+###
+#SCRIPT AUTHORS: Dani / Caleb
+###
+
 """
 Train a CNN classifier for the MNIST dataset (dense baseline vs MoE variants)
 """
