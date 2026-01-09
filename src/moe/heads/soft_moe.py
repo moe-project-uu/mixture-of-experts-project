@@ -1,3 +1,4 @@
+#Authors: Adam, Dani, Caleb
 # src/moe/heads/soft_moe.py
 from .base import BaseHead
 import torch
