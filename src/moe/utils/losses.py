@@ -3,6 +3,7 @@
 # Major contributions:
 #   - Caleb: earlier MNIST-specific implementations of related Shazeer-style load/importance losses (separate branches).
 #   - Daniel: refactoring/consolidation into shared utilities during MNIST/CIFAR codebase merge.
+#   - Sourav: Also worked on Shazeer load balance for CIFAR-10. 
 
 
 
