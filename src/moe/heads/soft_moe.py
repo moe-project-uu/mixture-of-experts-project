@@ -67,9 +67,9 @@ class SoftMoEHead(BaseHead):
         
         # Simple linear gate: (B, D) -> (B, E)
         self.gate = nn.Linear(in_dim, self.num_experts, bias=True) # shape (512, num_experts)
-        # Optional: Add dropout to gate input for regularization
+        # Add dropout to gate input for regularization (optional)
         self.gate_dropout = nn.Dropout(p=gate_input_dropout) if gate_input_dropout > 0 else None
-        # Optional: Add dropout to gate logits for load balancing regularization
+        # Add dropout to gate logits for load balancing regularization (optional)
         self.gate_logits_dropout = nn.Dropout(p=gate_logits_dropout) if gate_logits_dropout > 0 else None
         # expert MLPs: each maps (B, D) -> (B, C)
         hidden = int(self.hidden_mult * in_dim)
