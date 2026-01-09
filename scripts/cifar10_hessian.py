@@ -1,3 +1,8 @@
+###
+#SCRIPT AUTHOR: Adam Rokah
+###
+
+
 # scripts/cifar10_hessian.py
 #
 # Hessian-based generalization & curvature analysis for CIFAR-10 models.
