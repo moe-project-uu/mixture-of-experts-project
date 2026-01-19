@@ -63,8 +63,17 @@ class _NoisyTopKGate(nn.Module):
         #This is key in getting load balancing to work well -- although the Shazeer paper didn't mention this. 
         logits = (logits - logits.mean(dim=-1, keepdim=True)) / (logits.std(dim=-1, keepdim=True) + 1e-5)
         noise_std = F.softplus(self.w_noise(h_in)) + 0.3 # (B, E), strictly positive, this is the learned noise
-        noise = torch.randn_like(noise_std) * noise_std # (B, E) output.. element wise multiplication of the learned noise by standard normal noise
-        noisy_logits = logits + noise # (B, E) output.. addition of the learned noise to the logits
+        
+        if self.training:
+            # training: add stochastic noise
+            noise = torch.randn_like(noise_std) * noise_std # (B, E) output.. element wise multiplication of the learned noise by standard normal noise
+            noisy_logits = logits + noise # (B, E) output.. addition of the learned noise to the logits
+        else:
+            # inference: no stochasticity
+            noisy_logits = logits
+
+        
+        
         # optional dropout on gate logits
         if self.gate_logits_drop is not None:
             noisy_logits = self.gate_logits_drop(noisy_logits)
