@@ -62,10 +62,10 @@ class _NoisyTopKGate(nn.Module):
         #Normalization ensures that logits are on a similar scale so that the noise added can actually have an effect on the selection of the topk experts
         #This is key in getting load balancing to work well -- although the Shazeer paper didn't mention this. 
         logits = (logits - logits.mean(dim=-1, keepdim=True)) / (logits.std(dim=-1, keepdim=True) + 1e-5)
-        noise_std = F.softplus(self.w_noise(h_in)) + 0.3 # (B, E), strictly positive, this is the learned noise
         
         if self.training:
             # training: add stochastic noise
+            noise_std = F.softplus(self.w_noise(h_in)) + 0.3 # (B, E), strictly positive, this is the learned noise. 0.3 is noise floor. 
             noise = torch.randn_like(noise_std) * noise_std # (B, E) output.. element wise multiplication of the learned noise by standard normal noise
             noisy_logits = logits + noise # (B, E) output.. addition of the learned noise to the logits
         else:
