@@ -30,6 +30,7 @@ def count_params(model: nn.Module) -> int:
 
 def params_mb_fp32(model: nn.Module) -> float:
     # fp32 => 4 bytes per parameter
+    # /1024 ** 2 = (converts bytes to MB)
     return (count_params(model) * 4) / (1024 ** 2)
 
 
@@ -108,18 +109,25 @@ def measure_peak_gpu_memory_mb(model: nn.Module, loader, device: str, num_batche
 
     model.eval()
     torch.cuda.empty_cache()
+
+    # reset peak memory stats (start from clean state)
     torch.cuda.reset_peak_memory_stats()
 
     it = iter(loader)
     for _ in range(num_batches):
         try:
+            # get next batch from dataloader
             x, _ = next(it)
         except StopIteration:
             break
+        # move batch to GPU
         x = x.to(device, non_blocking=True)
+        # forward pass
         _ = model(x)
 
+    # get peak memory allocated during inference
     peak_bytes = torch.cuda.max_memory_allocated()
+    # convert bytes to MB
     return peak_bytes / (1024 ** 2)
 
 
@@ -138,44 +146,64 @@ def benchmark_latency_throughput(
     model.eval()
 
     # Warmup
+    # get iterator from dataloader
     it = iter(loader)
     for _ in range(warmup_batches):
         try:
+            # get next batch from dataloader
             x, _ = next(it)
         except StopIteration:
             break
+        # move batch to GPU
         x = x.to(device, non_blocking=True)
+        # forward pass
         _ = model(x)
 
     # Timed
     times = []
+    # get iterator from dataloader
     it = iter(loader)
+    # get batch size from dataloader
     bs = loader.batch_size if hasattr(loader, "batch_size") and loader.batch_size is not None else None
 
+    # run timed batches (200 by default)
     for _ in range(timed_batches):
         try:
+            # get next batch from dataloader
+            # x is the input data, _ is the target data
+            # this is to handle end of dataset
             x, _ = next(it)
         except StopIteration:
             break
 
         x = x.to(device, non_blocking=True)
 
-        if device == "cuda":
+        if device == "cuda": 
+            # wait for all GPU operations to complete
+            # ensures accurate timing results
             torch.cuda.synchronize()
 
+        # start timer
         t0 = time.perf_counter()
+        # forward pass
         _ = model(x)
 
         if device == "cuda":
+            # wait for all GPU operations to complete
+            # ensures accurate timing results
             torch.cuda.synchronize()
-
+        # stop timer
         t1 = time.perf_counter()
+        # append time to list
         times.append(t1 - t0)
 
+    # convert list to numpy array
     times = np.array(times, dtype=np.float64)
+    # check if no timed batches were recorded
     if len(times) == 0:
         raise RuntimeError("No timed batches were recorded. Check your dataloader.")
 
+    # calculate mean, std, median of times
     mean_s = float(times.mean())
     std_s = float(times.std())
     median_s = float(np.median(times))
@@ -184,8 +212,12 @@ def benchmark_latency_throughput(
     if bs is None:
         # fallback: use actual tensor batch size from last x
         bs = int(x.shape[0])
+    # calculate throughput: images/sec based on mean batch time
+    # bs is the batch size, mean_s is the mean batch time
+    # bs/mean_s = images/sec
     imgs_per_sec = float(bs / mean_s)
 
+    # return dictionary with results
     return {
         "batch_size": int(bs),
         "latency_mean_ms_per_batch": mean_s * 1e3,
@@ -197,6 +229,7 @@ def benchmark_latency_throughput(
 
 
 def main():
+    # parse arguments
     ap = argparse.ArgumentParser()
     ap.add_argument("--ckpt_dir", type=str, required=True,
                     help="Path containing summary.json and model.pt")
