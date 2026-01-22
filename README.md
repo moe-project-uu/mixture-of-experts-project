@@ -2,6 +2,9 @@
 
 This repository contains our implementation and experiments with **Mixture of Experts (MoE)** models as part of the [Uppsala University Data Science Master's Project Course, 2025].
 
+# arXiv link: 
+https://arxiv.org/abs/2601.15021
+
 ## Setup
 
 - **Python 3.11+**
