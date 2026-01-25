@@ -52,7 +52,7 @@ For generalization analysis, Daniel implemented MNIST generalization experiments
 
 In general, the contribution distribution was as follows:
 
-Adam – Implemented Sparse, Soft, and Hard MoE networks for CIFAR-10, including load-balancing strategies and true conditional computation. Implemented CIFAR-10 generalization analysis using PyHessian and produced corresponding visualizations.
+Adam – Implemented Sparse, Soft, and Hard MoE networks for CIFAR-10, including load-balancing strategies and true conditional computation. Implemented CIFAR-10 generalization analysis using PyHessian and produced corresponding visualizations. Also implemented computationalal efficiency experiments. 
 
 Sourav – Implemented early CIFAR-10 MoE variants and exploratory generalization experiments and visualizations used for comparison during development.
 
